@@ -91,7 +91,7 @@ IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '^<(cstdlib|csignal|csetjmp|cstdarg|typeinfo|typeindex|type_traits|bitset|functional|utility|ctime|chrono|cstddef|initializer_list|tuple|any|optional|variant|compare|new|memory|scoped_allocator|memory_resource|climits|cfloat|cstdint|cinttypes|limits|exception|stdexcept|cassert|system_error|cerrno|cctype|cwctype|cstring|cwchar|cuchar|string|string_view|charconv|array|vector|deque|list|forward_list|set|map|unordered_set|unordered_map|stack|queue|algorithm|execution|iterator|cmath|complex|valarray|rиom|numeric|ratio|cfenv|iosfwd|ios|istream|ostream|iostream|fstream|sstream|syncstream|strstream|iomanip|streambuf|cstdio|locale|clocale|codecvt|regex|atomic|thread|mutex|shared_mutex|future|condition_variable|filesystem|expected|span|bit|ranges)>'
     Priority:        1
-  - Regex:           '^<(engine)\/[a-z0-9_]+\.h*>'
+  - Regex:           '^<(game_engine)\/[a-z0-9_\/]+\.h*>'
     Priority:        2
   - Regex:           '.*'
     Priority:        10

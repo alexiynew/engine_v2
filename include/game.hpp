@@ -16,7 +16,8 @@ public:
     virtual ~Game();
 
     virtual void on_initialize();
-    virtual void on_run();
+    virtual void on_update();
+    virtual void on_draw();
     virtual void on_shutdown();
 
 private:

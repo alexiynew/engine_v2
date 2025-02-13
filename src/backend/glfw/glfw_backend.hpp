@@ -7,7 +7,7 @@
 namespace game_engine::backend
 {
 
-class GLFWBackend : public Backend
+class GLFWBackend final : public Backend
 {
 public:
     GLFWBackend();
@@ -18,6 +18,8 @@ public:
     void poll_events() override;
     void begin_frame() override;
     void end_frame() override;
+
+    void key_callback(int key, int scancode, int action, int mods);
 
 private:
     struct Impl;

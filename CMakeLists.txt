@@ -14,14 +14,22 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Add modules path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
+# Engine
+add_executable(engine)
+
+target_sources(engine
+    PUBLIC
+        include/game_engine/keyboard.hpp
+        include/game_engine/core/engine.hpp
+    PRIVATE
+        src/core/entry_point.cpp
+        src/core/engine_impl.hpp
+        src/core/engine_impl.cpp
+)
+
+target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Backend
 add_subdirectory(src/backend)
-
-
-
-add_executable(engine)
-
-target_link_libraries(engine backend)
-
-
+target_link_libraries(engine engine::backend)
