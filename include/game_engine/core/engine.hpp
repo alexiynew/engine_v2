@@ -13,8 +13,6 @@ public:
 
     virtual ~Engine() = default;
 
-    virtual int run() noexcept = 0;
-
     virtual TimePoint get_time() const noexcept = 0;
     virtual bool should_stop() const noexcept   = 0;
 

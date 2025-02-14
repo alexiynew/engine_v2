@@ -6,42 +6,47 @@
 namespace game_engine::core
 {
 
-EngineImpl::EngineImpl(std::shared_ptr<game_engine::backend::Backend> backend)
-    : m_backend(std::move(backend)) {
-    m_engine_start_time = get_time();
+EngineImpl::EngineImpl() {
+    m_backend = backend::create_backend_instance(*this);
+    if (!m_backend) {
+        throw std::runtime_error("Backend is not created");
+    }
+
+    m_game = create_game_instance(*this);
+    if (!m_game) {
+        throw std::runtime_error("Game is not created");
+    }
 
     std::chrono::nanoseconds second = std::chrono::seconds(1);
     std::size_t fps                 = 60;
 
     m_target_update_time = second / fps;
     m_target_frame_time  = second / fps;
-
-    std::cout << "EngineImpl::EngineImpl time:" << m_engine_start_time.time_since_epoch().count() << std::endl;
 }
 
 EngineImpl::~EngineImpl() {
-    std::cout << "EngineImpl::~EngineImpl" << std::endl;
+    m_game.reset();
+    m_backend.reset();
 }
 
 int EngineImpl::run() noexcept {
+    m_engine_start_time = get_time();
+    std::cout << "EngineImpl::EngineImpl time:" << m_engine_start_time.time_since_epoch().count() << std::endl;
+
     try {
         if (!m_backend->initialize()) {
             return -1;
         }
+        m_game->on_initialize();
 
         main_loop();
 
+        m_game->on_shutdown();
         m_backend->shutdown();
-    }
-
-    catch (std::exception& e)
-    {
+    } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         return -1;
-    }
-
-    catch (...)
-    {
+    } catch (...) {
         std::cerr << "Unknown exception" << std::endl;
         return -1;
     }
@@ -62,12 +67,28 @@ void EngineImpl::set_should_stop_flag() noexcept {
 }
 
 void EngineImpl::on_keyboard_input_event(const KeyboardInputEvent& event) {
-    if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
+    m_game->on_keyboard_input_event(event);
+}
+
+void EngineImpl::on_window_resize(int width, int height) {
+}
+
+void EngineImpl::on_window_move(int xpos, int ypos) {
+}
+
+void EngineImpl::on_window_close() {
+    if (m_game->on_should_close()) {
         set_should_stop_flag();
     }
 }
 
-void EngineImpl::on_window_event(const std::string& event) {
+void EngineImpl::on_window_focus(bool focused) {
+}
+
+void EngineImpl::on_window_iconify(bool iconified) {
+}
+
+void EngineImpl::on_window_maximize(bool maximized) {
 }
 
 void EngineImpl::main_loop() {
@@ -110,15 +131,17 @@ void EngineImpl::main_loop() {
             m_frames             = 0;
         }
 
-        std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
 }
 
 void EngineImpl::update(std::chrono::nanoseconds elapsed_time) {
+    m_game->on_update(elapsed_time);
 }
 
 void EngineImpl::render() {
     m_backend->begin_frame();
+    m_game->on_draw();
     m_backend->end_frame();
 }
 

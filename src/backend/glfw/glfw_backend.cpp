@@ -1,41 +1,17 @@
 #include "glfw_backend.hpp"
 
-#include <glfw_keyboard.hpp>
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
-
-namespace
-{
-void key_callback_handler(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    using namespace game_engine;
-    using namespace game_engine::backend;
-
-    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
-
-    if (backend == nullptr) {
-        return;
-    }
-
-    backend->key_callback(key, scancode, action, mods);
-}
-} // namespace
+#include <glfw_keyboard.hpp>
 
 namespace game_engine::backend
 {
 
-std::shared_ptr<Backend> create_backend_instance() {
-    return std::make_shared<GLFWBackend>();
+std::unique_ptr<Backend> create_backend_instance(BackendEventHandler& handler) {
+    return std::make_unique<GLFWBackend>(handler);
 }
 
-struct GLFWBackend::Impl
-{
-    GLFWwindow* window = nullptr;
-};
-
-GLFWBackend::GLFWBackend()
-    : m_impl(std::make_unique<Impl>()) {
+GLFWBackend::GLFWBackend(BackendEventHandler& handler)
+    : Backend(handler) {
 }
 
 GLFWBackend::~GLFWBackend() = default;
@@ -45,17 +21,23 @@ bool GLFWBackend::initialize() {
         return false;
     }
 
-    m_impl->window = glfwCreateWindow(800, 600, "Game Engine", nullptr, nullptr);
-    if (!m_impl->window) {
+    m_window = glfwCreateWindow(800, 600, "Game Engine", nullptr, nullptr);
+    if (!m_window) {
         glfwTerminate();
         return false;
     }
 
-    glfwSetWindowUserPointer(m_impl->window, this);
+    glfwSetWindowUserPointer(m_window, this);
 
-    glfwMakeContextCurrent(m_impl->window);
+    glfwMakeContextCurrent(m_window);
 
-    glfwSetKeyCallback(m_impl->window, key_callback_handler);
+    glfwSetKeyCallback(m_window, &GLFWBackend::key_callback);
+    glfwSetWindowSizeCallback(m_window, &GLFWBackend::window_size_callback);
+    glfwSetWindowPosCallback(m_window, &GLFWBackend::window_pos_callback);
+    glfwSetWindowCloseCallback(m_window, &GLFWBackend::window_close_callback);
+    glfwSetWindowFocusCallback(m_window, &GLFWBackend::window_focus_callback);
+    glfwSetWindowIconifyCallback(m_window, &GLFWBackend::window_iconify_callback);
+    glfwSetWindowMaximizeCallback(m_window, &GLFWBackend::window_maximize_callback);
 
     const int version = gladLoadGL();
     if (version == 0) {
@@ -67,7 +49,7 @@ bool GLFWBackend::initialize() {
 }
 
 void GLFWBackend::shutdown() {
-    glfwDestroyWindow(m_impl->window);
+    glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
@@ -76,21 +58,66 @@ void GLFWBackend::poll_events() {
 }
 
 void GLFWBackend::begin_frame() {
-    glClearColor(0.2f, 0.5f, 0.2f, 1.0f);
+    glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GLFWBackend::end_frame() {
-    glfwSwapBuffers(m_impl->window);
+    glfwSwapBuffers(m_window);
 }
 
-void GLFWBackend::key_callback(int key, int scancode, int action, int mods) {
-    KeyboardInputEvent event;
-    event.key       = convert_glfw_key(key);
-    event.action    = convert_glfw_action(action);
-    event.modifiers = convert_glfw_modifiers(mods);
+void GLFWBackend::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        KeyboardInputEvent event;
+        event.key       = convert_glfw_key(key);
+        event.action    = convert_glfw_action(action);
+        event.modifiers = convert_glfw_modifiers(mods);
 
-    notify_keyboard_input_event(event);
+        backend->m_event_handler.on_keyboard_input_event(event);
+    }
+}
+
+void GLFWBackend::window_size_callback(GLFWwindow* window, int width, int height) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        backend->m_event_handler.on_window_resize(width, height);
+    }
+}
+
+void GLFWBackend::window_pos_callback(GLFWwindow* window, int xpos, int ypos) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        backend->m_event_handler.on_window_move(xpos, ypos);
+    }
+}
+
+void GLFWBackend::window_close_callback(GLFWwindow* window) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        backend->m_event_handler.on_window_close();
+    }
+}
+
+void GLFWBackend::window_focus_callback(GLFWwindow* window, int focused) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        backend->m_event_handler.on_window_focus(focused == GLFW_TRUE);
+    }
+}
+
+void GLFWBackend::window_iconify_callback(GLFWwindow* window, int iconified) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        backend->m_event_handler.on_window_iconify(iconified == GLFW_TRUE);
+    }
+}
+
+void GLFWBackend::window_maximize_callback(GLFWwindow* window, int maximized) {
+    GLFWBackend* backend = reinterpret_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+    if (backend) {
+        backend->m_event_handler.on_window_maximize(maximized == GLFW_TRUE);
+    }
 }
 
 } // namespace game_engine::backend

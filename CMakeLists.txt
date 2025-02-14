@@ -19,17 +19,27 @@ add_executable(engine)
 
 target_sources(engine
     PUBLIC
+        include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
         include/game_engine/core/engine.hpp
     PRIVATE
-        src/core/entry_point.cpp
         src/core/engine_impl.hpp
         src/core/engine_impl.cpp
+        src/game_stub.hpp
+        src/game_stub.cpp
 )
 
 target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
+# Entry point
+add_subdirectory(src/entry_point)
+target_link_libraries(engine engine::entry_point)
+
 # Backend
 add_subdirectory(src/backend)
 target_link_libraries(engine engine::backend)
+
+
+
+
