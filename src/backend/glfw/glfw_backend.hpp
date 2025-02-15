@@ -4,9 +4,6 @@
 
 #include "../backend.hpp"
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
 namespace game_engine::backend
 {
 
@@ -22,16 +19,13 @@ public:
     void begin_frame() override;
     void end_frame() override;
 
-private:
-    GLFWwindow* m_window = nullptr;
-
-    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void window_size_callback(GLFWwindow* window, int width, int height);
-    static void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
-    static void window_close_callback(GLFWwindow* window);
-    static void window_focus_callback(GLFWwindow* window, int focused);
-    static void window_iconify_callback(GLFWwindow* window, int iconified);
-    static void window_maximize_callback(GLFWwindow* window, int maximized);
+    void handle_key_event(int key, int scancode, int action, int mods);
+    void handle_window_resize(int width, int height);
+    void handle_window_move(int xpos, int ypos);
+    void handle_window_close();
+    void handle_window_focus(bool focused);
+    void handle_window_iconify(bool iconified);
+    void handle_window_maximize(bool maximized);
 };
 
 } // namespace game_engine::backend
