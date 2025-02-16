@@ -2,15 +2,39 @@
 
 #include <unordered_map>
 
+#include <game_engine/common_types.hpp>
 #include <glfw_keyboard.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 namespace
 {
 using namespace game_engine::backend;
+
+const char* c_vertex_shader_source = R"(
+        #version 330 core
+        layout(location = 0) in vec3 aPos;
+        uniform mat4 model;
+        uniform mat4 view;
+        uniform mat4 projection;
+        void main() {
+            gl_Position = projection * view * model * vec4(aPos, 1.0);
+        }
+    )";
+
+const char* c_fragment_shader_source = R"(
+        #version 330 core
+        out vec4 FragColor;
+        void main() {
+            FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+        }
+    )";
+
+float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
 
 class GLFWBackendContext
 {
@@ -120,6 +144,10 @@ bool GLFWBackend::initialize() {
         return false;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     auto window = glfwCreateWindow(800, 600, "Game Engine", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
@@ -130,16 +158,36 @@ bool GLFWBackend::initialize() {
 
     glfwMakeContextCurrent(GLFWBackendContext::get_window(this));
 
-    const int version = gladLoadGL();
-    if (version == 0) {
+    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
         glfwTerminate();
         return false;
     }
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    m_shader.link(c_vertex_shader_source, c_fragment_shader_source);
 
     return true;
 }
 
 void GLFWBackend::shutdown() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+
+    m_shader.clear();
+
     glfwDestroyWindow(GLFWBackendContext::get_window(this));
     glfwTerminate();
 }
@@ -151,6 +199,27 @@ void GLFWBackend::poll_events() {
 void GLFWBackend::begin_frame() {
     glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    m_shader.use();
+
+    glm::mat4 model      = glm::mat4(1.0f);
+    glm::mat4 view       = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+
+    model      = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+    view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    auto u_model      = m_shader.get_uniform_location("model");
+    auto u_view       = m_shader.get_uniform_location("view");
+    auto u_projection = m_shader.get_uniform_location("projection");
+
+    m_shader.set_uniform(u_model, model);
+    m_shader.set_uniform(u_view, view);
+    m_shader.set_uniform(u_projection, projection);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void GLFWBackend::end_frame() {

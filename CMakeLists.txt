@@ -19,6 +19,7 @@ add_executable(engine)
 
 target_sources(engine
     PUBLIC
+        include/game_engine/common_types.hpp
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
         include/game_engine/core/engine.hpp
@@ -40,6 +41,9 @@ target_link_libraries(engine engine::entry_point)
 add_subdirectory(src/backend)
 target_link_libraries(engine engine::backend)
 
+# GLM
+include(libs/glm)
+target_link_libraries(engine Libs::glm)
 
 
 

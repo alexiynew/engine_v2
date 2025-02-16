@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "../backend.hpp"
+#include <opengl_shader.hpp>
 
 namespace game_engine::backend
 {
@@ -26,6 +27,12 @@ public:
     void handle_window_focus(bool focused);
     void handle_window_iconify(bool iconified);
     void handle_window_maximize(bool maximized);
+
+private:
+    OpenGLShader m_shader;
+
+    unsigned int VAO = 0;
+    unsigned int VBO = 0;
 };
 
 } // namespace game_engine::backend
