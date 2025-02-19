@@ -3,7 +3,7 @@
 int main() {
     auto engine = std::make_shared<game_engine::core::EngineImpl>();
 
-    const int return_code = engine->run();
+    const int returnCode = engine->run();
 
-    return return_code;
+    return returnCode;
 }

@@ -7,21 +7,23 @@ namespace game_engine::core
 {
 
 EngineImpl::EngineImpl() {
-    m_backend = backend::create_backend_instance(*this);
+    m_backend = backend::createBackendInstance(*this);
     if (!m_backend) {
         throw std::runtime_error("Backend is not created");
     }
 
-    m_game = create_game_instance(*this);
+    m_game = createGameInstance(*this);
     if (!m_game) {
         throw std::runtime_error("Game is not created");
     }
 
+    m_modelLoader = std::make_shared<ModelLoader>();
+
     std::chrono::nanoseconds second = std::chrono::seconds(1);
     std::size_t fps                 = 60;
 
-    m_target_update_time = second / fps;
-    m_target_frame_time  = second / fps;
+    m_targetUpdateTime = second / fps;
+    m_targetFrameTime  = second / fps;
 }
 
 EngineImpl::~EngineImpl() {
@@ -30,18 +32,18 @@ EngineImpl::~EngineImpl() {
 }
 
 int EngineImpl::run() noexcept {
-    m_engine_start_time = get_time();
-    std::cout << "EngineImpl::EngineImpl time:" << m_engine_start_time.time_since_epoch().count() << std::endl;
+    m_engineStartTime = getTime();
+    std::cout << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count() << std::endl;
 
     try {
         if (!m_backend->initialize()) {
             return -1;
         }
-        m_game->on_initialize();
+        m_game->onInitialize();
 
-        main_loop();
+        mainLoop();
 
-        m_game->on_shutdown();
+        m_game->onShutdown();
         m_backend->shutdown();
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
@@ -54,95 +56,107 @@ int EngineImpl::run() noexcept {
     return 0;
 }
 
-EngineImpl::TimePoint EngineImpl::get_time() const noexcept {
+EngineImpl::TimePoint EngineImpl::getTime() const noexcept {
     return std::chrono::steady_clock::now();
 }
 
-bool EngineImpl::should_stop() const noexcept {
-    return m_should_stop;
+bool EngineImpl::shouldStop() const noexcept {
+    return m_shouldStop;
 }
 
-void EngineImpl::set_should_stop_flag() noexcept {
-    m_should_stop = true;
+void EngineImpl::setShouldStopFlag() noexcept {
+    m_shouldStop = true;
 }
 
-void EngineImpl::on_keyboard_input_event(const KeyboardInputEvent& event) {
-    m_game->on_keyboard_input_event(event);
+std::shared_ptr<ModelLoader> EngineImpl::getModelLoader() {
+    return m_modelLoader;
 }
 
-void EngineImpl::on_window_resize(int width, int height) {
+MeshId EngineImpl::loadMesh(const Mesh& mesh) {
+    return m_backend->loadMesh(mesh);
 }
 
-void EngineImpl::on_window_move(int xpos, int ypos) {
+void EngineImpl::renderMesh(MeshId meshId) {
+    m_backend->renderMesh(meshId);
 }
 
-void EngineImpl::on_window_close() {
-    if (m_game->on_should_close()) {
-        set_should_stop_flag();
+void EngineImpl::onKeyboardInputEvent(const KeyboardInputEvent& event) {
+    m_game->onKeyboardInputEvent(event);
+}
+
+void EngineImpl::onWindowResize(int width, int height) {
+}
+
+void EngineImpl::onWindowMove(int xpos, int ypos) {
+}
+
+void EngineImpl::onWindowClose() {
+    if (m_game->onShouldClose()) {
+        setShouldStopFlag();
     }
 }
 
-void EngineImpl::on_window_focus(bool focused) {
+void EngineImpl::onWindowFocus(bool focused) {
 }
 
-void EngineImpl::on_window_iconify(bool iconified) {
+void EngineImpl::onWindowIconify(bool iconified) {
 }
 
-void EngineImpl::on_window_maximize(bool maximized) {
+void EngineImpl::onWindowMaximize(bool maximized) {
 }
 
-void EngineImpl::main_loop() {
-    TimePoint last_time        = get_time();
-    TimePoint fps_counter_time = last_time;
+void EngineImpl::mainLoop() {
+    TimePoint lastTime       = getTime();
+    TimePoint fpsCounterTime = lastTime;
 
-    std::chrono::nanoseconds updates_delta_time {0};
-    std::chrono::nanoseconds frames_delta_time {0};
+    std::chrono::nanoseconds updatesDeltaTime {0};
+    std::chrono::nanoseconds framesDeltaTime {0};
 
-    while (!should_stop()) {
-        m_backend->poll_events();
+    while (!shouldStop()) {
+        m_backend->pollEvents();
 
-        const TimePoint now_time = get_time();
-        auto frame_duration      = (now_time - last_time);
+        const TimePoint nowTime = getTime();
+        auto frameDuration      = (nowTime - lastTime);
 
         // Run the required number of updates
-        updates_delta_time += frame_duration;
-        while (updates_delta_time >= m_target_update_time) {
-            update(m_target_update_time);
+        updatesDeltaTime += frameDuration;
+        while (updatesDeltaTime >= m_targetUpdateTime) {
+            update(m_targetUpdateTime);
             m_updates++;
-            updates_delta_time -= m_target_update_time;
+            updatesDeltaTime -= m_targetUpdateTime;
         }
 
         // Render one frame
-        frames_delta_time += frame_duration;
-        if (frames_delta_time >= m_target_frame_time) {
+        framesDeltaTime += frameDuration;
+        if (framesDeltaTime >= m_targetFrameTime) {
             render();
             m_frames++;
-            frames_delta_time -= m_target_frame_time;
+            framesDeltaTime -= m_targetFrameTime;
         }
 
-        last_time = now_time;
+        lastTime = nowTime;
 
         // Count fps and ups for one second
-        if (now_time - fps_counter_time > std::chrono::seconds(1)) {
-            fps_counter_time     = now_time;
-            m_updates_per_second = m_updates;
-            m_frames_per_second  = m_frames;
-            m_updates            = 0;
-            m_frames             = 0;
+        if (nowTime - fpsCounterTime > std::chrono::seconds(1)) {
+            fpsCounterTime     = nowTime;
+            m_updatesPerSecond = m_updates;
+            m_framesPerSecond  = m_frames;
+            m_updates          = 0;
+            m_frames           = 0;
         }
 
         std::this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
 }
 
-void EngineImpl::update(std::chrono::nanoseconds elapsed_time) {
-    m_game->on_update(elapsed_time);
+void EngineImpl::update(std::chrono::nanoseconds elapsedTime) {
+    m_game->onUpdate(elapsedTime);
 }
 
 void EngineImpl::render() {
-    m_backend->begin_frame();
-    m_game->on_draw();
-    m_backend->end_frame();
+    m_backend->beginFrame();
+    m_game->onDraw();
+    m_backend->endFrame();
 }
 
 } // namespace game_engine::core

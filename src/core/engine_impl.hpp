@@ -21,39 +21,46 @@ public:
     int run() noexcept;
 
     // Engine
-    TimePoint get_time() const noexcept override;
-    bool should_stop() const noexcept override;
+    TimePoint getTime() const noexcept override;
+    bool shouldStop() const noexcept override;
 
-    void set_should_stop_flag() noexcept override;
+    void setShouldStopFlag() noexcept override;
+
+    std::shared_ptr<ModelLoader> getModelLoader() override;
+
+    MeshId loadMesh(const Mesh& mesh) override;
+    void renderMesh(MeshId meshId) override;
 
 private:
     std::unique_ptr<game_engine::backend::Backend> m_backend;
     std::unique_ptr<game_engine::Game> m_game;
 
-    TimePoint m_engine_start_time;
-    bool m_should_stop = false;
+    std::shared_ptr<game_engine::core::ModelLoader> m_modelLoader;
 
-    std::chrono::nanoseconds m_target_update_time;
-    std::chrono::nanoseconds m_target_frame_time;
+    TimePoint m_engineStartTime;
+    bool m_shouldStop = false;
 
-    std::size_t m_updates            = 0;
-    std::size_t m_frames             = 0;
-    std::size_t m_updates_per_second = 0;
-    std::size_t m_frames_per_second  = 0;
+    std::chrono::nanoseconds m_targetUpdateTime;
+    std::chrono::nanoseconds m_targetFrameTime;
+
+    std::size_t m_updates          = 0;
+    std::size_t m_frames           = 0;
+    std::size_t m_updatesPerSecond = 0;
+    std::size_t m_framesPerSecond  = 0;
 
     // BackendEventHandler
-    void on_keyboard_input_event(const KeyboardInputEvent& event) override;
+    void onKeyboardInputEvent(const KeyboardInputEvent& event) override;
 
-    void on_window_resize(int width, int height) override;
-    void on_window_move(int xpos, int ypos) override;
-    void on_window_close() override;
-    void on_window_focus(bool focused) override;
-    void on_window_iconify(bool iconified) override;
-    void on_window_maximize(bool maximized) override;
+    void onWindowResize(int width, int height) override;
+    void onWindowMove(int xpos, int ypos) override;
+    void onWindowClose() override;
+    void onWindowFocus(bool focused) override;
+    void onWindowIconify(bool iconified) override;
+    void onWindowMaximize(bool maximized) override;
 
-    void main_loop();
+    void mainLoop();
 
-    void update(std::chrono::nanoseconds elapsed_time);
+    void update(std::chrono::nanoseconds elapsedTime);
     void render();
 };
 

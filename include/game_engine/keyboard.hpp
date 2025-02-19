@@ -2,11 +2,13 @@
 
 namespace game_engine
 {
+
+/// @brief Enumeration of key codes.
 enum class KeyCode
 {
     Unknown = -1,
 
-    // Printable keys
+    /// Printable keys
     Space        = 32,
     Apostrophe   = 39, // '
     Comma        = 44, // ,
@@ -58,7 +60,7 @@ enum class KeyCode
     World1       = 161, // non-US #1
     World2       = 162, // non-US #2
 
-    // Function keys
+    /// Function keys
     Escape      = 256,
     Enter       = 257,
     Tab         = 258,
@@ -104,7 +106,7 @@ enum class KeyCode
     F24         = 313,
     F25         = 314,
 
-    // Numpad keys
+    /// Numpad keys
     NumPad0        = 320,
     NumPad1        = 321,
     NumPad2        = 322,
@@ -123,7 +125,7 @@ enum class KeyCode
     NumPadEnter    = 335,
     NumPadEqual    = 336,
 
-    // Modifier keys
+    /// Modifier keys
     LeftShift    = 340,
     LeftControl  = 341,
     LeftAlt      = 342,
@@ -135,6 +137,7 @@ enum class KeyCode
     Menu         = 348,
 };
 
+/// @brief Enumeration of key actions.
 enum class KeyAction
 {
     None,
@@ -143,6 +146,7 @@ enum class KeyAction
     Repeat,
 };
 
+/// @brief Enumeration of key modifiers.
 enum class KeyModifier
 {
     None    = 0,
@@ -152,11 +156,12 @@ enum class KeyModifier
     Super   = 8,
 };
 
+/// @brief Represents a keyboard input event.
 struct KeyboardInputEvent
 {
-    KeyCode key           = KeyCode::Unknown;
-    KeyAction action      = KeyAction::None;
-    KeyModifier modifiers = KeyModifier::None;
+    KeyCode key           = KeyCode::Unknown;  ///< The key that was pressed or released.
+    KeyAction action      = KeyAction::None;   ///< The action performed on the key.
+    KeyModifier modifiers = KeyModifier::None; ///< The modifiers active during the event.
 };
 
 } // namespace game_engine

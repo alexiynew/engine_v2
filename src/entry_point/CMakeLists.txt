@@ -12,3 +12,7 @@ target_include_directories(entry_point PRIVATE ${CMAKE_SOURCE_DIR}/src)
 set_target_properties(entry_point PROPERTIES FOLDER "entry_point")
 
 add_library(engine::entry_point ALIAS entry_point)
+
+# GLM
+include(libs/glm)
+target_link_libraries(entry_point Libs::glm)

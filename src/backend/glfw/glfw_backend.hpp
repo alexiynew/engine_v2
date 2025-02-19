@@ -1,5 +1,6 @@
 #pragma once
 
+#include <expected>
 #include <memory>
 
 #include "../backend.hpp"
@@ -16,23 +17,38 @@ public:
 
     bool initialize() override;
     void shutdown() override;
-    void poll_events() override;
-    void begin_frame() override;
-    void end_frame() override;
+    void pollEvents() override;
+    void beginFrame() override;
+    void endFrame() override;
 
-    void handle_key_event(int key, int scancode, int action, int mods);
-    void handle_window_resize(int width, int height);
-    void handle_window_move(int xpos, int ypos);
-    void handle_window_close();
-    void handle_window_focus(bool focused);
-    void handle_window_iconify(bool iconified);
-    void handle_window_maximize(bool maximized);
+    core::MeshId loadMesh(const core::Mesh& mesh) override;
+    void renderMesh(core::MeshId meshId) override;
+
+    void handleKeyEvent(int key, int scancode, int action, int mods);
+    void handleWindowResize(int width, int height);
+    void handleWindowMove(int xpos, int ypos);
+    void handleWindowClose();
+    void handleWindowFocus(bool focused);
+    void handleWindowIconify(bool iconified);
+    void handleWindowMaximize(bool maximized);
 
 private:
+
+    struct MeshInfo
+    {
+        unsigned int VAO = 0;
+        unsigned int VBO = 0;
+        unsigned int EBO = 0;
+
+        std::size_t indicesCount = 0;
+    };
+
     OpenGLShader m_shader;
 
-    unsigned int VAO = 0;
-    unsigned int VBO = 0;
+    core::MeshId m_nextMeshId = 0; ///< ID counter for loaded meshes
+    std::unordered_map<std::size_t, MeshInfo> m_loadedMeshes;
+
+    std::expected<MeshInfo, bool> loadMeshToGPU(const core::Mesh& mesh);
 };
 
 } // namespace game_engine::backend

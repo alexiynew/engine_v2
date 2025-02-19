@@ -3,7 +3,9 @@
 #include <unordered_map>
 
 #include <game_engine/common_types.hpp>
+#include <glfw_backend_context.hpp>
 #include <glfw_keyboard.hpp>
+#include <opengl_utils.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -15,121 +17,42 @@ namespace
 {
 using namespace game_engine::backend;
 
-const char* c_vertex_shader_source = R"(
+const char* g_vertexShaderSource = R"(
         #version 330 core
         layout(location = 0) in vec3 aPos;
+        layout(location = 1) in vec3 aNormal;
+        layout(location = 2) in vec2 aUV;
+        layout(location = 3) in vec3 aColor;
+
         uniform mat4 model;
         uniform mat4 view;
         uniform mat4 projection;
+
+        out vec4 color;
         void main() {
+            color = vec4(aColor, 1.0);
             gl_Position = projection * view * model * vec4(aPos, 1.0);
         }
     )";
 
-const char* c_fragment_shader_source = R"(
+const char* g_fragmentShaderSource = R"(
         #version 330 core
+        in vec4 color;
+
         out vec4 FragColor;
+
         void main() {
-            FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+            FragColor = color;
+            //FragColor = vec4(1.0, 0.5, 0.2, 1.0);
         }
     )";
-
-float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
-
-class GLFWBackendContext
-{
-public:
-    static void register_backend(GLFWwindow* window, GLFWBackend* backend) {
-        get_instance().m_backend_map[window] = backend;
-        get_instance().m_window_map[backend] = window;
-
-        glfwSetKeyCallback(window, &GLFWBackendContext::on_key_event);
-        glfwSetWindowSizeCallback(window, &GLFWBackendContext::on_window_resize);
-        glfwSetWindowPosCallback(window, &GLFWBackendContext::on_window_move);
-        glfwSetWindowCloseCallback(window, &GLFWBackendContext::on_window_close);
-        glfwSetWindowFocusCallback(window, &GLFWBackendContext::on_window_focus);
-        glfwSetWindowIconifyCallback(window, &GLFWBackendContext::on_window_iconify);
-        glfwSetWindowMaximizeCallback(window, &GLFWBackendContext::on_window_maximize);
-    }
-
-    static GLFWBackend* get_backend(GLFWwindow* window) {
-        auto it = get_instance().m_backend_map.find(window);
-        return it != get_instance().m_backend_map.end() ? it->second : nullptr;
-    }
-
-    static GLFWwindow* get_window(GLFWBackend* backend) {
-        auto it = get_instance().m_window_map.find(backend);
-        return it != get_instance().m_window_map.end() ? it->second : nullptr;
-    }
-
-private:
-    using BackendMap = std::unordered_map<GLFWwindow*, GLFWBackend*>;
-    using WindowMap  = std::unordered_map<GLFWBackend*, GLFWwindow*>;
-    BackendMap m_backend_map;
-    WindowMap m_window_map;
-
-    static GLFWBackendContext& get_instance() {
-        static GLFWBackendContext instance;
-        return instance;
-    }
-
-    static void on_key_event(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void on_window_resize(GLFWwindow* window, int width, int height);
-    static void on_window_move(GLFWwindow* window, int xpos, int ypos);
-    static void on_window_close(GLFWwindow* window);
-    static void on_window_focus(GLFWwindow* window, int focused);
-    static void on_window_iconify(GLFWwindow* window, int iconified);
-    static void on_window_maximize(GLFWwindow* window, int maximized);
-};
-
-void GLFWBackendContext::on_key_event(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_key_event(key, scancode, action, mods);
-    }
-}
-
-void GLFWBackendContext::on_window_resize(GLFWwindow* window, int width, int height) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_window_resize(width, height);
-    }
-}
-
-void GLFWBackendContext::on_window_move(GLFWwindow* window, int xpos, int ypos) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_window_move(xpos, ypos);
-    }
-}
-
-void GLFWBackendContext::on_window_close(GLFWwindow* window) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_window_close();
-    }
-}
-
-void GLFWBackendContext::on_window_focus(GLFWwindow* window, int focused) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_window_focus(focused == GLFW_TRUE);
-    }
-}
-
-void GLFWBackendContext::on_window_iconify(GLFWwindow* window, int iconified) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_window_iconify(iconified == GLFW_TRUE);
-    }
-}
-
-void GLFWBackendContext::on_window_maximize(GLFWwindow* window, int maximized) {
-    if (GLFWBackend* backend = GLFWBackendContext::get_backend(window); backend) {
-        backend->handle_window_maximize(maximized == GLFW_TRUE);
-    }
-}
 
 } // namespace
 
 namespace game_engine::backend
 {
 
-std::unique_ptr<Backend> create_backend_instance(BackendEventHandler& handler) {
+std::unique_ptr<Backend> createBackendInstance(BackendEventHandler& handler) {
     return std::make_unique<GLFWBackend>(handler);
 }
 
@@ -154,51 +77,68 @@ bool GLFWBackend::initialize() {
         return false;
     }
 
-    GLFWBackendContext::register_backend(window, this);
+    GLFWBackendContext::registerBackend(window, this);
 
-    glfwMakeContextCurrent(GLFWBackendContext::get_window(this));
+    glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
 
     if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
         glfwTerminate();
         return false;
     }
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glEnable(GL_DEPTH_TEST);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
 
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    m_shader.link(c_vertex_shader_source, c_fragment_shader_source);
+    m_shader.link(g_vertexShaderSource, g_fragmentShaderSource);
 
     return true;
 }
 
 void GLFWBackend::shutdown() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    for (auto& [_, m] : m_loadedMeshes) {
+        glDeleteVertexArrays(1, &m.VAO);
+        glDeleteBuffers(1, &m.VBO);
+        glDeleteBuffers(1, &m.EBO);
+    }
+    m_loadedMeshes.clear();
 
     m_shader.clear();
 
-    glfwDestroyWindow(GLFWBackendContext::get_window(this));
+    glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
 }
 
-void GLFWBackend::poll_events() {
+void GLFWBackend::pollEvents() {
     glfwPollEvents();
 }
 
-void GLFWBackend::begin_frame() {
+void GLFWBackend::beginFrame() {
     glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void GLFWBackend::endFrame() {
+    glfwSwapBuffers(GLFWBackendContext::getWindow(this));
+}
+
+core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh) {
+    if (auto loadResult = loadMeshToGPU(mesh); loadResult.has_value()) {
+        core::MeshId meshId    = ++m_nextMeshId;
+        m_loadedMeshes[meshId] = loadResult.value();
+        return meshId;
+    }
+
+    return 0;
+}
+
+void GLFWBackend::renderMesh(core::MeshId meshId) {
+    auto it = m_loadedMeshes.find(meshId);
+    if (it == m_loadedMeshes.end()) {
+        return;
+    }
+
+    const auto& meshInfo = it->second;
 
     m_shader.use();
 
@@ -210,53 +150,97 @@ void GLFWBackend::begin_frame() {
     view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    auto u_model      = m_shader.get_uniform_location("model");
-    auto u_view       = m_shader.get_uniform_location("view");
-    auto u_projection = m_shader.get_uniform_location("projection");
+    auto u_model      = m_shader.getUniformLocation("model");
+    auto u_view       = m_shader.getUniformLocation("view");
+    auto u_projection = m_shader.getUniformLocation("projection");
 
-    m_shader.set_uniform(u_model, model);
-    m_shader.set_uniform(u_view, view);
-    m_shader.set_uniform(u_projection, projection);
+    m_shader.setUniform(u_model, model);
+    m_shader.setUniform(u_view, view);
+    m_shader.setUniform(u_projection, projection);
 
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(meshInfo.VAO);
+    glDrawElements(GL_TRIANGLES, meshInfo.indicesCount, GL_UNSIGNED_INT, 0);
 }
 
-void GLFWBackend::end_frame() {
-    glfwSwapBuffers(GLFWBackendContext::get_window(this));
-}
-
-void GLFWBackend::handle_key_event(int key, int scancode, int action, int mods) {
+void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods) {
     KeyboardInputEvent event;
-    event.key       = convert_glfw_key(key);
-    event.action    = convert_glfw_action(action);
-    event.modifiers = convert_glfw_modifiers(mods);
+    event.key       = convertGLFWKey(key);
+    event.action    = convertGLFWAction(action);
+    event.modifiers = convertGLFWModifiers(mods);
 
-    m_event_handler.on_keyboard_input_event(event);
+    m_eventHandler.onKeyboardInputEvent(event);
 }
 
-void GLFWBackend::handle_window_resize(int width, int height) {
-    m_event_handler.on_window_resize(width, height);
+void GLFWBackend::handleWindowResize(int width, int height) {
+    m_eventHandler.onWindowResize(width, height);
 }
 
-void GLFWBackend::handle_window_move(int xpos, int ypos) {
-    m_event_handler.on_window_move(xpos, ypos);
+void GLFWBackend::handleWindowMove(int xpos, int ypos) {
+    m_eventHandler.onWindowMove(xpos, ypos);
 }
 
-void GLFWBackend::handle_window_close() {
-    m_event_handler.on_window_close();
+void GLFWBackend::handleWindowClose() {
+    m_eventHandler.onWindowClose();
 }
 
-void GLFWBackend::handle_window_focus(bool focused) {
-    m_event_handler.on_window_focus(focused);
+void GLFWBackend::handleWindowFocus(bool focused) {
+    m_eventHandler.onWindowFocus(focused);
 }
 
-void GLFWBackend::handle_window_iconify(bool iconified) {
-    m_event_handler.on_window_iconify(iconified);
+void GLFWBackend::handleWindowIconify(bool iconified) {
+    m_eventHandler.onWindowIconify(iconified);
 }
 
-void GLFWBackend::handle_window_maximize(bool maximized) {
-    m_event_handler.on_window_maximize(maximized);
+void GLFWBackend::handleWindowMaximize(bool maximized) {
+    m_eventHandler.onWindowMaximize(maximized);
+}
+
+std::expected<GLFWBackend::MeshInfo, bool> GLFWBackend::loadMeshToGPU(const core::Mesh& mesh) {
+    MeshInfo info;
+
+    glGenVertexArrays(1, &info.VAO);
+    glGenBuffers(1, &info.VBO);
+    glGenBuffers(1, &info.EBO);
+
+    glBindVertexArray(info.VAO);
+
+    // Set up vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
+    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(core::Vertex), mesh.vertices.data(), GL_STATIC_DRAW);
+
+    // Set up element buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 mesh.subMeshes[0].indices.size() * sizeof(unsigned int),
+                 mesh.subMeshes[0].indices.data(),
+                 GL_STATIC_DRAW);
+
+    // Vertex positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, position));
+    glEnableVertexAttribArray(0);
+
+    // Vertex normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, normal));
+    glEnableVertexAttribArray(1);
+
+    // Vertex UVs
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, uv));
+    glEnableVertexAttribArray(2);
+
+    // Vertex colors
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, color));
+    glEnableVertexAttribArray(3);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    info.indicesCount = mesh.subMeshes[0].indices.size();
+
+    if (hasOpenGLErrors()) {
+        return std::unexpected(false);
+    }
+
+    return info;
 }
 
 } // namespace game_engine::backend

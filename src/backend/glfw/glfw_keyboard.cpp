@@ -8,10 +8,10 @@
 namespace game_engine::backend
 {
 
-KeyCode convert_glfw_key(int glfw_key) {
+KeyCode convertGLFWKey(int glfwKey) {
     using namespace game_engine;
 
-    switch (glfw_key) {
+    switch (glfwKey) {
         // Printable keys
         case GLFW_KEY_SPACE:         return KeyCode::Space;
         case GLFW_KEY_APOSTROPHE:    return KeyCode::Apostrophe;
@@ -144,10 +144,10 @@ KeyCode convert_glfw_key(int glfw_key) {
     }
 }
 
-KeyAction convert_glfw_action(int glfw_action) {
+KeyAction convertGLFWAction(int glfwAction) {
     using namespace game_engine;
 
-    switch (glfw_action) {
+    switch (glfwAction) {
         case GLFW_PRESS:   return KeyAction::Press;
         case GLFW_RELEASE: return KeyAction::Release;
         case GLFW_REPEAT:  return KeyAction::Repeat;
@@ -155,22 +155,22 @@ KeyAction convert_glfw_action(int glfw_action) {
     }
 }
 
-KeyModifier convert_glfw_modifiers(int glfw_mods) {
+KeyModifier convertGLFWModifiers(int glfwMods) {
     using namespace game_engine;
 
     using UnderlyingType     = std::underlying_type_t<KeyModifier>;
     UnderlyingType modifiers = static_cast<UnderlyingType>(KeyModifier::None);
 
-    if (glfw_mods & GLFW_MOD_SHIFT) {
+    if (glfwMods & GLFW_MOD_SHIFT) {
         modifiers |= static_cast<UnderlyingType>(KeyModifier::Shift);
     }
-    if (glfw_mods & GLFW_MOD_CONTROL) {
+    if (glfwMods & GLFW_MOD_CONTROL) {
         modifiers |= static_cast<UnderlyingType>(KeyModifier::Control);
     }
-    if (glfw_mods & GLFW_MOD_ALT) {
+    if (glfwMods & GLFW_MOD_ALT) {
         modifiers |= static_cast<UnderlyingType>(KeyModifier::Alt);
     }
-    if (glfw_mods & GLFW_MOD_SUPER) {
+    if (glfwMods & GLFW_MOD_SUPER) {
         modifiers |= static_cast<UnderlyingType>(KeyModifier::Super);
     }
 

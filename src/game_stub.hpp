@@ -8,18 +8,20 @@ public:
     GameStub(game_engine::core::Engine& engine);
     ~GameStub();
 
-    void on_initialize() override;
-    void on_update(std::chrono::nanoseconds elapsed_time) override;
-    void on_draw() override;
-    void on_shutdown() override;
+    void onInitialize() override;
+    void onUpdate(std::chrono::nanoseconds elapsedTime) override;
+    void onDraw() override;
+    void onShutdown() override;
 
-    void on_keyboard_input_event(const game_engine::KeyboardInputEvent& event) override;
+    void onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event) override;
 
-    bool on_should_close() override;
+    bool onShouldClose() override;
 
 private:
     game_engine::core::Engine& m_engine;
 
-    std::size_t m_updates_count = 0;
-    std::size_t m_frames_count  = 0;
+    std::size_t m_updatesCount = 0;
+    std::size_t m_framesCount  = 0;
+
+    game_engine::core::MeshId m_meshId = 0;
 };

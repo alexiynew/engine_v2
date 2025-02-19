@@ -4,10 +4,14 @@ target_sources(glfw_backend
     PRIVATE
         glfw_backend.hpp
         glfw_backend.cpp
+        glfw_backend_context.hpp
+        glfw_backend_context.cpp
         glfw_keyboard.hpp
         glfw_keyboard.cpp
         opengl_shader.hpp
         opengl_shader.cpp
+        opengl_utils.hpp
+        opengl_utils.cpp
 )
 
 set_target_properties(glfw_backend PROPERTIES FOLDER "backend")
@@ -18,7 +22,7 @@ include(libs/glfw)
 target_link_libraries(glfw_backend PUBLIC Libs::glfw)
 
 include(libs/glm)
-target_link_libraries(glfw_backend PRIVATE Libs::glm)
+target_link_libraries(glfw_backend PUBLIC Libs::glm)
 
 
 add_subdirectory(glad)

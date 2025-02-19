@@ -7,11 +7,11 @@ This document outlines the rules for writing C++ code to ensure readability, mai
 ## 1. Naming Conventions
 
 ### 1.1. Variables and Functions
-Use `snake_case` for variables, constants and functions.
+Use `camelCase` for variables, constants and functions.
 
 ```cpp
-int user_age;
-void calculate_sum();
+int userAge;
+void calculateSum();
 ```
 
 ### 1.2. Classes and Structs
@@ -23,7 +23,15 @@ struct DataPoint;
 enum Directions;
 ```
 
-### 1.3. Class Members
+### 1.3. Namespaces
+Use `snake_case` for namespace names.
+
+```cpp
+namespace game_engine::core;
+using namespace game_engine;
+```
+
+### 1.4. Class Members
 Use the m_ prefix for class member variables.
 
 ```cpp
@@ -33,19 +41,19 @@ private:
 };
 ```
 
-### 1.4. Global and Static Variables
+### 1.5. Global and Static Variables
 Use the g_ prefix for global variables and s_ for static variables.
 
 ```cpp
-int g_global_counter;
-static int s_static_value;
+int g_globalCounter;
+static int s_staticValue;
 ```
 
-### 1.5. Macros
+### 1.6. Macros
 Use UPPER_SNAKE_CASE exclusively for macros.
 
 ```cpp
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MAX_MACRO(a, b) ((a) > (b) ? (a) : (b))
 ```
 
 ## 2. Comments
@@ -53,11 +61,13 @@ Use UPPER_SNAKE_CASE exclusively for macros.
 Use Doxygen-style comments for documenting functions and classes.
 
 ```cpp
-/**
- * @brief Calculates the sum of two numbers.
- * @param a The first number.
- * @param b The second number.
- * @return The sum of a and b.
- */
-int calculate_sum(int a, int b);
+/// @brief Calculates the sum of two numbers.
+/// @param a The first number.
+/// @param b The second number.
+/// @return The sum of a and b.
+int calculateSum(int a, int b);
+
+struct Data {
+    int std::vector<int> data ///< Some actual data.
+}
 ```

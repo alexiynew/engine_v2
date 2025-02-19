@@ -4,7 +4,7 @@ namespace game_engine::backend
 {
 
 Backend::Backend(BackendEventHandler& handler)
-    : m_event_handler(handler) {
+    : m_eventHandler(handler) {
 }
 
 } // namespace game_engine::backend

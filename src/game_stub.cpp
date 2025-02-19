@@ -2,9 +2,11 @@
 
 #include <iostream>
 
+#include <game_engine/core/mesh.hpp>
+
 namespace game_engine
 {
-std::unique_ptr<Game> create_game_instance(game_engine::core::Engine& engine) {
+std::unique_ptr<Game> createGameInstance(game_engine::core::Engine& engine) {
     return std::make_unique<GameStub>(engine);
 }
 } // namespace game_engine
@@ -20,30 +22,94 @@ GameStub::~GameStub() {
     std::cout << "GameStub::~GameStub" << std::endl;
 }
 
-void GameStub::on_initialize() {
-    std::cout << "GameStub::on_initialize" << std::endl;
+void GameStub::onInitialize() {
+    std::cout << "GameStub::onInitialize" << std::endl;
+
+    core::Mesh mesh;
+
+    //// Load a simple mesh (for demonstration purposes)
+    //mesh.vertices = {
+    //    core::Vertex {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Vertex 1
+    //    core::Vertex { {0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // Vertex 2
+    //    core::Vertex {  {0.0f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}}  // Vertex 3
+    //};
+    //mesh.subMeshes.push_back({
+    //    {0, 1, 2},
+    //    {}
+    //}); // Single submesh with a triangle
+
+    mesh.vertices = {
+        // Front edge (red)
+        core::Vertex { {-0.5f, -0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Vertex 0
+        core::Vertex {  {0.5f, -0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Vertex 1
+        core::Vertex {   {0.5f, 0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // Vertex 2
+        core::Vertex {  {-0.5f, 0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // Vertex 3
+
+        //Back edge (green)
+        core::Vertex {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // Vertex 4
+        core::Vertex { {0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // Vertex 5
+        core::Vertex {  {0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}}, // Vertex 6
+        core::Vertex { {-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}}, // Vertex 7
+
+        // Upper edge (blue)
+        core::Vertex {  {-0.5f, 0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // Vertex 8
+        core::Vertex {   {0.5f, 0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // Vertex 9
+        core::Vertex {  {0.5f, 0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, // Vertex 10
+        core::Vertex { {-0.5f, 0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, // Vertex 11
+
+        // Bottom edge (yellow)
+        core::Vertex { {-0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 0.0f}}, // Vertex 12
+        core::Vertex {  {0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}}, // Vertex 13
+        core::Vertex { {0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}}, // Vertex 14
+        core::Vertex {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 0.0f}}, // Vertex 15
+
+        // Left edge (blue)
+        core::Vertex {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 1.0f}}, // Vertex 16
+        core::Vertex { {-0.5f, -0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 1.0f}}, // Vertex 17
+        core::Vertex {  {-0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 1.0f}}, // Vertex 18
+        core::Vertex { {-0.5f, 0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 1.0f}}, // Vertex 19
+
+        // Right edge (purple)
+        core::Vertex { {0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 1.0f}}, // Vertex 20
+        core::Vertex {  {0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}}, // Vertex 21
+        core::Vertex {   {0.5f, 0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}}, // Vertex 22
+        core::Vertex {  {0.5f, 0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}}  // Vertex 23
+    };
+
+    mesh.subMeshes.push_back({
+        {0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,  8,  9,  10, 10, 11, 8,
+         12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20},
+        {}
+    });
+
+    mesh.primitiveType = core::PrimitiveType::Triangles;
+    mesh.calculateBoundingBox();
+
+    m_meshId = m_engine.loadMesh(std::move(mesh));
 }
 
-void GameStub::on_update(std::chrono::nanoseconds elapsed_time) {
-    m_updates_count++;
+void GameStub::onUpdate(std::chrono::nanoseconds elapsedTime) {
+    m_updatesCount++;
 }
 
-void GameStub::on_draw() {
-    m_frames_count++;
+void GameStub::onDraw() {
+    m_framesCount++;
+
+    m_engine.renderMesh(m_meshId);
 }
 
-void GameStub::on_shutdown() {
-    std::cout << "GameStub::on_shutdown" << std::endl;
-    std::cout << " -- updates count: " << m_updates_count << std::endl;
-    std::cout << " -- frames count: " << m_frames_count << std::endl;
+void GameStub::onShutdown() {
+    std::cout << "GameStub::onShutdown" << std::endl;
+    std::cout << " -- updates count: " << m_updatesCount << std::endl;
+    std::cout << " -- frames count: " << m_framesCount << std::endl;
 }
 
-void GameStub::on_keyboard_input_event(const KeyboardInputEvent& event) {
+void GameStub::onKeyboardInputEvent(const KeyboardInputEvent& event) {
     if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
-        m_engine.set_should_stop_flag();
+        m_engine.setShouldStopFlag();
     }
 }
 
-bool GameStub::on_should_close() {
+bool GameStub::onShouldClose() {
     return true;
 }
