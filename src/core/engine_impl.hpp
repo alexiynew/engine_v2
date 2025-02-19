@@ -1,9 +1,10 @@
 
 #pragma once
 
-#include <backend/backend.hpp>
 #include <game_engine/core/engine.hpp>
 #include <game_engine/game.hpp>
+
+#include <backend/backend.hpp>
 
 namespace game_engine::core
 {

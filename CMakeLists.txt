@@ -32,14 +32,11 @@ target_sources(engine
         src/core/model_loader.cpp
         src/game_stub.hpp
         src/game_stub.cpp
+        src/entry_point/entry_point.cpp
 )
 
 target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
-
-# Entry point
-add_subdirectory(src/entry_point)
-target_link_libraries(engine engine::entry_point)
 
 # Backend
 add_subdirectory(src/backend)
@@ -50,4 +47,11 @@ include(libs/glm)
 target_link_libraries(engine Libs::glm)
 
 
+# Custom target to format all sources
+add_custom_target(format-all
+    COMMAND ${CMAKE_COMMAND} -P  cmake/format_all.cmake
+    COMMAND_EXPAND_LISTS
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    COMMENT Format all source files
+)
 

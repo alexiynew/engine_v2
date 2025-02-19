@@ -19,11 +19,10 @@ target_include_directories(glfw_backend PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(glfw_backend PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 include(libs/glfw)
-target_link_libraries(glfw_backend PUBLIC Libs::glfw)
+target_link_libraries(glfw_backend PRIVATE Libs::glfw)
 
 include(libs/glm)
 target_link_libraries(glfw_backend PUBLIC Libs::glm)
-
 
 add_subdirectory(glad)
 target_link_libraries(glfw_backend PRIVATE glad)
