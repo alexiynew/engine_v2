@@ -38,14 +38,17 @@ target_sources(engine
 target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
+# Compile options
+include(cmake/compile_options)
+target_link_libraries(engine PRIVATE engine::compile_options)
+
 # Backend
 add_subdirectory(src/backend)
-target_link_libraries(engine engine::backend)
+target_link_libraries(engine PRIVATE engine::backend)
 
 # GLM
 include(libs/glm)
-target_link_libraries(engine Libs::glm)
-
+target_link_libraries(engine PUBLIC Libs::glm)
 
 # Custom target to format all sources
 add_custom_target(format-all

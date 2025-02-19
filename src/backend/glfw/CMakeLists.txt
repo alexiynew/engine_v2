@@ -27,3 +27,5 @@ target_link_libraries(glfw_backend PUBLIC Libs::glm)
 add_subdirectory(glad)
 target_link_libraries(glfw_backend PRIVATE glad)
 target_include_directories(glfw_backend PRIVATE glad/include)
+
+target_link_libraries(glfw_backend PRIVATE engine::compile_options)

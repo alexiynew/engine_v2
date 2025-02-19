@@ -197,7 +197,7 @@ void OpenGLShader::setUniform(int uniform, std::uint32_t value) const {
         LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
         return;
     }
-    glUniform1i(uniform, value);
+    glUniform1i(uniform, static_cast<GLint>(value));
 }
 
 void OpenGLShader::setUniform(int uniform, float value) const {

@@ -89,7 +89,7 @@ void GameStub::onInitialize() {
 }
 
 void GameStub::onUpdate(std::chrono::nanoseconds elapsedTime) {
-    m_updatesCount++;
+        m_updatesCount++;
 }
 
 void GameStub::onDraw() {

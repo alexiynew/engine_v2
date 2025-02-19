@@ -147,7 +147,7 @@ void GLFWBackend::renderMesh(core::MeshId meshId) {
     glm::mat4 view       = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    model      = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+    model      = glm::rotate(model, static_cast<float>(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
     view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
@@ -160,7 +160,7 @@ void GLFWBackend::renderMesh(core::MeshId meshId) {
     m_shader.setUniform(u_projection, projection);
 
     glBindVertexArray(meshInfo.VAO);
-    glDrawElements(GL_TRIANGLES, meshInfo.indicesCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLint>(meshInfo.indicesCount), GL_UNSIGNED_INT, 0);
 }
 
 void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods) {
@@ -207,29 +207,52 @@ std::expected<GLFWBackend::MeshInfo, bool> GLFWBackend::loadMeshToGPU(const core
 
     // Set up vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
-    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(core::Vertex), mesh.vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(mesh.vertices.size() * sizeof(core::Vertex)),
+                 mesh.vertices.data(),
+                 GL_STATIC_DRAW);
 
     // Set up element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 mesh.subMeshes[0].indices.size() * sizeof(unsigned int),
+                 static_cast<GLsizeiptr>(mesh.subMeshes[0].indices.size() * sizeof(unsigned int)),
                  mesh.subMeshes[0].indices.data(),
                  GL_STATIC_DRAW);
 
     // Vertex positions
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, position));
+    glVertexAttribPointer(0,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(core::Vertex),
+                          reinterpret_cast<void*>(offsetof(core::Vertex, position)));
     glEnableVertexAttribArray(0);
 
     // Vertex normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, normal));
+    glVertexAttribPointer(1,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(core::Vertex),
+                          reinterpret_cast<void*>(offsetof(core::Vertex, normal)));
     glEnableVertexAttribArray(1);
 
     // Vertex UVs
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, uv));
+    glVertexAttribPointer(2,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(core::Vertex),
+                          reinterpret_cast<void*>(offsetof(core::Vertex, uv)));
     glEnableVertexAttribArray(2);
 
     // Vertex colors
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(core::Vertex), (void*)offsetof(core::Vertex, color));
+    glVertexAttribPointer(3,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(core::Vertex),
+                          reinterpret_cast<void*>(offsetof(core::Vertex, color)));
     glEnableVertexAttribArray(3);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

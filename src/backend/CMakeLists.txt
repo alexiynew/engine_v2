@@ -16,5 +16,6 @@ set_target_properties(backend PROPERTIES FOLDER "backend")
 add_subdirectory(glfw)
 
 target_link_libraries(backend PRIVATE glfw_backend)
+target_link_libraries(backend PRIVATE engine::compile_options)
 
 add_library(engine::backend ALIAS backend)
