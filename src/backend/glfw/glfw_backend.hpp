@@ -12,8 +12,8 @@ namespace game_engine::backend
 class GLFWBackend final : public Backend
 {
 public:
-    GLFWBackend(BackendEventHandler& handler);
-    ~GLFWBackend();
+    explicit GLFWBackend(BackendEventHandler& handler);
+    ~GLFWBackend() override;
 
     bool initialize() override;
     void shutdown() override;

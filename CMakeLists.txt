@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 
+option(ENABLE_CPPCHECK "Enable code checking with cppcheck" ON)
+
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -57,4 +59,36 @@ add_custom_target(format-all
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     COMMENT Format all source files
 )
+
+set_target_properties(format-all PROPERTIES FOLDER "utils")
+
+if(ENABLE_CPPCHECK)
+    find_program(CPPCHECK cppcheck)
+    if(CPPCHECK)
+        add_custom_target(cppcheck
+            COMMAND ${CMAKE_COMMAND} -E make_directory build/cppcheck
+            COMMAND ${CPPCHECK}   
+                    -q
+                    --enable=all   
+                    --project=build/compile_commands.json   
+                    --template=gcc 
+                    --std=c++20 
+                    -ibuild
+                    -j9
+                    --inconclusive
+                    --suppress=missingIncludeSystem:*
+                    --suppress=*:build/*
+                    --suppress=checkersReport
+                    --checkers-report=build/cppcheck/checkers_report.txt
+                    --cppcheck-build-dir=build/cppcheck
+            COMMAND_EXPAND_LISTS
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+            COMMENT Cppcheck source files
+        )
+
+        set_target_properties(cppcheck PROPERTIES FOLDER "utils")
+    else()
+        message(SEND_ERROR "cppcheck requested but executable not found")
+    endif()
+endif()
 

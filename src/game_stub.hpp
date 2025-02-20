@@ -5,8 +5,8 @@
 class GameStub final : public game_engine::Game
 {
 public:
-    GameStub(game_engine::core::Engine& engine);
-    ~GameStub();
+    explicit GameStub(game_engine::core::Engine& engine);
+    ~GameStub() override;
 
     void onInitialize() override;
     void onUpdate(std::chrono::nanoseconds elapsedTime) override;
