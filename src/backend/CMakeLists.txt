@@ -8,8 +8,11 @@ target_sources(backend
         backend.cpp
 )
 
-target_include_directories(backend PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(backend PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(backend 
+    PRIVATE 
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 set_target_properties(backend PROPERTIES FOLDER "backend")
 

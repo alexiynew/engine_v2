@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 
+
+option(ENABLE_TESTING "Enable the building of the test" ON)
 option(ENABLE_CPPCHECK "Enable code checking with cppcheck" ON)
 
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
@@ -51,6 +53,12 @@ target_link_libraries(engine PRIVATE engine::backend)
 # GLM
 include(libs/glm)
 target_link_libraries(engine PUBLIC Libs::glm)
+
+# Tests
+if(ENABLE_TESTING)
+    enable_testing()
+    include(tests/CMakeLists.txt)
+endif()
 
 # Custom target to format all sources
 add_custom_target(format-all
