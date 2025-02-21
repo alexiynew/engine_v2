@@ -6,12 +6,8 @@
 namespace game_engine::core
 {
 
-EngineImpl::EngineImpl() {
-    m_backend = backend::createBackendInstance(*this);
-    if (!m_backend) {
-        throw std::runtime_error("Backend is not created");
-    }
-
+EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
+    : m_backend(std::move(backend)) {
     m_game = createGameInstance(*this);
     if (!m_game) {
         throw std::runtime_error("Game is not created");
@@ -39,9 +35,13 @@ int EngineImpl::run() noexcept {
         if (!m_backend->initialize()) {
             return -1;
         }
+        m_backend->attachBackendObserver(*this);
+
         m_game->onInitialize();
 
         mainLoop();
+
+        m_backend->detachBackendObserver(*this);
 
         m_game->onShutdown();
         m_backend->shutdown();
@@ -81,29 +81,29 @@ void EngineImpl::renderMesh(MeshId meshId) {
     m_backend->renderMesh(meshId);
 }
 
-void EngineImpl::onKeyboardInputEvent(const KeyboardInputEvent& event) {
+void EngineImpl::onEvent(const KeyboardInputEvent& event) {
     m_game->onKeyboardInputEvent(event);
 }
 
-void EngineImpl::onWindowResize(int width, int height) {
+void EngineImpl::onEvent(const WindowResizeEvent& event) {
 }
 
-void EngineImpl::onWindowMove(int xpos, int ypos) {
+void EngineImpl::onEvent(const WindowMoveEvent& event) {
 }
 
-void EngineImpl::onWindowClose() {
+void EngineImpl::onEvent(const WindowCloseEvent& event) {
     if (m_game->onShouldClose()) {
         setShouldStopFlag();
     }
 }
 
-void EngineImpl::onWindowFocus(bool focused) {
+void EngineImpl::onEvent(const WindowFocusEvent& event) {
 }
 
-void EngineImpl::onWindowIconify(bool iconified) {
+void EngineImpl::onEvent(const WindowIconifyEvent& event) {
 }
 
-void EngineImpl::onWindowMaximize(bool maximized) {
+void EngineImpl::onEvent(const WindowMaximizeEvent& event) {
 }
 
 void EngineImpl::mainLoop() {

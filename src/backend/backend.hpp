@@ -5,51 +5,45 @@
 #include <vector>
 
 #include <game_engine/core/engine.hpp>
-#include <game_engine/keyboard.hpp>
+#include <game_engine/system_events.hpp>
 
 namespace game_engine::backend
 {
 
 /// @brief Interface for observers
-class BackendEventHandler
+class BackendObserver
+
 {
 public:
-    virtual ~BackendEventHandler() = default;
+    virtual ~BackendObserver() = default;
 
     /// @brief Method to handle keyboard input events (e.g., key presses)
-    virtual void onKeyboardInputEvent(const KeyboardInputEvent& event) = 0;
+    virtual void onEvent(const KeyboardInputEvent& event) = 0;
 
     /// @brief Method to handle window resize events
-    /// @param width: The new width of the window, in screen coordinates.
-    /// @param height: The new height of the window, in screen coordinates.
-    virtual void onWindowResize(int width, int height) = 0;
+    virtual void onEvent(const WindowResizeEvent& event) = 0;
 
     /// @brief Method to handle window move events
-    /// @param xpos: The new x-coordinate of the upper-left corner of the content area of the window, in screen coordinates.
-    /// @param ypos: The new y-coordinate of the upper-left corner of the content area of the window, in screen coordinates.
-    virtual void onWindowMove(int xpos, int ypos) = 0;
+    virtual void onEvent(const WindowMoveEvent& event) = 0;
 
     /// @brief Method to handle window close events
     /// This is called when the user attempts to close the window.
-    virtual void onWindowClose() = 0;
+    virtual void onEvent(const WindowCloseEvent& event) = 0;
 
     /// @brief Method to handle window focus events
-    /// @param focused: True if the window gained input focus, false if it lost focus.
-    virtual void onWindowFocus(bool focused) = 0;
+    virtual void onEvent(const WindowFocusEvent& event) = 0;
 
     /// @brief Method to handle window iconify events
-    /// @param iconified: True if the window was iconified (minimized), false if it was restored.
-    virtual void onWindowIconify(bool iconified) = 0;
+    virtual void onEvent(const WindowIconifyEvent& event) = 0;
 
     /// @brief Method to handle window maximize events
-    /// @param maximized: True if the window was maximized, false if it was restored.
-    virtual void onWindowMaximize(bool maximized) = 0;
+    virtual void onEvent(const WindowMaximizeEvent& event) = 0;
 };
 
 class Backend
 {
 public:
-    Backend(BackendEventHandler& handler);
+    using RefObserver = std::reference_wrapper<BackendObserver>;
 
     virtual ~Backend() = default;
 
@@ -77,10 +71,18 @@ public:
     /// @param meshId The ID of the model to render.
     virtual void renderMesh(core::MeshId meshId) = 0;
 
-protected:
-    BackendEventHandler& m_eventHandler;
-};
+    void attachBackendObserver(BackendObserver& observer);
+    void detachBackendObserver(BackendObserver& observer);
 
-std::unique_ptr<Backend> createBackendInstance(BackendEventHandler& handler);
+protected:
+    std::list<RefObserver> m_observers;
+
+    template <typename EventType>
+    void notify(const EventType& event) {
+        for (auto observer : m_observers) {
+            observer.get().onEvent(event);
+        }
+    }
+};
 
 } // namespace game_engine::backend

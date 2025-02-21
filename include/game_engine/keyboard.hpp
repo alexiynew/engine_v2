@@ -156,12 +156,4 @@ enum class KeyModifier
     Super   = 8,
 };
 
-/// @brief Represents a keyboard input event.
-struct KeyboardInputEvent
-{
-    KeyCode key           = KeyCode::Unknown;  ///< The key that was pressed or released.
-    KeyAction action      = KeyAction::None;   ///< The action performed on the key.
-    KeyModifier modifiers = KeyModifier::None; ///< The modifiers active during the event.
-};
-
 } // namespace game_engine

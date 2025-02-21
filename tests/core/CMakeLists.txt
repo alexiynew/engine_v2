@@ -1,20 +1,30 @@
-cmake_path(GET CMAKE_CURRENT_LIST_DIR STEM LAST_ONLY DIR_NAME)
-set(TEST_NAME ${DIR_NAME}_test)
+add_executable(core_test)
 
-add_executable(${TEST_NAME} main.cpp)
-
-target_include_directories(${TEST_NAME} 
-    PRIVATE 
-        ${CMAKE_SOURCE_DIR}/include 
-        ${CMAKE_SOURCE_DIR}/include
+target_sources(core_test
+    PRIVATE
+        main.cpp
+        ${CMAKE_SOURCE_DIR}/src/backend/backend.cpp
+        ${CMAKE_SOURCE_DIR}/src/core/engine_impl.cpp
+        ${CMAKE_SOURCE_DIR}/src/core/mesh.cpp
+        ${CMAKE_SOURCE_DIR}/src/game_stub.cpp
 )
 
-target_link_libraries(${TEST_NAME} 
+target_include_directories(core_test
+    PRIVATE 
+        ${CMAKE_SOURCE_DIR}/include 
+        ${CMAKE_SOURCE_DIR}/src
+)
+
+target_link_libraries(core_test
     PRIVATE 
         Libs::gtest 
         Libs::gmock
+        Libs::glm
 )
 
-set_target_properties(${TEST_NAME} PROPERTIES FOLDER "tests")
+set_target_properties(core_test PROPERTIES FOLDER "tests")
 
-add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+add_test(NAME core_test COMMAND core_test)
+set_tests_properties(core_test
+    PROPERTIES TIMEOUT 2
+)

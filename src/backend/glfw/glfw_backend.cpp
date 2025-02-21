@@ -6,6 +6,7 @@
 
 #include <glfw_backend_context.hpp>
 #include <glfw_keyboard.hpp>
+#include <opengl_shader.hpp>
 #include <opengl_utils.hpp>
 
 #define GLFW_INCLUDE_NONE
@@ -53,12 +54,8 @@ const char* g_fragmentShaderSource = R"(
 namespace game_engine::backend
 {
 
-std::unique_ptr<Backend> createBackendInstance(BackendEventHandler& handler) {
-    return std::make_unique<GLFWBackend>(handler);
-}
-
-GLFWBackend::GLFWBackend(BackendEventHandler& handler)
-    : Backend(handler) {
+GLFWBackend::GLFWBackend() {
+    m_shader = std::make_unique<OpenGLShader>();
 }
 
 GLFWBackend::~GLFWBackend() = default;
@@ -91,7 +88,7 @@ bool GLFWBackend::initialize() {
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
 
-    m_shader.link(g_vertexShaderSource, g_fragmentShaderSource);
+    m_shader->link(g_vertexShaderSource, g_fragmentShaderSource);
 
     return true;
 }
@@ -104,7 +101,7 @@ void GLFWBackend::shutdown() {
     }
     m_loadedMeshes.clear();
 
-    m_shader.clear();
+    m_shader->clear();
 
     glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
@@ -143,19 +140,19 @@ void GLFWBackend::renderMesh(core::MeshId meshId) {
 
     const auto& meshInfo = it->second;
 
-    m_shader.use();
+    m_shader->use();
 
     const Matrix4 model = glm::rotate(glm::mat4(1.0f), static_cast<float>(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
     const Matrix4 view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
     const Matrix4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    auto u_model      = m_shader.getUniformLocation("model");
-    auto u_view       = m_shader.getUniformLocation("view");
-    auto u_projection = m_shader.getUniformLocation("projection");
+    auto u_model      = m_shader->getUniformLocation("model");
+    auto u_view       = m_shader->getUniformLocation("view");
+    auto u_projection = m_shader->getUniformLocation("projection");
 
-    m_shader.setUniform(u_model, model);
-    m_shader.setUniform(u_view, view);
-    m_shader.setUniform(u_projection, projection);
+    m_shader->setUniform(u_model, model);
+    m_shader->setUniform(u_view, view);
+    m_shader->setUniform(u_projection, projection);
 
     glBindVertexArray(meshInfo.VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(meshInfo.indicesCount), GL_UNSIGNED_INT, 0);
@@ -167,31 +164,31 @@ void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods) {
     event.action    = convertGLFWAction(action);
     event.modifiers = convertGLFWModifiers(mods);
 
-    m_eventHandler.onKeyboardInputEvent(event);
+    notify(event);
 }
 
 void GLFWBackend::handleWindowResize(int width, int height) {
-    m_eventHandler.onWindowResize(width, height);
+    notify(WindowResizeEvent {width, height}); // TODO: fix formating
 }
 
 void GLFWBackend::handleWindowMove(int xpos, int ypos) {
-    m_eventHandler.onWindowMove(xpos, ypos);
+    notify(WindowMoveEvent {xpos, ypos});
 }
 
 void GLFWBackend::handleWindowClose() {
-    m_eventHandler.onWindowClose();
+    notify(WindowCloseEvent {});
 }
 
 void GLFWBackend::handleWindowFocus(bool focused) {
-    m_eventHandler.onWindowFocus(focused);
+    notify(WindowFocusEvent {focused});
 }
 
 void GLFWBackend::handleWindowIconify(bool iconified) {
-    m_eventHandler.onWindowIconify(iconified);
+    notify(WindowIconifyEvent {iconified});
 }
 
 void GLFWBackend::handleWindowMaximize(bool maximized) {
-    m_eventHandler.onWindowMaximize(maximized);
+    notify(WindowMaximizeEvent {maximized});
 }
 
 std::expected<GLFWBackend::MeshInfo, bool> GLFWBackend::loadMeshToGPU(const core::Mesh& mesh) {

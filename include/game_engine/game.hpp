@@ -5,6 +5,7 @@
 
 #include <game_engine/core/engine.hpp>
 #include <game_engine/keyboard.hpp>
+#include <game_engine/system_events.hpp>
 
 namespace game_engine
 {

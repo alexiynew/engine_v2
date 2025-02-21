@@ -11,12 +11,12 @@ namespace game_engine::core
 
 class EngineImpl final
     : public game_engine::core::Engine
-    , public game_engine::backend::BackendEventHandler
+    , private game_engine::backend::BackendObserver
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    EngineImpl();
+    explicit EngineImpl(std::shared_ptr<backend::Backend> backend);
     ~EngineImpl() override;
 
     // Engine
@@ -33,7 +33,7 @@ public:
     int run() noexcept;
 
 private:
-    std::unique_ptr<game_engine::backend::Backend> m_backend;
+    std::shared_ptr<game_engine::backend::Backend> m_backend;
     std::unique_ptr<game_engine::Game> m_game;
 
     std::shared_ptr<game_engine::core::ModelLoader> m_modelLoader;
@@ -50,14 +50,14 @@ private:
     std::size_t m_framesPerSecond  = 0;
 
     // BackendEventHandler
-    void onKeyboardInputEvent(const KeyboardInputEvent& event) override;
+    void onEvent(const KeyboardInputEvent& event) override;
 
-    void onWindowResize(int width, int height) override;
-    void onWindowMove(int xpos, int ypos) override;
-    void onWindowClose() override;
-    void onWindowFocus(bool focused) override;
-    void onWindowIconify(bool iconified) override;
-    void onWindowMaximize(bool maximized) override;
+    void onEvent(const WindowResizeEvent& event) override;
+    void onEvent(const WindowMoveEvent& event) override;
+    void onEvent(const WindowCloseEvent& event) override;
+    void onEvent(const WindowFocusEvent& event) override;
+    void onEvent(const WindowIconifyEvent& event) override;
+    void onEvent(const WindowMaximizeEvent& event) override;
 
     void mainLoop();
 

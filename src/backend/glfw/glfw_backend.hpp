@@ -4,15 +4,16 @@
 #include <memory>
 
 #include "../backend.hpp"
-#include <opengl_shader.hpp>
 
 namespace game_engine::backend
 {
 
+class OpenGLShader;
+
 class GLFWBackend final : public Backend
 {
 public:
-    explicit GLFWBackend(BackendEventHandler& handler);
+    GLFWBackend();
     ~GLFWBackend() override;
 
     bool initialize() override;
@@ -43,7 +44,7 @@ private:
         std::size_t indicesCount = 0;
     };
 
-    OpenGLShader m_shader;
+    std::unique_ptr<OpenGLShader> m_shader;
 
     core::MeshId m_nextMeshId = 0; ///< ID counter for loaded meshes
     std::unordered_map<std::size_t, MeshInfo> m_loadedMeshes;
