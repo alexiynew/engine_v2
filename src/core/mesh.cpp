@@ -11,6 +11,7 @@ Vector3 BoundingBox::getSize() const {
     return max - min;
 }
 
+// TODO: Add bounding box rendering
 void Mesh::calculateBoundingBox() {
     if (vertices.empty()) {
         boundingBox = {Vector3(0.0f), Vector3(0.0f)};

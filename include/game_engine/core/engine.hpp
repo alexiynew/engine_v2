@@ -9,6 +9,12 @@
 namespace game_engine::core
 {
 
+// TODO: Add tests
+// TODO: Add ECS
+// TODO: Renderer in separate thread
+// TODO: Backend in separate thread
+// TODO: Game in separate thread
+
 class Engine
 {
 public:

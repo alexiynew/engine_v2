@@ -19,8 +19,6 @@ public:
     EngineImpl();
     ~EngineImpl() override;
 
-    int run() noexcept;
-
     // Engine
     TimePoint getTime() const noexcept override;
     bool shouldStop() const noexcept override;
@@ -31,6 +29,8 @@ public:
 
     MeshId loadMesh(const Mesh& mesh) override;
     void renderMesh(MeshId meshId) override;
+
+    int run() noexcept;
 
 private:
     std::unique_ptr<game_engine::backend::Backend> m_backend;

@@ -133,6 +133,8 @@ core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh) {
     return 0;
 }
 
+// TODO: Add submeshes support with materials
+// TODO: Add instancing
 void GLFWBackend::renderMesh(core::MeshId meshId) {
     auto it = m_loadedMeshes.find(meshId);
     if (it == m_loadedMeshes.end()) {

@@ -76,6 +76,7 @@ MeshId EngineImpl::loadMesh(const Mesh& mesh) {
     return m_backend->loadMesh(mesh);
 }
 
+// TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
 void EngineImpl::renderMesh(MeshId meshId) {
     m_backend->renderMesh(meshId);
 }
