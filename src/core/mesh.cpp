@@ -3,16 +3,19 @@
 namespace game_engine::core
 {
 
-Vector3 BoundingBox::getCenter() const {
+Vector3 BoundingBox::getCenter() const
+{
     return (min + max) * 0.5f;
 }
 
-Vector3 BoundingBox::getSize() const {
+Vector3 BoundingBox::getSize() const
+{
     return max - min;
 }
 
 // TODO: Add bounding box rendering
-void Mesh::calculateBoundingBox() {
+void Mesh::calculateBoundingBox()
+{
     if (vertices.empty()) {
         boundingBox = {Vector3(0.0f), Vector3(0.0f)};
         return;

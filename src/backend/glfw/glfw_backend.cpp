@@ -54,13 +54,15 @@ const char* g_fragmentShaderSource = R"(
 namespace game_engine::backend
 {
 
-GLFWBackend::GLFWBackend() {
+GLFWBackend::GLFWBackend()
+{
     m_shader = std::make_unique<OpenGLShader>();
 }
 
 GLFWBackend::~GLFWBackend() = default;
 
-bool GLFWBackend::initialize() {
+bool GLFWBackend::initialize()
+{
     if (!glfwInit()) {
         return false;
     }
@@ -93,7 +95,8 @@ bool GLFWBackend::initialize() {
     return true;
 }
 
-void GLFWBackend::shutdown() {
+void GLFWBackend::shutdown()
+{
     for (auto& [_, m] : m_loadedMeshes) {
         glDeleteVertexArrays(1, &m.VAO);
         glDeleteBuffers(1, &m.VBO);
@@ -107,20 +110,24 @@ void GLFWBackend::shutdown() {
     glfwTerminate();
 }
 
-void GLFWBackend::pollEvents() {
+void GLFWBackend::pollEvents()
+{
     glfwPollEvents();
 }
 
-void GLFWBackend::beginFrame() {
+void GLFWBackend::beginFrame()
+{
     glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void GLFWBackend::endFrame() {
+void GLFWBackend::endFrame()
+{
     glfwSwapBuffers(GLFWBackendContext::getWindow(this));
 }
 
-core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh) {
+core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh)
+{
     if (auto loadResult = loadMeshToGPU(mesh); loadResult.has_value()) {
         core::MeshId meshId    = ++m_nextMeshId;
         m_loadedMeshes[meshId] = loadResult.value();
@@ -132,7 +139,8 @@ core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh) {
 
 // TODO: Add submeshes support with materials
 // TODO: Add instancing
-void GLFWBackend::renderMesh(core::MeshId meshId) {
+void GLFWBackend::renderMesh(core::MeshId meshId)
+{
     auto it = m_loadedMeshes.find(meshId);
     if (it == m_loadedMeshes.end()) {
         return;
@@ -158,7 +166,8 @@ void GLFWBackend::renderMesh(core::MeshId meshId) {
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(meshInfo.indicesCount), GL_UNSIGNED_INT, 0);
 }
 
-void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods) {
+void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods)
+{
     KeyboardInputEvent event;
     event.key       = convertGLFWKey(key);
     event.action    = convertGLFWAction(action);
@@ -167,31 +176,38 @@ void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods) {
     notify(event);
 }
 
-void GLFWBackend::handleWindowResize(int width, int height) {
-    notify(WindowResizeEvent {width, height}); // TODO: fix formating
+void GLFWBackend::handleWindowResize(int width, int height)
+{
+    notify(WindowResizeEvent{width, height}); // TODO: fix formating
 }
 
-void GLFWBackend::handleWindowMove(int xpos, int ypos) {
-    notify(WindowMoveEvent {xpos, ypos});
+void GLFWBackend::handleWindowMove(int xpos, int ypos)
+{
+    notify(WindowMoveEvent{xpos, ypos});
 }
 
-void GLFWBackend::handleWindowClose() {
-    notify(WindowCloseEvent {});
+void GLFWBackend::handleWindowClose()
+{
+    notify(WindowCloseEvent{});
 }
 
-void GLFWBackend::handleWindowFocus(bool focused) {
-    notify(WindowFocusEvent {focused});
+void GLFWBackend::handleWindowFocus(bool focused)
+{
+    notify(WindowFocusEvent{focused});
 }
 
-void GLFWBackend::handleWindowIconify(bool iconified) {
-    notify(WindowIconifyEvent {iconified});
+void GLFWBackend::handleWindowIconify(bool iconified)
+{
+    notify(WindowIconifyEvent{iconified});
 }
 
-void GLFWBackend::handleWindowMaximize(bool maximized) {
-    notify(WindowMaximizeEvent {maximized});
+void GLFWBackend::handleWindowMaximize(bool maximized)
+{
+    notify(WindowMaximizeEvent{maximized});
 }
 
-std::expected<GLFWBackend::MeshInfo, bool> GLFWBackend::loadMeshToGPU(const core::Mesh& mesh) {
+std::expected<GLFWBackend::MeshInfo, bool> GLFWBackend::loadMeshToGPU(const core::Mesh& mesh)
+{
     MeshInfo info;
 
     glGenVertexArrays(1, &info.VAO);

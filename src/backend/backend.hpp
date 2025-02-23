@@ -78,7 +78,8 @@ protected:
     std::list<RefObserver> m_observers;
 
     template <typename EventType>
-    void notify(const EventType& event) {
+    void notify(const EventType& event)
+    {
         for (auto observer : m_observers) {
             observer.get().onEvent(event);
         }

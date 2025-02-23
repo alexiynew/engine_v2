@@ -45,7 +45,7 @@ BraceWrapping:
     AfterClass: true
     AfterControlStatement: MultiLine
     AfterEnum: true
-    AfterFunction: false
+    AfterFunction: true
     AfterNamespace: true
     AfterObjCDeclaration: true
     AfterStruct: true
@@ -158,7 +158,7 @@ SpaceAfterTemplateKeyword: true
 SpaceAroundPointerQualifiers: Default
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false
-SpaceBeforeCpp11BracedList: true
+SpaceBeforeCpp11BracedList: false
 SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements

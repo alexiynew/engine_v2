@@ -3,11 +3,13 @@
 namespace game_engine::backend
 {
 
-void Backend::attachBackendObserver(BackendObserver& observer) {
+void Backend::attachBackendObserver(BackendObserver& observer)
+{
     m_observers.push_front(observer);
 }
 
-void Backend::detachBackendObserver(BackendObserver& observer) {
+void Backend::detachBackendObserver(BackendObserver& observer)
+{
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }
 

@@ -9,7 +9,8 @@
 namespace game_engine::backend
 {
 
-std::string_view getErrorName(unsigned int error) {
+std::string_view getErrorName(unsigned int error)
+{
     switch (error) {
         case GL_INVALID_ENUM:                  return "GL_INVALID_ENUM";
         case GL_INVALID_VALUE:                 return "GL_INVALID_VALUE";
@@ -21,7 +22,8 @@ std::string_view getErrorName(unsigned int error) {
     return "UNKNOWN_ERROR";
 }
 
-bool hasOpenGLErrors() {
+bool hasOpenGLErrors()
+{
     bool hasErrors = false;
     while (GLuint error = glGetError()) {
         if (error == GL_NO_ERROR) {

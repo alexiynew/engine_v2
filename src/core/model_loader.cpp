@@ -9,7 +9,8 @@ namespace game_engine::core
 
 // TODO: Test model loading fom obj.files with materials
 
-std::shared_ptr<Mesh> ModelLoader::loadModel(const std::filesystem::path& filePath) {
+std::shared_ptr<Mesh> ModelLoader::loadModel(const std::filesystem::path& filePath)
+{
     // Check if the model is already loaded
     if (m_modelCache.find(filePath) != m_modelCache.end()) {
         return m_modelCache[filePath];

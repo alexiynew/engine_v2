@@ -7,7 +7,8 @@ namespace game_engine::core
 {
 
 EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
-    : m_backend(std::move(backend)) {
+    : m_backend(std::move(backend))
+{
     m_game = createGameInstance(*this);
     if (!m_game) {
         throw std::runtime_error("Game is not created");
@@ -22,12 +23,14 @@ EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
     m_targetFrameTime  = second / fps;
 }
 
-EngineImpl::~EngineImpl() {
+EngineImpl::~EngineImpl()
+{
     m_game.reset();
     m_backend.reset();
 }
 
-int EngineImpl::run() noexcept {
+int EngineImpl::run() noexcept
+{
     m_engineStartTime = getTime();
     std::cout << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count() << std::endl;
 
@@ -56,62 +59,71 @@ int EngineImpl::run() noexcept {
     return 0;
 }
 
-EngineImpl::TimePoint EngineImpl::getTime() const noexcept {
+EngineImpl::TimePoint EngineImpl::getTime() const noexcept
+{
     return std::chrono::steady_clock::now();
 }
 
-bool EngineImpl::shouldStop() const noexcept {
+bool EngineImpl::shouldStop() const noexcept
+{
     return m_shouldStop;
 }
 
-void EngineImpl::setShouldStopFlag() noexcept {
+void EngineImpl::setShouldStopFlag() noexcept
+{
     m_shouldStop = true;
 }
 
-std::shared_ptr<ModelLoader> EngineImpl::getModelLoader() {
+std::shared_ptr<ModelLoader> EngineImpl::getModelLoader()
+{
     return m_modelLoader;
 }
 
-MeshId EngineImpl::loadMesh(const Mesh& mesh) {
+MeshId EngineImpl::loadMesh(const Mesh& mesh)
+{
     return m_backend->loadMesh(mesh);
 }
 
 // TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
-void EngineImpl::renderMesh(MeshId meshId) {
+void EngineImpl::renderMesh(MeshId meshId)
+{
     m_backend->renderMesh(meshId);
 }
 
-void EngineImpl::onEvent(const KeyboardInputEvent& event) {
+void EngineImpl::onEvent(const KeyboardInputEvent& event)
+{
     m_game->onKeyboardInputEvent(event);
 }
 
-void EngineImpl::onEvent(const WindowResizeEvent& event) {
-}
+void EngineImpl::onEvent(const WindowResizeEvent& event)
+{}
 
-void EngineImpl::onEvent(const WindowMoveEvent& event) {
-}
+void EngineImpl::onEvent(const WindowMoveEvent& event)
+{}
 
-void EngineImpl::onEvent(const WindowCloseEvent& event) {
+void EngineImpl::onEvent(const WindowCloseEvent& event)
+{
     if (m_game->onShouldClose()) {
         setShouldStopFlag();
     }
 }
 
-void EngineImpl::onEvent(const WindowFocusEvent& event) {
-}
+void EngineImpl::onEvent(const WindowFocusEvent& event)
+{}
 
-void EngineImpl::onEvent(const WindowIconifyEvent& event) {
-}
+void EngineImpl::onEvent(const WindowIconifyEvent& event)
+{}
 
-void EngineImpl::onEvent(const WindowMaximizeEvent& event) {
-}
+void EngineImpl::onEvent(const WindowMaximizeEvent& event)
+{}
 
-void EngineImpl::mainLoop() {
+void EngineImpl::mainLoop()
+{
     TimePoint lastTime       = getTime();
     TimePoint fpsCounterTime = lastTime;
 
-    std::chrono::nanoseconds updatesDeltaTime {0};
-    std::chrono::nanoseconds framesDeltaTime {0};
+    std::chrono::nanoseconds updatesDeltaTime{0};
+    std::chrono::nanoseconds framesDeltaTime{0};
 
     while (!shouldStop()) {
         m_backend->pollEvents();
@@ -150,11 +162,13 @@ void EngineImpl::mainLoop() {
     }
 }
 
-void EngineImpl::update(std::chrono::nanoseconds elapsedTime) {
+void EngineImpl::update(std::chrono::nanoseconds elapsedTime)
+{
     m_game->onUpdate(elapsedTime);
 }
 
-void EngineImpl::render() {
+void EngineImpl::render()
+{
     m_backend->beginFrame();
     m_game->onDraw();
     m_backend->endFrame();

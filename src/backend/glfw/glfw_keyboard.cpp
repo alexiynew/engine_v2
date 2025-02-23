@@ -8,7 +8,8 @@
 namespace game_engine::backend
 {
 
-KeyCode convertGLFWKey(int glfwKey) {
+KeyCode convertGLFWKey(int glfwKey)
+{
     using namespace game_engine;
 
     switch (glfwKey) {
@@ -144,7 +145,8 @@ KeyCode convertGLFWKey(int glfwKey) {
     }
 }
 
-KeyAction convertGLFWAction(int glfwAction) {
+KeyAction convertGLFWAction(int glfwAction)
+{
     using namespace game_engine;
 
     switch (glfwAction) {
@@ -155,7 +157,8 @@ KeyAction convertGLFWAction(int glfwAction) {
     }
 }
 
-KeyModifier convertGLFWModifiers(int glfwMods) {
+KeyModifier convertGLFWModifiers(int glfwMods)
+{
     using namespace game_engine;
 
     using UnderlyingType     = std::underlying_type_t<KeyModifier>;

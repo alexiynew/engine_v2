@@ -20,8 +20,8 @@ class BackendMock final : public game_engine::backend::Backend
 {
 public:
     explicit BackendMock(int requiredFramesCount)
-        : m_requiredFramesCount(requiredFramesCount) {
-    }
+        : m_requiredFramesCount(requiredFramesCount)
+    {}
 
     MOCK_METHOD(bool, initialize, (), (override));
     MOCK_METHOD(void, shutdown, (), (override));
@@ -31,13 +31,15 @@ public:
     MOCK_METHOD(core::MeshId, loadMesh, (const core::Mesh&), (override));
     MOCK_METHOD(void, renderMesh, (core::MeshId meshId), (override));
 
-    void testPollEvents() {
+    void testPollEvents()
+    {
         if (m_frameCount >= m_requiredFramesCount) {
-            notify(WindowCloseEvent {});
+            notify(WindowCloseEvent{});
         }
     }
 
-    void testEndFrame() {
+    void testEndFrame()
+    {
         m_frameCount++;
     }
 
@@ -46,7 +48,8 @@ private:
     int m_frameCount          = 0;
 };
 
-TEST(CoreTest, DefaultMainLoop) {
+TEST(CoreTest, DefaultMainLoop)
+{
     constexpr int maxFramesCount = 10;
 
     auto backend = std::make_shared<BackendMock>(maxFramesCount);
@@ -73,7 +76,8 @@ TEST(CoreTest, DefaultMainLoop) {
     EXPECT_EQ(0, returnCode);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     ::testing::InitGoogleMock(&argc, argv);
 
