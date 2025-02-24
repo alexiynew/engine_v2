@@ -13,7 +13,6 @@ using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::WithArg;
 
-// TODO: Use proper Game mock
 class GameMock final : public game_engine::Game
 {
 public:

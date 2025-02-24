@@ -71,6 +71,7 @@ bool GLFWBackend::initialize()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    // TODO: Move window parameters to config
     auto window = glfwCreateWindow(800, 600, "Game Engine", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
@@ -178,7 +179,7 @@ void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods)
 
 void GLFWBackend::handleWindowResize(int width, int height)
 {
-    notify(WindowResizeEvent{width, height}); // TODO: fix formating
+    notify(WindowResizeEvent{width, height});
 }
 
 void GLFWBackend::handleWindowMove(int xpos, int ypos)

@@ -86,4 +86,6 @@ protected:
     }
 };
 
+std::shared_ptr<Backend> createBackendInstance();
+
 } // namespace game_engine::backend

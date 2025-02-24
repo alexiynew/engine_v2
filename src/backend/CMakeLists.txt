@@ -16,9 +16,17 @@ target_include_directories(backend
 
 set_target_properties(backend PROPERTIES FOLDER "backend")
 
-add_subdirectory(glfw)
 
-target_link_libraries(backend PRIVATE glfw_backend)
+if (FALSE) 
+    add_subdirectory(glfw)
+    target_link_libraries(backend PRIVATE glfw_backend)
+else()
+    include(stub/CMakeLists.txt)
+endif()
+
+include(libs/glm)
+target_link_libraries(backend PUBLIC Libs::glm)
+
 target_link_libraries(backend PRIVATE engine::compile_options)
 
 add_library(engine::backend ALIAS backend)

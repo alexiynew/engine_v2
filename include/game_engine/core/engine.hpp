@@ -9,7 +9,7 @@
 namespace game_engine::core
 {
 
-// TODO: Add tests
+// TODO: Add tests for mesh loading
 // TODO: Add ECS
 // TODO: Renderer in separate thread
 // TODO: Backend in separate thread
