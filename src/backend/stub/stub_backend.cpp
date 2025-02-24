@@ -35,12 +35,12 @@ void StubBackend::endFrame()
     m_framesCount++;
 }
 
-core::MeshId StubBackend::loadMesh(const core::Mesh& mesh)
+core::MeshId StubBackend::loadMesh(const core::Mesh&)
 {
     return 0;
 }
 
-void StubBackend::renderMesh(core::MeshId meshId)
+void StubBackend::renderMesh(core::MeshId)
 {}
 
 } // namespace game_engine::backend

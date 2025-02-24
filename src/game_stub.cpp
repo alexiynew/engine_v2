@@ -93,7 +93,7 @@ void GameStub::onInitialize()
     m_meshId = m_engine.loadMesh(std::move(mesh));
 }
 
-void GameStub::onUpdate(std::chrono::nanoseconds elapsedTime)
+void GameStub::onUpdate(std::chrono::nanoseconds)
 {
     m_updatesCount++;
 }
