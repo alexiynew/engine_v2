@@ -13,6 +13,7 @@ set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(GLM)
 
 target_compile_options(glm PRIVATE "-Wno-unsafe-buffer-usage")
+target_compile_options(glm PRIVATE "-Wno-sign-conversion")
 
 set_target_properties(glm PROPERTIES FOLDER "libs/glm")
 
