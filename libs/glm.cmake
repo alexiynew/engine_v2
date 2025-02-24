@@ -12,8 +12,14 @@ set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(GLM)
 
-target_compile_options(glm PRIVATE "-Wno-unsafe-buffer-usage")
-target_compile_options(glm PRIVATE "-Wno-sign-conversion")
+set(GLM_GCC_CUSTOM_COMPILE_OPTIONS -Wno-unsafe-buffer-usage)
+set(GLM_MSVC_CUSTOM_COMPILE_OPTIONS )
+
+target_compile_options(glm 
+	PRIVATE 
+        $<${GCC_LIKE_COMPILER}:${GLM_GCC_CUSTOM_COMPILE_OPTIONS}>
+        $<${MSVC_LIKE_COMPILER}:${GLM_MSVC_CUSTOM_COMPILE_OPTIONS}>
+)
 
 set_target_properties(glm PROPERTIES FOLDER "libs/glm")
 
@@ -21,4 +27,3 @@ set_target_properties(glm PROPERTIES FOLDER "libs/glm")
 add_library(Libs::glm INTERFACE IMPORTED)
 target_link_libraries(Libs::glm INTERFACE glm)
 target_include_directories(Libs::glm INTERFACE ${GLM_SOURCE_DIR})
-

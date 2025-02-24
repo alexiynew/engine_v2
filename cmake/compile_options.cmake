@@ -21,7 +21,6 @@ set(GCC_OPTIONS
     -Wmisleading-indentation
     -Wno-unused-parameter
     -Werror
-
 )
 
 set(MSVC_OPTIONS 
@@ -53,20 +52,6 @@ target_compile_options(compile_options
 #        set_target_properties(private_compile_options PROPERTIES CXX_CLANG_TIDY "${CXX_CLANG_TIDY}")
 #    else()
 #        message(SEND_ERROR "clang-tidy requested but executable not found")
-#    endif()
-#endif()
-#
-#if(ENABLE_CPPCHECK)
-#    find_program(CPPCHECK cppcheck)
-#    if(CPPCHECK)
-#        set(CXX_CPPCHECK
-#            ${CPPCHECK}
-#            --enable=all
-#            --suppressions-list=${CMAKE_CURRENT_SOURCE_DIR}/suppress.cppcheck
-#            --inconclusive)
-#        set_target_properties(private_compile_options PROPERTIES CXX_CPPCHECK "${CXX_CPPCHECK}")
-#    else()
-#        message(SEND_ERROR "cppcheck requested but executable not found")
 #    endif()
 #endif()
 
