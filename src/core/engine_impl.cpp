@@ -9,11 +9,6 @@ namespace game_engine::core
 EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
     : m_backend(std::move(backend))
 {
-    m_game = createGameInstance(*this);
-    if (!m_game) {
-        throw std::runtime_error("Game is not created");
-    }
-
     m_modelLoader = std::make_shared<ModelLoader>();
 
     std::chrono::nanoseconds second = std::chrono::seconds(1);
@@ -27,6 +22,11 @@ EngineImpl::~EngineImpl()
 {
     m_game.reset();
     m_backend.reset();
+}
+
+void EngineImpl::setGameInstance(std::shared_ptr<Game> game)
+{
+    m_game = std::move(game);
 }
 
 int EngineImpl::run() noexcept

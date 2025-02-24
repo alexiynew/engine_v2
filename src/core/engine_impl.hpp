@@ -30,11 +30,13 @@ public:
     MeshId loadMesh(const Mesh& mesh) override;
     void renderMesh(MeshId meshId) override;
 
+    void setGameInstance(std::shared_ptr<Game> game);
+
     int run() noexcept;
 
 private:
     std::shared_ptr<game_engine::backend::Backend> m_backend;
-    std::unique_ptr<game_engine::Game> m_game;
+    std::shared_ptr<game_engine::Game> m_game;
 
     std::shared_ptr<game_engine::core::ModelLoader> m_modelLoader;
 

@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 using namespace game_engine;
+using ::testing::AnyNumber;
 using ::testing::AtLeast;
 using ::testing::DoDefault;
 using ::testing::Exactly;
@@ -13,8 +14,16 @@ using ::testing::Return;
 using ::testing::WithArg;
 
 // TODO: Use proper Game mock
-class GameMock
-{};
+class GameMock final : public game_engine::Game
+{
+public:
+    MOCK_METHOD(void, onInitialize, (), (override));
+    MOCK_METHOD(void, onUpdate, (std::chrono::nanoseconds elapsedTime), (override));
+    MOCK_METHOD(void, onDraw, (), (override));
+    MOCK_METHOD(void, onShutdown, (), (override));
+    MOCK_METHOD(void, onKeyboardInputEvent, (const KeyboardInputEvent& event), (override));
+    MOCK_METHOD(bool, onShouldClose, (), (override));
+};
 
 class BackendMock final : public game_engine::backend::Backend
 {
@@ -55,6 +64,7 @@ TEST(CoreTest, DefaultMainLoop)
     auto backend = std::make_shared<BackendMock>(maxFramesCount);
     auto engine  = std::make_shared<game_engine::core::EngineImpl>(backend);
 
+    // Test backend calls
     EXPECT_CALL(*backend, initialize()).WillOnce(Return(true));
 
     EXPECT_CALL(*backend, pollEvents()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
@@ -67,9 +77,15 @@ TEST(CoreTest, DefaultMainLoop)
 
     EXPECT_CALL(*backend, shutdown());
 
-    //    auto game   = std::make_shared<GameMock>(engine);
+    // Test game calls
+    auto game = std::make_shared<GameMock>();
+    engine->setGameInstance(game);
 
-    //    engine->setGame(game);
+    EXPECT_CALL(*game, onInitialize).Times(1);
+    EXPECT_CALL(*game, onUpdate).Times(AnyNumber());
+    EXPECT_CALL(*game, onDraw).Times(AnyNumber());
+    EXPECT_CALL(*game, onShouldClose).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*game, onShutdown).Times(1);
 
     const int returnCode = engine->run();
 

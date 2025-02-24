@@ -39,7 +39,7 @@ public:
 
 /// @brief Creates a new instance of the game.
 /// @param engine The engine instance to associate with the game.
-/// @return A unique pointer to the created game instance.
-std::unique_ptr<Game> createGameInstance(core::Engine& engine);
+/// @return A shared pointer to the created game instance.
+std::shared_ptr<Game> createGameInstance(core::Engine& engine);
 
 } // namespace game_engine

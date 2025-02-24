@@ -22,6 +22,8 @@ target_link_libraries(core_test
         Libs::glm
 )
 
+target_link_libraries(core_test PRIVATE engine::compile_options)
+
 set_target_properties(core_test PROPERTIES FOLDER "tests")
 
 add_test(NAME core_test COMMAND core_test)
