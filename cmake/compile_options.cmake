@@ -14,12 +14,12 @@ set(GCC_OPTIONS
     -Wcast-align
     -Wunused
     -Woverloaded-virtual
-    -Wsign-conversion
     -Wnull-dereference
     -Wdouble-promotion
     -Wformat=2
     -Wmisleading-indentation
     -Wno-unused-parameter
+    -Wno-sign-conversion
     -Werror
 )
 
