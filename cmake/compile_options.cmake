@@ -28,6 +28,7 @@ set(MSVC_OPTIONS
     /WX
     /DUNICODE
     /D_UNICODE
+    /wd4100    # No unreferenced formal parameter warnings
 )
 
 add_library(compile_options INTERFACE)

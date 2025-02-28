@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.27)
 
 
 option(ENABLE_TESTING "Enable the building of the test" ON)
 option(ENABLE_CPPCHECK "Enable code checking with cppcheck" ON)
+option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
 
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
 

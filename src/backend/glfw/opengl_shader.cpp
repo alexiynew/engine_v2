@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include <glad/glad.h>
-#include <opengl_utils.hpp>
+#include <glfw/opengl_utils.hpp>
 
 #define LOG_ERROR std::cerr
 

@@ -17,11 +17,10 @@ target_include_directories(backend
 set_target_properties(backend PROPERTIES FOLDER "backend")
 
 
-if (FALSE) 
-    add_subdirectory(glfw)
-    target_link_libraries(backend PRIVATE glfw_backend)
-else()
+if (USE_STUB_BACKEND) 
     include(stub/CMakeLists.txt)
+else()
+    include(glfw/CMakeLists.txt)
 endif()
 
 include(libs/glm)
