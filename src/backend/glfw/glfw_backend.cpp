@@ -4,10 +4,10 @@
 
 #include <game_engine/common_types.hpp>
 
-#include <glfw_backend_context.hpp>
-#include <glfw_keyboard.hpp>
-#include <opengl_shader.hpp>
-#include <opengl_utils.hpp>
+#include <glfw/glfw_backend_context.hpp>
+#include <glfw/glfw_keyboard.hpp>
+#include <glfw/opengl_shader.hpp>
+#include <glfw/opengl_utils.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -53,6 +53,11 @@ const char* g_fragmentShaderSource = R"(
 
 namespace game_engine::backend
 {
+
+std::shared_ptr<Backend> createBackendInstance()
+{
+    return std::make_shared<GLFWBackend>();
+}
 
 GLFWBackend::GLFWBackend()
 {

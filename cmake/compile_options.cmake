@@ -14,12 +14,12 @@ set(GCC_OPTIONS
     -Wcast-align
     -Wunused
     -Woverloaded-virtual
-    -Wsign-conversion
     -Wnull-dereference
     -Wdouble-promotion
     -Wformat=2
     -Wmisleading-indentation
     -Wno-unused-parameter
+    -Wno-sign-conversion
     -Werror
 )
 
@@ -28,6 +28,7 @@ set(MSVC_OPTIONS
     /WX
     /DUNICODE
     /D_UNICODE
+    /wd4100    # No unreferenced formal parameter warnings
 )
 
 add_library(compile_options INTERFACE)

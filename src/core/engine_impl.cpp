@@ -95,26 +95,26 @@ void EngineImpl::onEvent(const KeyboardInputEvent& event)
     m_game->onKeyboardInputEvent(event);
 }
 
-void EngineImpl::onEvent(const WindowResizeEvent& event)
+void EngineImpl::onEvent(const WindowResizeEvent&)
 {}
 
-void EngineImpl::onEvent(const WindowMoveEvent& event)
+void EngineImpl::onEvent(const WindowMoveEvent&)
 {}
 
-void EngineImpl::onEvent(const WindowCloseEvent& event)
+void EngineImpl::onEvent(const WindowCloseEvent&)
 {
     if (m_game->onShouldClose()) {
         setShouldStopFlag();
     }
 }
 
-void EngineImpl::onEvent(const WindowFocusEvent& event)
+void EngineImpl::onEvent(const WindowFocusEvent&)
 {}
 
-void EngineImpl::onEvent(const WindowIconifyEvent& event)
+void EngineImpl::onEvent(const WindowIconifyEvent&)
 {}
 
-void EngineImpl::onEvent(const WindowMaximizeEvent& event)
+void EngineImpl::onEvent(const WindowMaximizeEvent&)
 {}
 
 void EngineImpl::mainLoop()

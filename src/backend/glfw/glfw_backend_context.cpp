@@ -1,6 +1,6 @@
 #include "glfw_backend_context.hpp"
 
-#include <glfw_backend.hpp>
+#include <glfw/glfw_backend.hpp>
 
 namespace game_engine::backend
 {
