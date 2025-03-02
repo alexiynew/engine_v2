@@ -123,3 +123,17 @@ bool GameStub::onShouldClose()
 {
     return true;
 }
+
+GameSettings GameStub::getSettings()
+{
+    GameSettings settings;
+    settings.resolutionWidth  = 1920;
+    settings.resolutionHeight = 1080;
+    settings.displayMode      = DisplayMode::Windowed;
+    settings.frameRate        = 60;
+    settings.updateRate       = 120;
+    settings.antiAliasing     = AntiAliasing::MSAA4x;
+    settings.vSync            = true;
+
+    return settings;
+}

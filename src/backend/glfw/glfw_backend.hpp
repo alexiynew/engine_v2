@@ -16,11 +16,13 @@ public:
     GLFWBackend();
     ~GLFWBackend() override;
 
-    bool initialize() override;
+    bool initialize(const GameSettings& settings) override;
     void shutdown() override;
     void pollEvents() override;
     void beginFrame() override;
     void endFrame() override;
+
+    void applySettings(const GameSettings& settings) override;
 
     core::MeshId loadMesh(const core::Mesh& mesh) override;
     void renderMesh(core::MeshId meshId) override;
@@ -48,6 +50,10 @@ private:
 
     core::MeshId m_nextMeshId = 0; ///< ID counter for loaded meshes
     std::unordered_map<std::size_t, MeshInfo> m_loadedMeshes;
+
+    bool setupOpenGL();
+    void applyDisplayMode(const GameSettings& settings);
+    void applyAntiAliasing(const GameSettings& settings);
 
     std::expected<MeshInfo, bool> loadMeshToGPU(const core::Mesh& mesh);
 };

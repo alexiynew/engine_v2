@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.27)
 
 option(ENABLE_TESTING "Enable the building of the test" ON)
 option(ENABLE_CPPCHECK "Enable code checking with cppcheck" ON)
-option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
+option(USE_STUB_BACKEND "Use backend stub for testing" ON)
 
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
 
@@ -25,6 +25,7 @@ add_executable(engine)
 target_sources(engine
     PUBLIC
         include/game_engine/common_types.hpp
+        include/game_engine/game_settings.hpp
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
         include/game_engine/core/engine.hpp
@@ -35,9 +36,10 @@ target_sources(engine
         src/core/engine_impl.cpp
         src/core/mesh.cpp
         src/core/model_loader.cpp
+        src/entry_point/entry_point.cpp
+        src/game_settings.cpp
         src/game_stub.hpp
         src/game_stub.cpp
-        src/entry_point/entry_point.cpp
 )
 
 target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)

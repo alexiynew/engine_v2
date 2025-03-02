@@ -17,6 +17,8 @@ public:
 
     bool onShouldClose() override;
 
+    game_engine::GameSettings getSettings() override;
+
 private:
     game_engine::core::Engine& m_engine;
 

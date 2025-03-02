@@ -5,6 +5,7 @@
 #include <string>
 
 #include <game_engine/core/engine.hpp>
+#include <game_engine/game_settings.hpp>
 #include <game_engine/system_events.hpp>
 
 namespace game_engine::backend
@@ -48,7 +49,7 @@ public:
     virtual ~Backend() = default;
 
     /// @brief Initialize the backend
-    virtual bool initialize() = 0;
+    virtual bool initialize(const GameSettings& settings) = 0;
 
     /// @brief Shut down the backend
     virtual void shutdown() = 0;
@@ -61,6 +62,10 @@ public:
 
     /// @brief End the frame (e.g., swap buffers)
     virtual void endFrame() = 0;
+
+    /// @brief Apply game settings
+    /// @param settings New game settings.
+    virtual void applySettings(const GameSettings& settings) = 0;
 
     /// @brief Loads mesh to backend.
     /// @param mesh The model mesh to load.

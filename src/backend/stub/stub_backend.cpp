@@ -12,7 +12,7 @@ StubBackend::StubBackend() = default;
 
 StubBackend::~StubBackend() = default;
 
-bool StubBackend::initialize()
+bool StubBackend::initialize(const GameSettings&)
 {
     return true;
 }
@@ -22,7 +22,7 @@ void StubBackend::shutdown()
 
 void StubBackend::pollEvents()
 {
-    if (m_framesCount <= m_targetFramesCount) {
+    if (m_framesCount >= m_targetFramesCount) {
         notify(WindowCloseEvent{});
     }
 }
@@ -34,6 +34,9 @@ void StubBackend::endFrame()
 {
     m_framesCount++;
 }
+
+void StubBackend::applySettings(const GameSettings&)
+{}
 
 core::MeshId StubBackend::loadMesh(const core::Mesh&)
 {

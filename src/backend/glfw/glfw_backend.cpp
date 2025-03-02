@@ -66,18 +66,23 @@ GLFWBackend::GLFWBackend()
 
 GLFWBackend::~GLFWBackend() = default;
 
-bool GLFWBackend::initialize()
+bool GLFWBackend::initialize(const GameSettings& settings)
 {
     if (!glfwInit()) {
         return false;
     }
 
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // TODO: Move window parameters to config
-    auto window = glfwCreateWindow(800, 600, "Game Engine", nullptr, nullptr);
+    auto window = glfwCreateWindow(settings.resolutionWidth,
+                                   settings.resolutionHeight,
+                                   settings.windowTitle.c_str(),
+                                   nullptr,
+                                   nullptr);
     if (!window) {
         glfwTerminate();
         return false;
@@ -85,18 +90,12 @@ bool GLFWBackend::initialize()
 
     GLFWBackendContext::registerBackend(window, this);
 
-    glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
-
-    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
+    if (!setupOpenGL()) {
         glfwTerminate();
         return false;
     }
 
-    glEnable(GL_DEPTH_TEST);
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-
-    m_shader->link(g_vertexShaderSource, g_fragmentShaderSource);
+    applySettings(settings);
 
     return true;
 }
@@ -130,6 +129,81 @@ void GLFWBackend::beginFrame()
 void GLFWBackend::endFrame()
 {
     glfwSwapBuffers(GLFWBackendContext::getWindow(this));
+}
+
+void GLFWBackend::applySettings(const GameSettings& settings)
+{
+    GLFWwindow* window = GLFWBackendContext::getWindow(this);
+
+    applyDisplayMode(settings);
+    applyAntiAliasing(settings);
+
+    glfwSetWindowTitle(window, settings.windowTitle.c_str());
+
+    glfwSwapInterval(settings.vSync ? 1 : 0);
+}
+
+bool GLFWBackend::setupOpenGL()
+{
+    glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
+
+    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
+        glfwTerminate();
+        return false;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+
+    m_shader->link(g_vertexShaderSource, g_fragmentShaderSource);
+
+    return true;
+}
+
+void GLFWBackend::applyDisplayMode(const GameSettings& settings)
+{
+    GLFWwindow* window      = GLFWBackendContext::getWindow(this);
+    GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    switch (settings.displayMode) {
+        case DisplayMode::Fullscreen:
+            glfwSetWindowMonitor(window,
+                                 monitor,
+                                 0,
+                                 0,
+                                 settings.resolutionWidth,
+                                 settings.resolutionHeight,
+                                 mode->refreshRate);
+            break;
+        case DisplayMode::BorderlessFullscreen:
+            glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            break;
+        case DisplayMode::Windowed:
+            glfwSetWindowMonitor(window,
+                                 nullptr,
+                                 100, // TODO: center window on screen
+                                 100,
+                                 settings.resolutionWidth,
+                                 settings.resolutionHeight,
+                                 mode->refreshRate);
+            break;
+    }
+}
+
+void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
+{
+    switch (settings.antiAliasing) {
+        case AntiAliasing::None: glfwWindowHint(GLFW_SAMPLES, 0); break;
+        case AntiAliasing::FXAA:
+            // TODO: FXAA is typically implemented in a post-processing shader, not via GLFW. Implement it.
+            break;
+        case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
+        case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
+        case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
+    }
 }
 
 core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh)

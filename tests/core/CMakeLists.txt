@@ -6,6 +6,7 @@ target_sources(core_test
         ${CMAKE_SOURCE_DIR}/src/backend/backend.cpp
         ${CMAKE_SOURCE_DIR}/src/core/engine_impl.cpp
         ${CMAKE_SOURCE_DIR}/src/core/mesh.cpp
+        ${CMAKE_SOURCE_DIR}/src/game_settings.cpp
         ${CMAKE_SOURCE_DIR}/src/game_stub.cpp
 )
 

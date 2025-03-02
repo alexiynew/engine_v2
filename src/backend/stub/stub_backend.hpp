@@ -13,14 +13,16 @@ public:
     StubBackend();
     ~StubBackend() override;
 
-    bool initialize() override;
+    bool initialize(const GameSettings&) override;
     void shutdown() override;
     void pollEvents() override;
     void beginFrame() override;
     void endFrame() override;
 
-    core::MeshId loadMesh(const core::Mesh& mesh) override;
-    void renderMesh(core::MeshId meshId) override;
+    void applySettings(const GameSettings&) override;
+
+    core::MeshId loadMesh(const core::Mesh&) override;
+    void renderMesh(core::MeshId) override;
 
 private:
     int m_framesCount       = 0;

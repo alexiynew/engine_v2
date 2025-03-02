@@ -61,6 +61,7 @@ private:
     void onEvent(const WindowIconifyEvent& event) override;
     void onEvent(const WindowMaximizeEvent& event) override;
 
+    void setupFrameRate(const GameSettings& settings);
     void mainLoop();
 
     void update(std::chrono::nanoseconds elapsedTime);

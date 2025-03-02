@@ -3,6 +3,13 @@
 #include <iostream>
 #include <thread>
 
+namespace
+{
+
+inline constexpr std::chrono::nanoseconds g_second = std::chrono::seconds(1);
+
+} // namespace
+
 namespace game_engine::core
 {
 
@@ -10,12 +17,6 @@ EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
     : m_backend(std::move(backend))
 {
     m_modelLoader = std::make_shared<ModelLoader>();
-
-    std::chrono::nanoseconds second = std::chrono::seconds(1);
-    std::size_t fps                 = 60;
-
-    m_targetUpdateTime = second / fps;
-    m_targetFrameTime  = second / fps;
 }
 
 EngineImpl::~EngineImpl()
@@ -35,9 +36,11 @@ int EngineImpl::run() noexcept
     std::cout << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count() << std::endl;
 
     try {
-        if (!m_backend->initialize()) {
+        const GameSettings& settings = m_game->getSettings();
+        if (!m_backend->initialize(settings)) {
             return -1;
         }
+        setupFrameRate(settings);
         m_backend->attachBackendObserver(*this);
 
         m_game->onInitialize();
@@ -95,6 +98,8 @@ void EngineImpl::onEvent(const KeyboardInputEvent& event)
     m_game->onKeyboardInputEvent(event);
 }
 
+// TODO: Handle window events
+// TODO: Save view aspect ratio on window resize
 void EngineImpl::onEvent(const WindowResizeEvent&)
 {}
 
@@ -116,6 +121,12 @@ void EngineImpl::onEvent(const WindowIconifyEvent&)
 
 void EngineImpl::onEvent(const WindowMaximizeEvent&)
 {}
+
+void EngineImpl::setupFrameRate(const GameSettings& settings)
+{
+    m_targetUpdateTime = g_second / settings.updateRate;
+    m_targetFrameTime  = g_second / settings.frameRate;
+}
 
 void EngineImpl::mainLoop()
 {

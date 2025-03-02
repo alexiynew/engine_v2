@@ -22,6 +22,7 @@ public:
     MOCK_METHOD(void, onShutdown, (), (override));
     MOCK_METHOD(void, onKeyboardInputEvent, (const KeyboardInputEvent& event), (override));
     MOCK_METHOD(bool, onShouldClose, (), (override));
+    MOCK_METHOD(GameSettings, getSettings, (), (override));
 };
 
 class BackendMock final : public game_engine::backend::Backend
@@ -31,11 +32,12 @@ public:
         : m_requiredFramesCount(requiredFramesCount)
     {}
 
-    MOCK_METHOD(bool, initialize, (), (override));
+    MOCK_METHOD(bool, initialize, (const GameSettings&), (override));
     MOCK_METHOD(void, shutdown, (), (override));
     MOCK_METHOD(void, pollEvents, (), (override));
     MOCK_METHOD(void, beginFrame, (), (override));
     MOCK_METHOD(void, endFrame, (), (override));
+    MOCK_METHOD(void, applySettings, (const GameSettings&), (override));
     MOCK_METHOD(core::MeshId, loadMesh, (const core::Mesh&), (override));
     MOCK_METHOD(void, renderMesh, (core::MeshId meshId), (override));
 
@@ -64,7 +66,7 @@ TEST(CoreTest, DefaultMainLoop)
     auto engine  = std::make_shared<game_engine::core::EngineImpl>(backend);
 
     // Test backend calls
-    EXPECT_CALL(*backend, initialize()).WillOnce(Return(true));
+    EXPECT_CALL(*backend, initialize(GameSettings{})).WillOnce(Return(true));
 
     EXPECT_CALL(*backend, pollEvents()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
         backend->testPollEvents();
@@ -85,6 +87,7 @@ TEST(CoreTest, DefaultMainLoop)
     EXPECT_CALL(*game, onDraw).Times(AnyNumber());
     EXPECT_CALL(*game, onShouldClose).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*game, onShutdown).Times(1);
+    EXPECT_CALL(*game, getSettings).Times(1).WillOnce(Return(GameSettings{}));
 
     const int returnCode = engine->run();
 
