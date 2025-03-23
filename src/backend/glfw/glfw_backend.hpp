@@ -24,6 +24,9 @@ public:
 
     void applySettings(const GameSettings& settings) override;
 
+    std::shared_ptr<core::Shader> createShader() override;
+    void useShader(const std::shared_ptr<core::Shader>& shader) override;
+
     core::MeshId loadMesh(const core::Mesh& mesh) override;
     void renderMesh(core::MeshId meshId) override;
 
@@ -46,7 +49,7 @@ private:
         std::size_t indicesCount = 0;
     };
 
-    std::unique_ptr<OpenGLShader> m_shader;
+    std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
 
     core::MeshId m_nextMeshId = 0; ///< ID counter for loaded meshes
     std::unordered_map<std::size_t, MeshInfo> m_loadedMeshes;

@@ -4,14 +4,24 @@
 #include <gtest/gtest.h>
 
 using namespace game_engine;
-using ::testing::AnyNumber;
-using ::testing::AtLeast;
-using ::testing::DoDefault;
-using ::testing::Exactly;
-using ::testing::InSequence;
-using ::testing::Invoke;
-using ::testing::Return;
-using ::testing::WithArg;
+using namespace ::testing;
+
+class ShaderMock : public game_engine::core::Shader
+{
+public:
+    ShaderMock()
+    {
+        ON_CALL(*this, link()).WillByDefault(Return(true));
+        ON_CALL(*this, isValid()).WillByDefault(Return(true));
+    }
+
+    MOCK_METHOD(void, setSource, (const std::string&, const std::string&), (override));
+    MOCK_METHOD(bool, link, (), (override));
+    MOCK_METHOD(void, use, (), (override, const));
+    MOCK_METHOD(void, setUniform, (const std::string&, const core::Uniform&), (override));
+    MOCK_METHOD(void, clear, (), (override));
+    MOCK_METHOD(bool, isValid, (), (override, const));
+};
 
 class GameMock final : public game_engine::Game
 {
@@ -38,6 +48,8 @@ public:
     MOCK_METHOD(void, beginFrame, (), (override));
     MOCK_METHOD(void, endFrame, (), (override));
     MOCK_METHOD(void, applySettings, (const GameSettings&), (override));
+    MOCK_METHOD(std::shared_ptr<core::Shader>, createShader, (), (override));
+    MOCK_METHOD(void, useShader, (const std::shared_ptr<core::Shader>& shader), (override));
     MOCK_METHOD(core::MeshId, loadMesh, (const core::Mesh&), (override));
     MOCK_METHOD(void, renderMesh, (core::MeshId meshId), (override));
 
@@ -76,6 +88,10 @@ TEST(CoreTest, DefaultMainLoop)
         backend->testEndFrame();
     }));
 
+    EXPECT_CALL(*backend, createShader())
+    .Times(AnyNumber())
+    .WillRepeatedly(Return(std::make_shared<NiceMock<ShaderMock>>()));
+
     EXPECT_CALL(*backend, shutdown());
 
     // Test game calls
@@ -96,8 +112,8 @@ TEST(CoreTest, DefaultMainLoop)
 
 int main(int argc, char** argv)
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    ::testing::InitGoogleMock(&argc, argv);
+    InitGoogleTest(&argc, argv);
+    InitGoogleMock(&argc, argv);
 
     return RUN_ALL_TESTS();
 }

@@ -1,5 +1,7 @@
 #include "stub_backend.hpp"
 
+#include <stub/stub_shader.hpp>
+
 namespace game_engine::backend
 {
 
@@ -36,6 +38,14 @@ void StubBackend::endFrame()
 }
 
 void StubBackend::applySettings(const GameSettings&)
+{}
+
+std::shared_ptr<core::Shader> StubBackend::createShader()
+{
+    return std::make_shared<StubShader>();
+}
+
+void StubBackend::useShader(const std::shared_ptr<core::Shader>&)
 {}
 
 core::MeshId StubBackend::loadMesh(const core::Mesh&)
