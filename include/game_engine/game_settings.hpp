@@ -14,7 +14,6 @@ enum class DisplayMode
 enum class AntiAliasing
 {
     None,
-    FXAA,
     MSAA2x,
     MSAA4x,
     MSAA8x,

@@ -156,7 +156,8 @@ bool GLFWBackend::setupOpenGL()
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
 
-    m_shader->link(g_vertexShaderSource, g_fragmentShaderSource);
+    m_shader->setSource(g_vertexShaderSource, g_fragmentShaderSource);
+    m_shader->link();
 
     return true;
 }
@@ -181,25 +182,25 @@ void GLFWBackend::applyDisplayMode(const GameSettings& settings)
             glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
             glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
             break;
-        case DisplayMode::Windowed:
+        case DisplayMode::Windowed: {
+            const int xPos = (mode->width - settings.resolutionWidth) / 2;
+            const int yPos = (mode->height - settings.resolutionHeight) / 2;
+
             glfwSetWindowMonitor(window,
                                  nullptr,
-                                 100, // TODO: center window on screen
-                                 100,
+                                 xPos,
+                                 yPos,
                                  settings.resolutionWidth,
                                  settings.resolutionHeight,
                                  mode->refreshRate);
-            break;
+        } break;
     }
 }
 
 void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
 {
     switch (settings.antiAliasing) {
-        case AntiAliasing::None: glfwWindowHint(GLFW_SAMPLES, 0); break;
-        case AntiAliasing::FXAA:
-            // TODO: FXAA is typically implemented in a post-processing shader, not via GLFW. Implement it.
-            break;
+        case AntiAliasing::None:   glfwWindowHint(GLFW_SAMPLES, 0); break;
         case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
         case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
         case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
@@ -230,17 +231,14 @@ void GLFWBackend::renderMesh(core::MeshId meshId)
 
     m_shader->use();
 
-    const Matrix4 model = glm::rotate(glm::mat4(1.0f), static_cast<float>(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
-    const Matrix4 view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    const Matrix4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    using core::Uniform;
+    const Uniform model = glm::rotate(glm::mat4(1.0f), static_cast<float>(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
+    const Uniform view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    const Uniform projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    auto u_model      = m_shader->getUniformLocation("model");
-    auto u_view       = m_shader->getUniformLocation("view");
-    auto u_projection = m_shader->getUniformLocation("projection");
-
-    m_shader->setUniform(u_model, model);
-    m_shader->setUniform(u_view, view);
-    m_shader->setUniform(u_projection, projection);
+    m_shader->setUniform("model", model);
+    m_shader->setUniform("view", view);
+    m_shader->setUniform("projection", projection);
 
     glBindVertexArray(meshInfo.VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(meshInfo.indicesCount), GL_UNSIGNED_INT, 0);
