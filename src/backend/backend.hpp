@@ -5,6 +5,7 @@
 #include <string>
 
 #include <game_engine/core/engine.hpp>
+#include <game_engine/core/shader.hpp>
 #include <game_engine/game_settings.hpp>
 #include <game_engine/system_events.hpp>
 
@@ -66,6 +67,14 @@ public:
     /// @brief Apply game settings
     /// @param settings New game settings.
     virtual void applySettings(const GameSettings& settings) = 0;
+
+    /// @brief Creates new shader instance.
+    /// @return The new shader pointer.
+    virtual std::shared_ptr<core::Shader> createShader() = 0;
+
+    /// @brief Set active shader to next render calls.
+    /// @param shader The shader to use.
+    virtual void useShader(const std::shared_ptr<core::Shader>& shader) = 0;
 
     /// @brief Loads mesh to backend.
     /// @param mesh The model mesh to load.

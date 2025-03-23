@@ -12,44 +12,6 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-
-namespace
-{
-using namespace game_engine::backend;
-
-const char* g_vertexShaderSource = R"(
-        #version 330 core
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec3 aNormal;
-        layout(location = 2) in vec2 aUV;
-        layout(location = 3) in vec3 aColor;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-
-        out vec4 color;
-        void main() {
-            color = vec4(aColor, 1.0);
-            gl_Position = projection * view * model * vec4(aPos, 1.0);
-        }
-    )";
-
-const char* g_fragmentShaderSource = R"(
-        #version 330 core
-        in vec4 color;
-
-        out vec4 FragColor;
-
-        void main() {
-            FragColor = color;
-            //FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-        }
-    )";
-
-} // namespace
 
 namespace game_engine::backend
 {
@@ -60,9 +22,7 @@ std::shared_ptr<Backend> createBackendInstance()
 }
 
 GLFWBackend::GLFWBackend()
-{
-    m_shader = std::make_unique<OpenGLShader>();
-}
+{}
 
 GLFWBackend::~GLFWBackend() = default;
 
@@ -102,6 +62,7 @@ bool GLFWBackend::initialize(const GameSettings& settings)
 
 void GLFWBackend::shutdown()
 {
+    // TODO: Use mesh class to clear mesh info in mesh destructor
     for (auto& [_, m] : m_loadedMeshes) {
         glDeleteVertexArrays(1, &m.VAO);
         glDeleteBuffers(1, &m.VBO);
@@ -109,7 +70,11 @@ void GLFWBackend::shutdown()
     }
     m_loadedMeshes.clear();
 
-    m_shader->clear();
+    // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
+    for (auto& shader : m_shaders) {
+        shader->clear();
+    }
+    m_shaders.clear();
 
     glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
@@ -155,9 +120,6 @@ bool GLFWBackend::setupOpenGL()
     glEnable(GL_DEPTH_TEST);
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
-
-    m_shader->setSource(g_vertexShaderSource, g_fragmentShaderSource);
-    m_shader->link();
 
     return true;
 }
@@ -207,6 +169,22 @@ void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
     }
 }
 
+std::shared_ptr<core::Shader> GLFWBackend::createShader()
+{
+    auto shader = std::make_shared<OpenGLShader>();
+
+    m_shaders.push_back(shader);
+
+    return shader;
+}
+
+void GLFWBackend::useShader(const std::shared_ptr<core::Shader>& shader)
+{
+    if (shader->isValid()) {
+        shader->use();
+    }
+}
+
 core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh)
 {
     if (auto loadResult = loadMeshToGPU(mesh); loadResult.has_value()) {
@@ -228,17 +206,6 @@ void GLFWBackend::renderMesh(core::MeshId meshId)
     }
 
     const auto& meshInfo = it->second;
-
-    m_shader->use();
-
-    using core::Uniform;
-    const Uniform model = glm::rotate(glm::mat4(1.0f), static_cast<float>(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
-    const Uniform view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    const Uniform projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-    m_shader->setUniform("model", model);
-    m_shader->setUniform("view", view);
-    m_shader->setUniform("projection", projection);
 
     glBindVertexArray(meshInfo.VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(meshInfo.indicesCount), GL_UNSIGNED_INT, 0);

@@ -10,7 +10,9 @@
             "name": "default-options",
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
-            "cacheVariables": {}
+            "cacheVariables": {
+                "USE_STUB_BACKEND": "OFF"
+            }
         },
         {
             "name": "ninja-multi",

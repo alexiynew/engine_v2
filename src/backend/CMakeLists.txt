@@ -16,7 +16,6 @@ target_include_directories(backend
 
 set_target_properties(backend PROPERTIES FOLDER "backend")
 
-
 if (USE_STUB_BACKEND) 
     include(stub/CMakeLists.txt)
 else()
