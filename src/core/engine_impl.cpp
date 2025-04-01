@@ -16,7 +16,7 @@ const char* VertexShaderSource = R"(
         layout(location = 0) in vec3 aPos;
         layout(location = 1) in vec3 aNormal;
         layout(location = 2) in vec2 aUV;
-        layout(location = 3) in vec3 aColor;
+        layout(location = 3) in vec4 aColor;
 
         uniform mat4 model;
         uniform mat4 view;
@@ -24,7 +24,7 @@ const char* VertexShaderSource = R"(
 
         out vec4 color;
         void main() {
-            color = vec4(aColor, 1.0);
+            color = aColor;
             gl_Position = projection * view * model * vec4(aPos, 1.0);
         }
     )";
@@ -123,15 +123,15 @@ std::shared_ptr<ModelLoader> EngineImpl::getModelLoader()
     return m_modelLoader;
 }
 
-MeshId EngineImpl::loadMesh(const Mesh& mesh)
+std::shared_ptr<Mesh> EngineImpl::createMesh()
 {
-    return m_backend->loadMesh(mesh);
+    return m_backend->createMesh();
 }
 
 // TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
-void EngineImpl::renderMesh(MeshId meshId)
+void EngineImpl::render(const std::shared_ptr<Mesh>& mesh)
 {
-    m_backend->renderMesh(meshId);
+    m_backend->render(mesh);
 }
 
 void EngineImpl::onEvent(const KeyboardInputEvent& event)

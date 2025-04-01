@@ -9,6 +9,7 @@ namespace game_engine::backend
 {
 
 class OpenGLShader;
+class OpenGLMesh;
 
 class GLFWBackend final : public Backend
 {
@@ -27,8 +28,8 @@ public:
     std::shared_ptr<core::Shader> createShader() override;
     void useShader(const std::shared_ptr<core::Shader>& shader) override;
 
-    core::MeshId loadMesh(const core::Mesh& mesh) override;
-    void renderMesh(core::MeshId meshId) override;
+    std::shared_ptr<core::Mesh> createMesh() override;
+    void render(const std::shared_ptr<core::Mesh>& mesh) override;
 
     void handleKeyEvent(int key, int scancode, int action, int mods);
     void handleWindowResize(int width, int height);
@@ -40,25 +41,12 @@ public:
 
 private:
 
-    struct MeshInfo
-    {
-        unsigned int VAO = 0;
-        unsigned int VBO = 0;
-        unsigned int EBO = 0;
-
-        std::size_t indicesCount = 0;
-    };
-
     std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
-
-    core::MeshId m_nextMeshId = 0; ///< ID counter for loaded meshes
-    std::unordered_map<std::size_t, MeshInfo> m_loadedMeshes;
+    std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
     bool setupOpenGL();
     void applyDisplayMode(const GameSettings& settings);
     void applyAntiAliasing(const GameSettings& settings);
-
-    std::expected<MeshInfo, bool> loadMeshToGPU(const core::Mesh& mesh);
 };
 
 } // namespace game_engine::backend

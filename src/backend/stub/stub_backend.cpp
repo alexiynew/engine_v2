@@ -1,5 +1,6 @@
 #include "stub_backend.hpp"
 
+#include <stub/stub_mesh.hpp>
 #include <stub/stub_shader.hpp>
 
 namespace game_engine::backend
@@ -48,12 +49,12 @@ std::shared_ptr<core::Shader> StubBackend::createShader()
 void StubBackend::useShader(const std::shared_ptr<core::Shader>&)
 {}
 
-core::MeshId StubBackend::loadMesh(const core::Mesh&)
+std::shared_ptr<core::Mesh> StubBackend::createMesh()
 {
-    return 0;
+    return std::make_shared<StubMesh>();
 }
 
-void StubBackend::renderMesh(core::MeshId)
+void StubBackend::render(const std::shared_ptr<core::Mesh>& mesh)
 {}
 
 } // namespace game_engine::backend

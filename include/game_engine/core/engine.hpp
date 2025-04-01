@@ -14,6 +14,7 @@ namespace game_engine::core
 // TODO: Renderer in separate thread
 // TODO: Backend in separate thread
 // TODO: Game in separate thread
+// TODO: Add rendering methods like in web canvas2d
 
 class Engine
 {
@@ -37,11 +38,11 @@ public:
     /// @brief Loads a mesh to the backend.
     /// @param mesh The mesh to load.
     /// @return The ID of the loaded mesh.
-    virtual MeshId loadMesh(const Mesh& mesh) = 0;
+    virtual std::shared_ptr<Mesh> createMesh() = 0;
 
     /// @brief Renders a mesh by its ID.
     /// @param meshId The ID of the mesh to render.
-    virtual void renderMesh(MeshId meshId) = 0;
+    virtual void render(const std::shared_ptr<Mesh>& mesh) = 0;
 
     /// @brief Sets the flag to stop the engine.
     virtual void setShouldStopFlag() noexcept = 0;

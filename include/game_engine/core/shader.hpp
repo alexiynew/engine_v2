@@ -30,6 +30,7 @@ public:
     /// @return True if the shader program was successfully linked, false otherwise.
     virtual bool link() = 0;
 
+    // TODO: Move the use method in engine implementation.
     /// @brief Activates the shader program for rendering.
     virtual void use() const = 0;
 

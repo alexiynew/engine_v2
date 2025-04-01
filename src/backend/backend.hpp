@@ -79,11 +79,11 @@ public:
     /// @brief Loads mesh to backend.
     /// @param mesh The model mesh to load.
     /// @return The ID of the loaded mesh.
-    virtual core::MeshId loadMesh(const core::Mesh& mesh) = 0;
+    virtual std::shared_ptr<core::Mesh> createMesh() = 0;
 
     /// @brief Renders a model by its ID.
     /// @param meshId The ID of the model to render.
-    virtual void renderMesh(core::MeshId meshId) = 0;
+    virtual void render(const std::shared_ptr<core::Mesh>& mesh) = 0;
 
     void attachBackendObserver(BackendObserver& observer);
     void detachBackendObserver(BackendObserver& observer);

@@ -49,9 +49,9 @@ public:
     MOCK_METHOD(void, endFrame, (), (override));
     MOCK_METHOD(void, applySettings, (const GameSettings&), (override));
     MOCK_METHOD(std::shared_ptr<core::Shader>, createShader, (), (override));
-    MOCK_METHOD(void, useShader, (const std::shared_ptr<core::Shader>& shader), (override));
-    MOCK_METHOD(core::MeshId, loadMesh, (const core::Mesh&), (override));
-    MOCK_METHOD(void, renderMesh, (core::MeshId meshId), (override));
+    MOCK_METHOD(void, useShader, (const std::shared_ptr<core::Shader>&), (override));
+    MOCK_METHOD(std::shared_ptr<core::Mesh>, createMesh, (), (override));
+    MOCK_METHOD(void, render, (const std::shared_ptr<core::Mesh>&), (override));
 
     void testPollEvents()
     {

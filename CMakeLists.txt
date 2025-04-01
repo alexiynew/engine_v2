@@ -33,14 +33,14 @@ target_sources(engine
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
     PRIVATE
-        src/core/engine_impl.hpp
         src/core/engine_impl.cpp
-        src/core/mesh.cpp
+        src/core/engine_impl.hpp
+        src/core/mesh_impl.cpp
         src/core/model_loader.cpp
         src/entry_point/entry_point.cpp
         src/game_settings.cpp
-        src/game_stub.hpp
         src/game_stub.cpp
+        src/game_stub.hpp
 )
 
 target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)

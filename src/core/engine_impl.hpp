@@ -27,8 +27,8 @@ public:
 
     std::shared_ptr<ModelLoader> getModelLoader() override;
 
-    MeshId loadMesh(const Mesh& mesh) override;
-    void renderMesh(MeshId meshId) override;
+    std::shared_ptr<Mesh> createMesh() override;
+    void render(const std::shared_ptr<Mesh>& mesh) override;
 
     void setGameInstance(std::shared_ptr<Game> game);
 

@@ -116,7 +116,7 @@ OpenGLShader::OpenGLShader(OpenGLShader&& other) noexcept
 
 OpenGLShader& OpenGLShader::operator=(OpenGLShader&& other) noexcept
 {
-    OpenGLShader tmp = std::move(other);
+    auto tmp = std::move(other);
     swap(*this, tmp);
 
     return *this;
