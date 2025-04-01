@@ -26,7 +26,8 @@ public:
     virtual void flush() override;
     virtual void clear() override;
     virtual bool isValid() const override;
-    virtual void render() const override;
+
+    void render() const;
 
 private:
     unsigned int m_VAO = 0;

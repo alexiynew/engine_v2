@@ -26,10 +26,9 @@ public:
     void applySettings(const GameSettings& settings) override;
 
     std::shared_ptr<core::Shader> createShader() override;
-    void useShader(const std::shared_ptr<core::Shader>& shader) override;
-
     std::shared_ptr<core::Mesh> createMesh() override;
-    void render(const std::shared_ptr<core::Mesh>& mesh) override;
+
+    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
 
     void handleKeyEvent(int key, int scancode, int action, int mods);
     void handleWindowResize(int width, int height);

@@ -174,13 +174,6 @@ std::shared_ptr<core::Shader> GLFWBackend::createShader()
     return m_shaders.back();
 }
 
-void GLFWBackend::useShader(const std::shared_ptr<core::Shader>& shader)
-{
-    if (shader->isValid()) {
-        shader->use();
-    }
-}
-
 std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
 {
     m_meshes.push_back(std::make_shared<OpenGLMesh>());
@@ -190,10 +183,15 @@ std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
 // TODO: Add submeshes support with materials
 // TODO: Add instancing
 // TODO: Add bounding box rendering
-void GLFWBackend::render(const std::shared_ptr<core::Mesh>& mesh)
+void GLFWBackend::render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader)
 {
-    if (mesh->isValid()) {
-        mesh->render();
+    if (shader->isValid()) {
+        shader->use();
+    }
+
+    auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(mesh);
+    if (openglMesh && openglMesh->isValid()) {
+        openglMesh->render();
     }
 }
 

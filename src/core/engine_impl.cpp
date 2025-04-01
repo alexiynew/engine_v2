@@ -95,8 +95,7 @@ std::shared_ptr<Shader> EngineImpl::createShader()
 // TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
 void EngineImpl::render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader)
 {
-    m_backend->useShader(shader);
-    m_backend->render(mesh);
+    m_backend->render(mesh, shader);
 }
 
 void EngineImpl::onEvent(const KeyboardInputEvent& event)

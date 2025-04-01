@@ -26,9 +26,11 @@ target_sources(engine
     PUBLIC
         include/game_engine/common_types.hpp
         include/game_engine/core/engine.hpp
+        include/game_engine/core/mesh_data.hpp
         include/game_engine/core/mesh.hpp
         include/game_engine/core/model_loader.hpp
         include/game_engine/core/shader.hpp
+        include/game_engine/core/vertex_traits.hpp
         include/game_engine/game_settings.hpp
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp

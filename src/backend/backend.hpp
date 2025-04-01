@@ -72,10 +72,6 @@ public:
     /// @return The new shader pointer.
     virtual std::shared_ptr<core::Shader> createShader() = 0;
 
-    /// @brief Set active shader to next render calls.
-    /// @param shader The shader to use.
-    virtual void useShader(const std::shared_ptr<core::Shader>& shader) = 0;
-
     /// @brief Loads mesh to backend.
     /// @param mesh The model mesh to load.
     /// @return The ID of the loaded mesh.
@@ -83,7 +79,7 @@ public:
 
     /// @brief Renders a model by its ID.
     /// @param meshId The ID of the model to render.
-    virtual void render(const std::shared_ptr<core::Mesh>& mesh) = 0;
+    virtual void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) = 0;
 
     void attachBackendObserver(BackendObserver& observer);
     void detachBackendObserver(BackendObserver& observer);
