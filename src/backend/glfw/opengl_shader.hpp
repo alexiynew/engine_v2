@@ -24,10 +24,11 @@ public:
     // core::Shader
     void setSource(const std::string& vertexSource, const std::string& fragmentSource) override;
     bool link() override;
-    void use() const override;
     void setUniform(const std::string& name, const core::Uniform& uniform) override;
     void clear() override;
     bool isValid() const override;
+
+    void use() const;
 
     void bindAttributeLocation(std::uint32_t location, const std::string& name) const;
     int getAttributeLocation(const std::string& name) const;

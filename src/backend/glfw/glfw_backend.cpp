@@ -185,11 +185,12 @@ std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
 // TODO: Add bounding box rendering
 void GLFWBackend::render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader)
 {
-    if (shader->isValid()) {
-        shader->use();
+    auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(shader);
+    if (openglShader && openglShader->isValid()) {
+        openglShader->use();
     }
 
-    auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(mesh);
+    const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(mesh);
     if (openglMesh && openglMesh->isValid()) {
         openglMesh->render();
     }

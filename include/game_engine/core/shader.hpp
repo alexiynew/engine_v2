@@ -30,10 +30,6 @@ public:
     /// @return True if the shader program was successfully linked, false otherwise.
     virtual bool link() = 0;
 
-    // TODO: Move the use method in engine implementation.
-    /// @brief Activates the shader program for rendering.
-    virtual void use() const = 0;
-
     /// @brief Sets a uniform variable in the shader program.
     /// @param name The name of the uniform variable in the shader.
     /// @param uniform The value to set for the uniform variable.
