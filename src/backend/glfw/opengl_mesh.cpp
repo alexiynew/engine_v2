@@ -21,6 +21,21 @@ GLenum ToGLType(game_engine::core::VertexAttributeType type)
     }
 }
 
+GLenum ToGLPrimitiveType(game_engine::core::PrimitiveType primitiveType)
+{
+    switch (primitiveType) {
+        case game_engine::core::PrimitiveType::Triangles:     return GL_TRIANGLES;
+        case game_engine::core::PrimitiveType::TriangleStrip: return GL_TRIANGLE_STRIP;
+        case game_engine::core::PrimitiveType::TriangleFan:   return GL_TRIANGLE_FAN;
+        case game_engine::core::PrimitiveType::Lines:         return GL_LINES;
+        case game_engine::core::PrimitiveType::LineStrip:     return GL_LINE_STRIP;
+        case game_engine::core::PrimitiveType::LineLoop:      return GL_LINE_LOOP;
+        case game_engine::core::PrimitiveType::Points:        return GL_POINTS;
+
+        default: throw std::runtime_error("Unsupported primitive type.");
+    }
+}
+
 } // namespace
 
 namespace game_engine::backend
@@ -76,11 +91,19 @@ bool OpenGLMesh::isValid() const
 
 void OpenGLMesh::render() const
 {
+    if (m_data.submeshes.empty()) {
+        return;
+    }
+
     glBindVertexArray(m_VAO);
 
-    // TODO: Support primitives type
     const GLsizei indicesCount = static_cast<GLsizei>(m_data.submeshes[0].indices.size());
-    glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+    if (indicesCount == 0) {
+        return;
+    }
+
+    const GLenum primitiveType = ToGLPrimitiveType(m_data.primitiveType);
+    glDrawElements(primitiveType, indicesCount, GL_UNSIGNED_INT, 0);
 }
 
 bool OpenGLMesh::loadToGPU()
@@ -133,13 +156,21 @@ bool OpenGLMesh::loadToGPU()
     for (const auto& attr : m_data.layout.attributes) {
         const GLenum type = ToGLType(attr.type);
 
-        // TODO: use glVertexAttribIPointer for int and uint types
-        glVertexAttribPointer(attr.location,
-                              attr.components,
-                              type,
-                              attr.normalized ? GL_TRUE : GL_FALSE,
-                              static_cast<GLsizei>(m_data.layout.vertexSize),
-                              reinterpret_cast<void*>(attr.offset));
+        if (type == GL_INT || type == GL_UNSIGNED_INT) {
+            glVertexAttribIPointer(attr.location,
+                                   attr.components,
+                                   type,
+                                   static_cast<GLsizei>(m_data.layout.vertexSize),
+                                   reinterpret_cast<void*>(attr.offset));
+        } else if (type == GL_FLOAT) {
+            glVertexAttribPointer(attr.location,
+                                  attr.components,
+                                  type,
+                                  attr.normalized ? GL_TRUE : GL_FALSE,
+                                  static_cast<GLsizei>(m_data.layout.vertexSize),
+                                  reinterpret_cast<void*>(attr.offset));
+        }
+
         glEnableVertexAttribArray(attr.location);
     }
 
