@@ -28,7 +28,9 @@ public:
     std::shared_ptr<ModelLoader> getModelLoader() override;
 
     std::shared_ptr<Mesh> createMesh() override;
-    void render(const std::shared_ptr<Mesh>& mesh) override;
+    std::shared_ptr<Shader> createShader() override;
+
+    void render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader) override;
 
     void setGameInstance(std::shared_ptr<Game> game);
 
@@ -51,8 +53,6 @@ private:
     std::size_t m_updatesPerSecond = 0;
     std::size_t m_framesPerSecond  = 0;
     std::size_t m_totalFrames      = 0;
-
-    std::shared_ptr<core::Shader> m_shader;
 
     // BackendEventHandler
     void onEvent(const KeyboardInputEvent& event) override;

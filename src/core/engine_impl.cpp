@@ -3,43 +3,10 @@
 #include <iostream>
 #include <thread>
 
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-
 namespace
 {
 
 inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
-
-const char* VertexShaderSource = R"(
-        #version 330 core
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec3 aNormal;
-        layout(location = 2) in vec2 aUV;
-        layout(location = 3) in vec4 aColor;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-
-        out vec4 color;
-        void main() {
-            color = aColor;
-            gl_Position = projection * view * model * vec4(aPos, 1.0);
-        }
-    )";
-
-const char* FragmentShaderSource = R"(
-        #version 330 core
-        in vec4 color;
-
-        out vec4 FragColor;
-
-        void main() {
-            FragColor = color;
-            //FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-        }
-    )";
 
 } // namespace
 
@@ -75,14 +42,6 @@ int EngineImpl::run() noexcept
         }
         setupFrameRate(settings);
         m_backend->attachBackendObserver(*this);
-
-        // TODO: move resource loading in separate function
-        m_shader = m_backend->createShader();
-        m_shader->setSource(VertexShaderSource, FragmentShaderSource);
-
-        if (!m_shader->link()) {
-            return -1;
-        }
 
         m_game->onInitialize();
 
@@ -128,9 +87,15 @@ std::shared_ptr<Mesh> EngineImpl::createMesh()
     return m_backend->createMesh();
 }
 
-// TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
-void EngineImpl::render(const std::shared_ptr<Mesh>& mesh)
+std::shared_ptr<Shader> EngineImpl::createShader()
 {
+    return m_backend->createShader();
+}
+
+// TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
+void EngineImpl::render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader)
+{
+    m_backend->useShader(shader);
     m_backend->render(mesh);
 }
 
@@ -224,20 +189,8 @@ void EngineImpl::render()
 {
     m_backend->beginFrame();
 
-    m_backend->useShader(m_shader);
-
-    float time = (static_cast<float>(m_totalFrames) * 3.14f) / 180.0f;
-
-    using core::Uniform;
-    const Uniform model      = glm::rotate(glm::mat4(1.0f), time, glm::vec3(0.5f, 1.0f, 0.0f));
-    const Uniform view       = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    const Uniform projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-    m_shader->setUniform("model", model);
-    m_shader->setUniform("view", view);
-    m_shader->setUniform("projection", projection);
-
     m_game->onDraw();
+
     m_backend->endFrame();
 }
 

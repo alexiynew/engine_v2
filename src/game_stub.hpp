@@ -22,6 +22,7 @@ public:
 private:
     game_engine::core::Engine& m_engine;
 
+    std::shared_ptr<game_engine::core::Shader> m_shader;
     std::shared_ptr<game_engine::core::Mesh> m_mesh;
 
     std::size_t m_updatesCount = 0;
