@@ -14,7 +14,7 @@ FetchContent_MakeAvailable(GLM)
 FetchContent_GetProperties(GLM)
 if(GLM_POPULATED)
     execute_process(
-        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/libs/glm_patch.cmake ${GLM_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/${CMAKE_PRESET_NAME}/libs/glm_patch.cmake ${GLM_SOURCE_DIR}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif()
