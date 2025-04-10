@@ -10,7 +10,9 @@
             "name": "default-options",
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
-            "cacheVariables": {}
+            "cacheVariables": {
+                "CMAKE_PRESET_NAME": "${presetName}"
+            }
         },
         {
             "name": "ninja-multi",
@@ -30,20 +32,32 @@
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             }
+        },
+        {
+            "name": "Ninja",
+            "inherits": "default-options",
+            "displayName": "Ninja",
+            "description": "Default build using Ninja generator",
+            "generator": "Ninja",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
         }
     ],
     "buildPresets": [
         {
-            "name": "ninja-debug",
+            "name": "ninja-multi-debug",
             "configurePreset": "ninja-multi",
-            "displayName": "Ninja Debug",
+            "displayName": "Ninja multiconfig Debug",
             "jobs": 12,
             "configuration": "Debug"
         },
         {
-            "name": "ninja-release",
+            "name": "ninja-multi-release",
             "configurePreset": "ninja-multi",
-            "displayName": "Ninja Release",
+            "displayName": "Ninja multiconfig Release",
             "jobs": 12,
             "configuration": "Release"
         },
@@ -70,6 +84,20 @@
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             }
+        },
+        {
+            "name": "ninja-debug",
+            "configurePreset": "Ninja",
+            "displayName": "Ninja Debug",
+            "jobs": 12,
+            "configuration": "Debug"
+        },
+        {
+            "name": "ninja-release",
+            "configurePreset": "Ninja",
+            "displayName": "Ninja Release",
+            "jobs": 12,
+            "configuration": "Release"
         }
     ]
 }
