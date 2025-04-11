@@ -11,7 +11,7 @@
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_PRESET_NAME": "${presetName}"
+                "BUILD_PRESET_NAME": "${presetName}"
             }
         },
         {
