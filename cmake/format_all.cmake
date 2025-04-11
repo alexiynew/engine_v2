@@ -1,4 +1,10 @@
+# Custom target to format all sources
 
-file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/**/*.[ch]pp" "include/**/*.hpp" "tests/**/*.[ch]pp")
+add_custom_target(format-all
+    COMMAND ${CMAKE_COMMAND} -P cmake/tools/format_all_command.cmake
+    COMMAND_EXPAND_LISTS
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    COMMENT Format all source files
+)
 
-execute_process(COMMAND clang-format -i -style=file ${SOURCES})
+set_target_properties(format-all PROPERTIES FOLDER "utils")

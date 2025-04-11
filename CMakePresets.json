@@ -34,7 +34,7 @@
             }
         },
         {
-            "name": "Ninja",
+            "name": "ninja",
             "inherits": "default-options",
             "displayName": "Ninja",
             "description": "Default build using Ninja generator",
@@ -87,14 +87,14 @@
         },
         {
             "name": "ninja-debug",
-            "configurePreset": "Ninja",
+            "configurePreset": "ninja",
             "displayName": "Ninja Debug",
             "jobs": 12,
             "configuration": "Debug"
         },
         {
             "name": "ninja-release",
-            "configurePreset": "Ninja",
+            "configurePreset": "ninja",
             "displayName": "Ninja Release",
             "jobs": 12,
             "configuration": "Release"
