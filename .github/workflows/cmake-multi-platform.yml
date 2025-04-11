@@ -83,5 +83,5 @@ jobs:
       if: failure()
       run: |
         echo "======= Start log ======="
-        cat ${{ steps.strings.outputs.build-output-dir }}/Temporary/LastTest.log
+        cat ${{ steps.strings.outputs.build-output-dir }}/Testing/Temporary/LastTest.log
         echo "======= Stop log  ======="
