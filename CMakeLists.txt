@@ -14,7 +14,7 @@ option(ENABLE_CLANG_TIDY "Enable code checking with clang-tidy" OFF)
 # TODO: Implement documentation generation
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
-option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
+option(USE_STUB_BACKEND "Use backend stub for testing" ON)
 
 # Main project setup
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
@@ -31,7 +31,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Choose backend type
 set(ENGINE_BACKEND_TYPE glfw CACHE STRING "" FORCE)
 if(USE_STUB_BACKEND)
-    message(++++++++++++++++++++++++++)
     set(ENGINE_BACKEND_TYPE stub CACHE STRING "" FORCE)
 endif()
 
