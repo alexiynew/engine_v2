@@ -46,15 +46,12 @@ std::shared_ptr<core::Shader> StubBackend::createShader()
     return std::make_shared<StubShader>();
 }
 
-void StubBackend::useShader(const std::shared_ptr<core::Shader>&)
-{}
-
 std::shared_ptr<core::Mesh> StubBackend::createMesh()
 {
     return std::make_shared<StubMesh>();
 }
 
-void StubBackend::render(const std::shared_ptr<core::Mesh>& mesh)
+void StubBackend::render(const std::shared_ptr<core::Mesh>&, const std::shared_ptr<core::Shader>&)
 {}
 
 } // namespace game_engine::backend

@@ -12,9 +12,8 @@ public:
     // core::mesh
     void setMeshData(const core::MeshData& data) override;
     void flush() override;
-    void clear() override;
-    bool isValid() const override;
-    void render() const override;
+    void clear() noexcept override;
+    bool isValid() const noexcept override;
 };
 
 } // namespace game_engine::backend

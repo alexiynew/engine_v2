@@ -22,10 +22,9 @@ public:
     void applySettings(const GameSettings&) override;
 
     std::shared_ptr<core::Shader> createShader() override;
-    void useShader(const std::shared_ptr<core::Shader>& shader) override;
-
     std::shared_ptr<core::Mesh> createMesh() override;
-    void render(const std::shared_ptr<core::Mesh>& mesh) override;
+
+    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
 
 private:
     int m_framesCount       = 0;

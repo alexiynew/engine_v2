@@ -9,15 +9,12 @@ void StubMesh::setMeshData(const core::MeshData&)
 void StubMesh::flush()
 {}
 
-void StubMesh::clear()
+void StubMesh::clear() noexcept
 {}
 
-bool StubMesh::isValid() const
+bool StubMesh::isValid() const noexcept
 {
     return true;
 }
-
-void StubMesh::render() const
-{}
 
 } // namespace game_engine::backend

@@ -11,16 +11,13 @@ bool StubShader::link()
     return true;
 }
 
-void StubShader::use() const
-{}
-
 void StubShader::setUniform(const std::string& name, const core::Uniform& uniform)
 {}
 
-void StubShader::clear()
+void StubShader::clear() noexcept
 {}
 
-bool StubShader::isValid() const
+bool StubShader::isValid() const noexcept
 {
     return true;
 }
