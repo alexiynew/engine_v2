@@ -11,6 +11,7 @@
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
+                "BUILD_PRESET_NAME": "${presetName}",
                 "USE_STUB_BACKEND": "OFF"
             }
         },
@@ -32,20 +33,32 @@
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             }
+        },
+        {
+            "name": "ninja",
+            "inherits": "default-options",
+            "displayName": "Ninja",
+            "description": "Default build using Ninja generator",
+            "generator": "Ninja",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
         }
     ],
     "buildPresets": [
         {
-            "name": "ninja-debug",
+            "name": "ninja-multi-debug",
             "configurePreset": "ninja-multi",
-            "displayName": "Ninja Debug",
+            "displayName": "Ninja multiconfig Debug",
             "jobs": 12,
             "configuration": "Debug"
         },
         {
-            "name": "ninja-release",
+            "name": "ninja-multi-release",
             "configurePreset": "ninja-multi",
-            "displayName": "Ninja Release",
+            "displayName": "Ninja multiconfig Release",
             "jobs": 12,
             "configuration": "Release"
         },
@@ -72,6 +85,20 @@
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             }
+        },
+        {
+            "name": "ninja-debug",
+            "configurePreset": "ninja",
+            "displayName": "Ninja Debug",
+            "jobs": 12,
+            "configuration": "Debug"
+        },
+        {
+            "name": "ninja-release",
+            "configurePreset": "ninja",
+            "displayName": "Ninja Release",
+            "jobs": 12,
+            "configuration": "Release"
         }
     ]
 }
