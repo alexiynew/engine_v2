@@ -36,12 +36,12 @@ public:
     virtual void setUniform(const std::string& name, const Uniform& uniform) = 0;
 
     /// @brief Clears the shader program by removing it from the context.
-    virtual void clear() = 0;
+    virtual void clear() noexcept = 0;
 
     /// @brief Checks if the shader program is valid and ready to be used.
     /// A shader program is considered valid if it has been successfully linked.
     /// @return True if the shader program is valid, false otherwise.
-    virtual bool isValid() const = 0;
+    virtual bool isValid() const noexcept = 0;
 };
 
 } // namespace game_engine::core

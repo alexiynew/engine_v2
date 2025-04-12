@@ -13,7 +13,7 @@ class OpenGLMesh final : public core::Mesh
 {
 public:
     OpenGLMesh() noexcept;
-    ~OpenGLMesh() noexcept;
+    ~OpenGLMesh() noexcept override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
     OpenGLMesh(OpenGLMesh&& other) noexcept;
@@ -24,8 +24,8 @@ public:
     // core::Mesh
     virtual void setMeshData(const core::MeshData& data) override;
     virtual void flush() override;
-    virtual void clear() override;
-    virtual bool isValid() const override;
+    virtual void clear() noexcept override;
+    virtual bool isValid() const noexcept override;
 
     void render() const;
 
@@ -34,7 +34,7 @@ private:
     unsigned int m_VBO = 0;
     unsigned int m_EBO = 0;
 
-    core::MeshData m_data;
+    core::MeshData m_data = {};
 
     friend void swap(OpenGLMesh& a, OpenGLMesh& b);
 

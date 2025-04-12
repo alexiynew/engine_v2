@@ -15,9 +15,8 @@ namespace game_engine::core
 
 EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
     : m_backend(std::move(backend))
-{
-    m_modelLoader = std::make_shared<ModelLoader>();
-}
+    , m_modelLoader(std::make_shared<ModelLoader>())
+{}
 
 EngineImpl::~EngineImpl()
 {

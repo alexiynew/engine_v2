@@ -210,7 +210,7 @@ void OpenGLShader::setUniform(const std::string& name, const core::Uniform& unif
     }, uniform);
 }
 
-void OpenGLShader::clear()
+void OpenGLShader::clear() noexcept
 {
     if (m_vertexShader) {
         glDeleteShader(m_vertexShader);
@@ -231,7 +231,7 @@ void OpenGLShader::clear()
     m_uniformCache.clear();
 }
 
-bool OpenGLShader::isValid() const
+bool OpenGLShader::isValid() const noexcept
 {
     return m_shaderProgram != 0;
 }

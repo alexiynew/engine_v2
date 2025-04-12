@@ -17,10 +17,9 @@ public:
 
     MOCK_METHOD(void, setSource, (const std::string&, const std::string&), (override));
     MOCK_METHOD(bool, link, (), (override));
-    MOCK_METHOD(void, use, (), (override, const));
     MOCK_METHOD(void, setUniform, (const std::string&, const core::Uniform&), (override));
-    MOCK_METHOD(void, clear, (), (override));
-    MOCK_METHOD(bool, isValid, (), (override, const));
+    MOCK_METHOD(void, clear, (), (noexcept, override));
+    MOCK_METHOD(bool, isValid, (), (const, noexcept, override));
 };
 
 class GameMock final : public game_engine::Game
@@ -49,9 +48,8 @@ public:
     MOCK_METHOD(void, endFrame, (), (override));
     MOCK_METHOD(void, applySettings, (const GameSettings&), (override));
     MOCK_METHOD(std::shared_ptr<core::Shader>, createShader, (), (override));
-    MOCK_METHOD(void, useShader, (const std::shared_ptr<core::Shader>&), (override));
     MOCK_METHOD(std::shared_ptr<core::Mesh>, createMesh, (), (override));
-    MOCK_METHOD(void, render, (const std::shared_ptr<core::Mesh>&), (override));
+    MOCK_METHOD(void, render, (const std::shared_ptr<core::Mesh>&, const std::shared_ptr<core::Shader>&), (override));
 
     void testPollEvents()
     {

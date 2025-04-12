@@ -15,11 +15,11 @@ public:
     virtual void flush()                           = 0;
 
     /// @brief Clears the mesh by removing it from the context.
-    virtual void clear() = 0;
+    virtual void clear() noexcept = 0;
 
     /// @brief Checks if the mesh is valid and ready to be used.
     /// @return True if the mesh is valid, false otherwise.
-    virtual bool isValid() const = 0;
+    virtual bool isValid() const noexcept = 0;
 };
 
 } // namespace game_engine::core

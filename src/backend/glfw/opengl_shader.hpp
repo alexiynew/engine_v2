@@ -13,7 +13,7 @@ class OpenGLShader final : public core::Shader
 {
 public:
     OpenGLShader() noexcept;
-    ~OpenGLShader() noexcept;
+    ~OpenGLShader() noexcept override;
 
     OpenGLShader(const OpenGLShader&) = delete;
     OpenGLShader(OpenGLShader&& other) noexcept;
@@ -25,8 +25,8 @@ public:
     void setSource(const std::string& vertexSource, const std::string& fragmentSource) override;
     bool link() override;
     void setUniform(const std::string& name, const core::Uniform& uniform) override;
-    void clear() override;
-    bool isValid() const override;
+    void clear() noexcept override;
+    bool isValid() const noexcept override;
 
     void use() const;
 

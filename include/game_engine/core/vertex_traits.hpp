@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #include <game_engine/core/mesh_data.hpp>
 
 namespace game_engine::core

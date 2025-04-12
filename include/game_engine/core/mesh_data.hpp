@@ -21,18 +21,18 @@ enum class VertexAttributeType
 /// @brief Represents a vertex attribute with its location and properties.
 struct VertexAttribute
 {
-    int location;             ///< Location (index) of the attribute in the shader.
-    int components;           ///< Number of components (e.g., 3 for Vector3).
-    std::size_t offset;       ///< Offset in bytes from the start of the vertex.
-    VertexAttributeType type; ///< Data type of attribute.
-    bool normalized;          ///< Whether the attribute should be normalized.
-    const char* name;         ///< Name of the attribute (e.g., "position", "normal").
+    int location             = 0;                          ///< Location (index) of the attribute in the shader.
+    int components           = 0;                          ///< Number of components (e.g., 3 for Vector3).
+    std::size_t offset       = 0;                          ///< Offset in bytes from the start of the vertex.
+    VertexAttributeType type = VertexAttributeType::Float; ///< Data type of attribute.
+    bool normalized          = false;                      ///< Whether the attribute should be normalized.
+    const char* name         = nullptr;                    ///< Name of the attribute (e.g., "position", "normal").
 };
 
 /// @brief Vertex format description
 struct VertexLayout
 {
-    std::size_t vertexSize;                  ///< Vertex size in bytes.
+    std::size_t vertexSize = 0;              ///< Vertex size in bytes.
     std::vector<VertexAttribute> attributes; ///< Vertex attributes list.
 };
 
@@ -72,12 +72,12 @@ enum class PrimitiveType
 struct MeshData
 {
     std::vector<std::uint8_t> vertexData; ///< List of vertices in the mesh.
-    size_t vertexCount;
+    size_t vertexCount = 0;
 
-    std::vector<SubMesh> submeshes;      ///< List of submeshes (each with its own material).
-    std::vector<InstanceData> instances; ///< List of instances for instanced rendering.
-    PrimitiveType primitiveType;         ///< Type of primitives used for rendering.
-    VertexLayout layout;                 ///< vertex layout,
+    std::vector<SubMesh> submeshes;                         ///< List of submeshes (each with its own material).
+    std::vector<InstanceData> instances;                    ///< List of instances for instanced rendering.
+    PrimitiveType primitiveType = PrimitiveType::Triangles; ///< Type of primitives used for rendering.
+    VertexLayout layout;                                    ///< vertex layout,
 };
 
 } // namespace game_engine::core

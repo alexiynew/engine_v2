@@ -82,7 +82,7 @@ public:
     virtual void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) = 0;
 
     void attachBackendObserver(BackendObserver& observer);
-    void detachBackendObserver(BackendObserver& observer);
+    void detachBackendObserver(const BackendObserver& observer);
 
 protected:
     std::list<RefObserver> m_observers;

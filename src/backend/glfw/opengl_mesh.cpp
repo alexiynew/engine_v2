@@ -73,7 +73,7 @@ void OpenGLMesh::flush()
     }
 }
 
-void OpenGLMesh::clear()
+void OpenGLMesh::clear() noexcept
 {
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
@@ -84,7 +84,7 @@ void OpenGLMesh::clear()
     m_EBO = 0;
 }
 
-bool OpenGLMesh::isValid() const
+bool OpenGLMesh::isValid() const noexcept
 {
     return m_VAO != 0 && m_VBO != 0 && m_EBO != 0;
 }
