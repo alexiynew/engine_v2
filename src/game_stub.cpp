@@ -108,27 +108,24 @@ const char* FragmentShaderSource = R"(
         }
     )";
 
-} // namespace
-
-// Specialization of Vertex layout
-namespace game_engine::core
-{
-
-template <>
-inline VertexLayout getVertexLayout<Vertex>()
+inline game_engine::core::VertexLayout getVertexLayout()
 {
     return {
         .vertexSize = sizeof(Vertex),
         .attributes = {
-                       generateAttribute<Vertex, &Vertex::position, offsetof(Vertex, position)>(0, "position"),
-                       generateAttribute<Vertex, &Vertex::normal, offsetof(Vertex, normal)>(1, "normal"),
-                       generateAttribute<Vertex, &Vertex::uv, offsetof(Vertex, uv)>(2, "uv"),
-                       generateAttribute<Vertex, &Vertex::color, offsetof(Vertex, color)>(3, "color"),
+                       game_engine::core::generateAttribute(0, "position", &Vertex::position),
+                       game_engine::core::generateAttribute(1, "normal", &Vertex::normal),
+                       game_engine::core::generateAttribute(2, "uv", &Vertex::uv),
+                       game_engine::core::generateAttribute(3, "color", &Vertex::color),
                        }
     };
 }
 
-} // namespace game_engine::core
+} // namespace
+
+// Specialization of Vertex layout
+namespace game_engine::core
+{} // namespace game_engine::core
 
 // Implement game factory
 namespace game_engine
@@ -162,7 +159,7 @@ void GameStub::onInitialize()
     };
 
     m_mesh = m_engine.createMesh();
-    m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles));
+    m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
     m_mesh->flush();
 
     m_shader = m_engine.createShader();

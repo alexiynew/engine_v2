@@ -12,7 +12,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "BUILD_PRESET_NAME": "${presetName}",
-                "USE_STUB_BACKEND": "ON"
+                "USE_STUB_BACKEND": "OFF"
             }
         },
         {
