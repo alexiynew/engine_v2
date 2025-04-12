@@ -5,14 +5,13 @@ if(CPPCHECK)
         COMMAND ${CPPCHECK}   
                 -q
                 --enable=all   
-                --project=build/compile_commands.json   
+                --project=${CMAKE_BINARY_DIR}/compile_commands.json   
                 --template=gcc 
                 --std=c++20 
-                -ibuild
+                -i_deps
                 -j9
                 --inconclusive
                 --suppress=missingIncludeSystem:*
-                --suppress=*:build/*
                 --suppress=checkersReport
                 --checkers-report=build/cppcheck/checkers_report.txt
                 --cppcheck-build-dir=build/cppcheck

@@ -116,14 +116,24 @@ OpenGLShader::OpenGLShader(OpenGLShader&& other) noexcept
 
 OpenGLShader& OpenGLShader::operator=(OpenGLShader&& other) noexcept
 {
-    OpenGLShader tmp = std::move(other);
+    auto tmp = std::move(other);
     swap(*this, tmp);
 
     return *this;
 }
 
-bool OpenGLShader::link(const std::string& vertexSource, const std::string& fragmentSource)
+void OpenGLShader::setSource(const std::string& vertexSource, const std::string& fragmentSource)
 {
+    m_vertexSource   = vertexSource;
+    m_fragmentSource = fragmentSource;
+}
+
+bool OpenGLShader::link()
+{
+    if (m_vertexSource.empty() || m_fragmentSource.empty()) {
+        return false;
+    }
+
     if (m_vertexShader == 0) {
         m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
     }
@@ -132,12 +142,12 @@ bool OpenGLShader::link(const std::string& vertexSource, const std::string& frag
         m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     }
 
-    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, vertexSource)) {
+    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
         clear();
         return false;
     }
 
-    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, fragmentSource)) {
+    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
         clear();
         return false;
     }
@@ -159,7 +169,48 @@ bool OpenGLShader::link(const std::string& vertexSource, const std::string& frag
     return true;
 }
 
-void OpenGLShader::clear()
+void OpenGLShader::use() const
+{
+    if (m_shaderProgram == 0) {
+        LOG_ERROR << "[SHADER] Shader program is not initialized." << std::endl;
+        return;
+    }
+    glUseProgram(m_shaderProgram);
+}
+
+void OpenGLShader::setUniform(const std::string& name, const core::Uniform& uniform)
+{
+    const GLint location = getUniformLocation(name);
+
+    if (location < 0 || m_shaderProgram == 0) {
+        LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
+        return;
+    }
+
+    std::visit([location](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
+
+        if constexpr (std::is_same_v<T, int>) {
+            glUniform1i(location, arg);
+        } else if constexpr (std::is_same_v<T, float>) {
+            glUniform1f(location, arg);
+        } else if constexpr (std::is_same_v<T, glm::vec2>) {
+            glUniform2f(location, arg.x, arg.y);
+        } else if constexpr (std::is_same_v<T, glm::vec3>) {
+            glUniform3f(location, arg.x, arg.y, arg.z);
+        } else if constexpr (std::is_same_v<T, glm::vec4>) {
+            glUniform4f(location, arg.x, arg.y, arg.z, arg.w);
+        } else if constexpr (std::is_same_v<T, glm::mat3>) {
+            glUniformMatrix3fv(location, 1, GL_FALSE, &arg[0][0]);
+        } else if constexpr (std::is_same_v<T, glm::mat4>) {
+            glUniformMatrix4fv(location, 1, GL_FALSE, &arg[0][0]);
+        } else {
+            static_assert(false, "Unsupported uniform type");
+        }
+    }, uniform);
+}
+
+void OpenGLShader::clear() noexcept
 {
     if (m_vertexShader) {
         glDeleteShader(m_vertexShader);
@@ -180,55 +231,9 @@ void OpenGLShader::clear()
     m_uniformCache.clear();
 }
 
-void OpenGLShader::use() const
+bool OpenGLShader::isValid() const noexcept
 {
-    if (m_shaderProgram == 0) {
-        LOG_ERROR << "[SHADER] Shader program is not initialized." << std::endl;
-        return;
-    }
-    glUseProgram(m_shaderProgram);
-}
-
-int OpenGLShader::getUniformLocation(const std::string& name) const
-{
-    if (m_uniformCache.find(name) != m_uniformCache.end()) {
-        return m_uniformCache[name];
-    }
-
-    int location = glGetUniformLocation(m_shaderProgram, name.c_str());
-    if (location == -1) {
-        LOG_ERROR << "[SHADER] Uniform '" << name << "' not found." << std::endl;
-    }
-
-    m_uniformCache[name] = location;
-    return location;
-}
-
-void OpenGLShader::setUniform(int uniform, std::uint32_t value) const
-{
-    if (uniform < 0 || m_shaderProgram == 0) {
-        LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
-        return;
-    }
-    glUniform1i(uniform, static_cast<GLint>(value));
-}
-
-void OpenGLShader::setUniform(int uniform, float value) const
-{
-    if (uniform < 0 || m_shaderProgram == 0) {
-        LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
-        return;
-    }
-    glUniform1f(uniform, value);
-}
-
-void OpenGLShader::setUniform(int uniform, const Matrix4& matrix) const
-{
-    if (uniform < 0 || m_shaderProgram == 0) {
-        LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
-        return;
-    }
-    glUniformMatrix4fv(uniform, 1, GL_FALSE, &matrix[0][0]);
+    return m_shaderProgram != 0;
 }
 
 void OpenGLShader::bindAttributeLocation(std::uint32_t location, const std::string& name) const
@@ -249,15 +254,28 @@ int OpenGLShader::getAttributeLocation(const std::string& name) const
     return glGetAttribLocation(m_shaderProgram, name.c_str());
 }
 
-bool OpenGLShader::isValid() const
+int OpenGLShader::getUniformLocation(const std::string& name) const
 {
-    return m_shaderProgram != 0;
+    if (m_uniformCache.find(name) != m_uniformCache.end()) {
+        return m_uniformCache[name];
+    }
+
+    int location = glGetUniformLocation(m_shaderProgram, name.c_str());
+    if (location == -1) {
+        LOG_ERROR << "[SHADER] Uniform '" << name << "' not found." << std::endl;
+        return location;
+    }
+
+    m_uniformCache[name] = location;
+    return location;
 }
 
 void swap(OpenGLShader& a, OpenGLShader& b)
 {
     using std::swap;
 
+    swap(a.m_vertexSource, b.m_vertexSource);
+    swap(a.m_fragmentSource, b.m_fragmentSource);
     swap(a.m_vertexShader, b.m_vertexShader);
     swap(a.m_fragmentShader, b.m_fragmentShader);
     swap(a.m_shaderProgram, b.m_shaderProgram);

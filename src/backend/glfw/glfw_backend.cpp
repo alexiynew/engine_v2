@@ -6,50 +6,13 @@
 
 #include <glfw/glfw_backend_context.hpp>
 #include <glfw/glfw_keyboard.hpp>
+#include <glfw/opengl_mesh.hpp>
 #include <glfw/opengl_shader.hpp>
 #include <glfw/opengl_utils.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-
-namespace
-{
-using namespace game_engine::backend;
-
-const char* g_vertexShaderSource = R"(
-        #version 330 core
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec3 aNormal;
-        layout(location = 2) in vec2 aUV;
-        layout(location = 3) in vec3 aColor;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-
-        out vec4 color;
-        void main() {
-            color = vec4(aColor, 1.0);
-            gl_Position = projection * view * model * vec4(aPos, 1.0);
-        }
-    )";
-
-const char* g_fragmentShaderSource = R"(
-        #version 330 core
-        in vec4 color;
-
-        out vec4 FragColor;
-
-        void main() {
-            FragColor = color;
-            //FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-        }
-    )";
-
-} // namespace
 
 namespace game_engine::backend
 {
@@ -60,24 +23,27 @@ std::shared_ptr<Backend> createBackendInstance()
 }
 
 GLFWBackend::GLFWBackend()
-{
-    m_shader = std::make_unique<OpenGLShader>();
-}
+{}
 
 GLFWBackend::~GLFWBackend() = default;
 
-bool GLFWBackend::initialize()
+bool GLFWBackend::initialize(const GameSettings& settings)
 {
     if (!glfwInit()) {
         return false;
     }
 
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // TODO: Move window parameters to config
-    auto window = glfwCreateWindow(800, 600, "Game Engine", nullptr, nullptr);
+    auto window = glfwCreateWindow(settings.resolutionWidth,
+                                   settings.resolutionHeight,
+                                   settings.windowTitle.c_str(),
+                                   nullptr,
+                                   nullptr);
     if (!window) {
         glfwTerminate();
         return false;
@@ -85,32 +51,29 @@ bool GLFWBackend::initialize()
 
     GLFWBackendContext::registerBackend(window, this);
 
-    glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
-
-    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
+    if (!setupOpenGL()) {
         glfwTerminate();
         return false;
     }
 
-    glEnable(GL_DEPTH_TEST);
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-
-    m_shader->link(g_vertexShaderSource, g_fragmentShaderSource);
+    applySettings(settings);
 
     return true;
 }
 
 void GLFWBackend::shutdown()
 {
-    for (auto& [_, m] : m_loadedMeshes) {
-        glDeleteVertexArrays(1, &m.VAO);
-        glDeleteBuffers(1, &m.VBO);
-        glDeleteBuffers(1, &m.EBO);
+    // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
+    for (auto& mesh : m_meshes) {
+        mesh->clear();
     }
-    m_loadedMeshes.clear();
+    m_meshes.clear();
 
-    m_shader->clear();
+    // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
+    for (auto& shader : m_shaders) {
+        shader->clear();
+    }
+    m_shaders.clear();
 
     glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
@@ -132,44 +95,105 @@ void GLFWBackend::endFrame()
     glfwSwapBuffers(GLFWBackendContext::getWindow(this));
 }
 
-core::MeshId GLFWBackend::loadMesh(const core::Mesh& mesh)
+void GLFWBackend::applySettings(const GameSettings& settings)
 {
-    if (auto loadResult = loadMeshToGPU(mesh); loadResult.has_value()) {
-        core::MeshId meshId    = ++m_nextMeshId;
-        m_loadedMeshes[meshId] = loadResult.value();
-        return meshId;
+    GLFWwindow* window = GLFWBackendContext::getWindow(this);
+
+    applyDisplayMode(settings);
+    applyAntiAliasing(settings);
+
+    glfwSetWindowTitle(window, settings.windowTitle.c_str());
+
+    glfwSwapInterval(settings.vSync ? 1 : 0);
+}
+
+bool GLFWBackend::setupOpenGL()
+{
+    glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
+
+    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
+        glfwTerminate();
+        return false;
     }
 
-    return 0;
+    glEnable(GL_DEPTH_TEST);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+
+    return true;
+}
+
+void GLFWBackend::applyDisplayMode(const GameSettings& settings)
+{
+    GLFWwindow* window      = GLFWBackendContext::getWindow(this);
+    GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    switch (settings.displayMode) {
+        case DisplayMode::Fullscreen:
+            glfwSetWindowMonitor(window,
+                                 monitor,
+                                 0,
+                                 0,
+                                 settings.resolutionWidth,
+                                 settings.resolutionHeight,
+                                 mode->refreshRate);
+            break;
+        case DisplayMode::BorderlessFullscreen:
+            glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            break;
+        case DisplayMode::Windowed: {
+            const int xPos = (mode->width - settings.resolutionWidth) / 2;
+            const int yPos = (mode->height - settings.resolutionHeight) / 2;
+
+            glfwSetWindowMonitor(window,
+                                 nullptr,
+                                 xPos,
+                                 yPos,
+                                 settings.resolutionWidth,
+                                 settings.resolutionHeight,
+                                 mode->refreshRate);
+        } break;
+    }
+}
+
+void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
+{
+    switch (settings.antiAliasing) {
+        case AntiAliasing::None:   glfwWindowHint(GLFW_SAMPLES, 0); break;
+        case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
+        case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
+        case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
+    }
+}
+
+std::shared_ptr<core::Shader> GLFWBackend::createShader()
+{
+    m_shaders.push_back(std::make_shared<OpenGLShader>());
+    return m_shaders.back();
+}
+
+std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
+{
+    m_meshes.push_back(std::make_shared<OpenGLMesh>());
+    return m_meshes.back();
 }
 
 // TODO: Add submeshes support with materials
 // TODO: Add instancing
-void GLFWBackend::renderMesh(core::MeshId meshId)
+// TODO: Add bounding box rendering
+void GLFWBackend::render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader)
 {
-    auto it = m_loadedMeshes.find(meshId);
-    if (it == m_loadedMeshes.end()) {
-        return;
+    auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(shader);
+    if (openglShader && openglShader->isValid()) {
+        openglShader->use();
     }
 
-    const auto& meshInfo = it->second;
-
-    m_shader->use();
-
-    const Matrix4 model = glm::rotate(glm::mat4(1.0f), static_cast<float>(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
-    const Matrix4 view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    const Matrix4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-    auto u_model      = m_shader->getUniformLocation("model");
-    auto u_view       = m_shader->getUniformLocation("view");
-    auto u_projection = m_shader->getUniformLocation("projection");
-
-    m_shader->setUniform(u_model, model);
-    m_shader->setUniform(u_view, view);
-    m_shader->setUniform(u_projection, projection);
-
-    glBindVertexArray(meshInfo.VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<GLint>(meshInfo.indicesCount), GL_UNSIGNED_INT, 0);
+    const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(mesh);
+    if (openglMesh && openglMesh->isValid()) {
+        openglMesh->render();
+    }
 }
 
 void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods)
@@ -210,78 +234,6 @@ void GLFWBackend::handleWindowIconify(bool iconified)
 void GLFWBackend::handleWindowMaximize(bool maximized)
 {
     notify(WindowMaximizeEvent{maximized});
-}
-
-std::expected<GLFWBackend::MeshInfo, bool> GLFWBackend::loadMeshToGPU(const core::Mesh& mesh)
-{
-    MeshInfo info;
-
-    glGenVertexArrays(1, &info.VAO);
-    glGenBuffers(1, &info.VBO);
-    glGenBuffers(1, &info.EBO);
-
-    glBindVertexArray(info.VAO);
-
-    // Set up vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
-    glBufferData(GL_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>(mesh.vertices.size() * sizeof(core::Vertex)),
-                 mesh.vertices.data(),
-                 GL_STATIC_DRAW);
-
-    // Set up element buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>(mesh.subMeshes[0].indices.size() * sizeof(unsigned int)),
-                 mesh.subMeshes[0].indices.data(),
-                 GL_STATIC_DRAW);
-
-    // Vertex positions
-    glVertexAttribPointer(0,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          sizeof(core::Vertex),
-                          reinterpret_cast<void*>(offsetof(core::Vertex, position)));
-    glEnableVertexAttribArray(0);
-
-    // Vertex normals
-    glVertexAttribPointer(1,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          sizeof(core::Vertex),
-                          reinterpret_cast<void*>(offsetof(core::Vertex, normal)));
-    glEnableVertexAttribArray(1);
-
-    // Vertex UVs
-    glVertexAttribPointer(2,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          sizeof(core::Vertex),
-                          reinterpret_cast<void*>(offsetof(core::Vertex, uv)));
-    glEnableVertexAttribArray(2);
-
-    // Vertex colors
-    glVertexAttribPointer(3,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          sizeof(core::Vertex),
-                          reinterpret_cast<void*>(offsetof(core::Vertex, color)));
-    glEnableVertexAttribArray(3);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    info.indicesCount = mesh.subMeshes[0].indices.size();
-
-    if (hasOpenGLErrors()) {
-        return std::unexpected(false);
-    }
-
-    return info;
 }
 
 } // namespace game_engine::backend

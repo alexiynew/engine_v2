@@ -6,6 +6,8 @@ target_sources(backend
         glfw/glfw_backend_context.cpp
         glfw/glfw_keyboard.hpp
         glfw/glfw_keyboard.cpp
+        glfw/opengl_mesh.hpp
+        glfw/opengl_mesh.cpp
         glfw/opengl_shader.hpp
         glfw/opengl_shader.cpp
         glfw/opengl_utils.hpp

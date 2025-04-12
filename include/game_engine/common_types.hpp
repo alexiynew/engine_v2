@@ -10,14 +10,14 @@ using Vector3 = glm::vec3; ///< 3D vector
 using Vector4 = glm::vec4; ///< 4D vector
 
 /// Integer vectors
-using IVector2 = glm::ivec2; ///< 2D vector (int)
-using IVector3 = glm::ivec3; ///< 3D vector (int)
-using IVector4 = glm::ivec4; ///< 4D vector (int)
+using Vector2i = glm::ivec2; ///< 2D vector (int)
+using Vector3i = glm::ivec3; ///< 3D vector (int)
+using Vector4i = glm::ivec4; ///< 4D vector (int)
 
 /// Unsigned integer vectors
-using UVector2 = glm::uvec2; ///< 2D vector (unsigned int)
-using UVector3 = glm::uvec3; ///< 3D vector (unsigned int)
-using UVector4 = glm::uvec4; ///< 4D vector (unsigned int)
+using Vector2u = glm::uvec2; ///< 2D vector (unsigned int)
+using Vector3u = glm::uvec3; ///< 3D vector (unsigned int)
+using Vector4u = glm::uvec4; ///< 4D vector (unsigned int)
 
 /// Matrices
 using Matrix2 = glm::mat2; ///< 2x2 matrix

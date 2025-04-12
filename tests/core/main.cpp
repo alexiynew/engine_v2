@@ -4,14 +4,23 @@
 #include <gtest/gtest.h>
 
 using namespace game_engine;
-using ::testing::AnyNumber;
-using ::testing::AtLeast;
-using ::testing::DoDefault;
-using ::testing::Exactly;
-using ::testing::InSequence;
-using ::testing::Invoke;
-using ::testing::Return;
-using ::testing::WithArg;
+using namespace ::testing;
+
+class ShaderMock : public game_engine::core::Shader
+{
+public:
+    ShaderMock()
+    {
+        ON_CALL(*this, link()).WillByDefault(Return(true));
+        ON_CALL(*this, isValid()).WillByDefault(Return(true));
+    }
+
+    MOCK_METHOD(void, setSource, (const std::string&, const std::string&), (override));
+    MOCK_METHOD(bool, link, (), (override));
+    MOCK_METHOD(void, setUniform, (const std::string&, const core::Uniform&), (override));
+    MOCK_METHOD(void, clear, (), (noexcept, override));
+    MOCK_METHOD(bool, isValid, (), (const, noexcept, override));
+};
 
 class GameMock final : public game_engine::Game
 {
@@ -22,6 +31,7 @@ public:
     MOCK_METHOD(void, onShutdown, (), (override));
     MOCK_METHOD(void, onKeyboardInputEvent, (const KeyboardInputEvent& event), (override));
     MOCK_METHOD(bool, onShouldClose, (), (override));
+    MOCK_METHOD(GameSettings, getSettings, (), (override));
 };
 
 class BackendMock final : public game_engine::backend::Backend
@@ -31,13 +41,15 @@ public:
         : m_requiredFramesCount(requiredFramesCount)
     {}
 
-    MOCK_METHOD(bool, initialize, (), (override));
+    MOCK_METHOD(bool, initialize, (const GameSettings&), (override));
     MOCK_METHOD(void, shutdown, (), (override));
     MOCK_METHOD(void, pollEvents, (), (override));
     MOCK_METHOD(void, beginFrame, (), (override));
     MOCK_METHOD(void, endFrame, (), (override));
-    MOCK_METHOD(core::MeshId, loadMesh, (const core::Mesh&), (override));
-    MOCK_METHOD(void, renderMesh, (core::MeshId meshId), (override));
+    MOCK_METHOD(void, applySettings, (const GameSettings&), (override));
+    MOCK_METHOD(std::shared_ptr<core::Shader>, createShader, (), (override));
+    MOCK_METHOD(std::shared_ptr<core::Mesh>, createMesh, (), (override));
+    MOCK_METHOD(void, render, (const std::shared_ptr<core::Mesh>&, const std::shared_ptr<core::Shader>&), (override));
 
     void testPollEvents()
     {
@@ -64,7 +76,7 @@ TEST(CoreTest, DefaultMainLoop)
     auto engine  = std::make_shared<game_engine::core::EngineImpl>(backend);
 
     // Test backend calls
-    EXPECT_CALL(*backend, initialize()).WillOnce(Return(true));
+    EXPECT_CALL(*backend, initialize(GameSettings{})).WillOnce(Return(true));
 
     EXPECT_CALL(*backend, pollEvents()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
         backend->testPollEvents();
@@ -73,6 +85,10 @@ TEST(CoreTest, DefaultMainLoop)
     EXPECT_CALL(*backend, endFrame()).Times(maxFramesCount).WillRepeatedly(Invoke([&backend]() {
         backend->testEndFrame();
     }));
+
+    EXPECT_CALL(*backend, createShader())
+    .Times(AnyNumber())
+    .WillRepeatedly(Return(std::make_shared<NiceMock<ShaderMock>>()));
 
     EXPECT_CALL(*backend, shutdown());
 
@@ -85,6 +101,7 @@ TEST(CoreTest, DefaultMainLoop)
     EXPECT_CALL(*game, onDraw).Times(AnyNumber());
     EXPECT_CALL(*game, onShouldClose).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*game, onShutdown).Times(1);
+    EXPECT_CALL(*game, getSettings).Times(1).WillOnce(Return(GameSettings{}));
 
     const int returnCode = engine->run();
 
@@ -93,8 +110,8 @@ TEST(CoreTest, DefaultMainLoop)
 
 int main(int argc, char** argv)
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    ::testing::InitGoogleMock(&argc, argv);
+    InitGoogleTest(&argc, argv);
+    InitGoogleMock(&argc, argv);
 
     return RUN_ALL_TESTS();
 }

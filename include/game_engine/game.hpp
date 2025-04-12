@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <game_engine/core/engine.hpp>
+#include <game_engine/game_settings.hpp>
 #include <game_engine/keyboard.hpp>
 #include <game_engine/system_events.hpp>
 
@@ -35,6 +36,10 @@ public:
     /// @brief Checks if the game should close.
     /// @return True if the game should close, false otherwise.
     virtual bool onShouldClose() = 0;
+
+    /// @brief Get current game settings.
+    /// @return Current game settings.
+    virtual GameSettings getSettings() = 0;
 };
 
 /// @brief Creates a new instance of the game.
