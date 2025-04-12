@@ -178,9 +178,9 @@ void OpenGLShader::use() const
     glUseProgram(m_shaderProgram);
 }
 
-void OpenGLShader::setUniform(const std::string& name, const core::Uniform& uniform)
+void OpenGLShader::setUniform(const core::Uniform& uniform) const
 {
-    const GLint location = getUniformLocation(name);
+    const GLint location = getUniformLocation(uniform.name);
 
     if (location < 0 || m_shaderProgram == 0) {
         LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
@@ -194,20 +194,20 @@ void OpenGLShader::setUniform(const std::string& name, const core::Uniform& unif
             glUniform1i(location, arg);
         } else if constexpr (std::is_same_v<T, float>) {
             glUniform1f(location, arg);
-        } else if constexpr (std::is_same_v<T, glm::vec2>) {
+        } else if constexpr (std::is_same_v<T, Vector2>) {
             glUniform2f(location, arg.x, arg.y);
-        } else if constexpr (std::is_same_v<T, glm::vec3>) {
+        } else if constexpr (std::is_same_v<T, Vector3>) {
             glUniform3f(location, arg.x, arg.y, arg.z);
-        } else if constexpr (std::is_same_v<T, glm::vec4>) {
+        } else if constexpr (std::is_same_v<T, Vector4>) {
             glUniform4f(location, arg.x, arg.y, arg.z, arg.w);
-        } else if constexpr (std::is_same_v<T, glm::mat3>) {
+        } else if constexpr (std::is_same_v<T, Matrix3>) {
             glUniformMatrix3fv(location, 1, GL_FALSE, &arg[0][0]);
-        } else if constexpr (std::is_same_v<T, glm::mat4>) {
+        } else if constexpr (std::is_same_v<T, Matrix4>) {
             glUniformMatrix4fv(location, 1, GL_FALSE, &arg[0][0]);
         } else {
             static_assert(false, "Unsupported uniform type");
         }
-    }, uniform);
+    }, uniform.value);
 }
 
 void OpenGLShader::clear() noexcept

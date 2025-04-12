@@ -30,7 +30,9 @@ public:
     std::shared_ptr<Mesh> createMesh() override;
     std::shared_ptr<Shader> createShader() override;
 
-    void render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader) override;
+    void render(const std::shared_ptr<Mesh>& mesh,
+                const std::shared_ptr<Shader>& shader,
+                const std::vector<Uniform>& uniforms) override;
 
     void setGameInstance(std::shared_ptr<Game> game);
 

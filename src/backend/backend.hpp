@@ -42,6 +42,14 @@ public:
     virtual void onEvent(const WindowMaximizeEvent& event) = 0;
 };
 
+struct RenderCommand
+{
+    std::shared_ptr<core::Mesh> mesh;
+    std::shared_ptr<core::Shader> shader;
+    std::vector<core::Uniform> uniforms;
+    uint32_t instanceCount = 1;
+};
+
 class Backend
 {
 public:
@@ -77,9 +85,9 @@ public:
     /// @return The ID of the loaded mesh.
     virtual std::shared_ptr<core::Mesh> createMesh() = 0;
 
-    /// @brief Renders a model by its ID.
-    /// @param meshId The ID of the model to render.
-    virtual void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) = 0;
+    virtual void addRenderCommand(const RenderCommand& command) = 0;
+    virtual void clearRenderCommands()                          = 0;
+    virtual void executeRenderCommands()                        = 0;
 
     void attachBackendObserver(BackendObserver& observer);
     void detachBackendObserver(const BackendObserver& observer);

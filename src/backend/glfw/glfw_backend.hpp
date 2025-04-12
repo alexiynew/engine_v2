@@ -2,6 +2,7 @@
 
 #include <expected>
 #include <memory>
+#include <mutex>
 
 #include <backend.hpp>
 
@@ -28,7 +29,9 @@ public:
     std::shared_ptr<core::Shader> createShader() override;
     std::shared_ptr<core::Mesh> createMesh() override;
 
-    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
+    void addRenderCommand(const RenderCommand& command) override;
+    void clearRenderCommands() override;
+    void executeRenderCommands() override;
 
     void handleKeyEvent(int key, int scancode, int action, int mods);
     void handleWindowResize(int width, int height);
@@ -42,6 +45,9 @@ private:
 
     std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
     std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
+
+    std::vector<RenderCommand> m_renderCommands;
+    std::mutex m_renderCommandsMutex;
 
     bool setupOpenGL();
     void applyDisplayMode(const GameSettings& settings);

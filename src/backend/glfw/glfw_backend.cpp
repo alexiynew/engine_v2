@@ -180,19 +180,46 @@ std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
     return m_meshes.back();
 }
 
-// TODO: Add submeshes support with materials
-// TODO: Add instancing
-// TODO: Add bounding box rendering
-void GLFWBackend::render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader)
+void GLFWBackend::addRenderCommand(const RenderCommand& command)
 {
-    auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(shader);
-    if (openglShader && openglShader->isValid()) {
-        openglShader->use();
+    std::lock_guard<std::mutex> lock(m_renderCommandsMutex);
+    m_renderCommands.push_back(command);
+}
+
+void GLFWBackend::clearRenderCommands()
+{
+    std::lock_guard<std::mutex> lock(m_renderCommandsMutex);
+    m_renderCommands.clear();
+}
+
+// TODO: Add submeshes support with materials
+void GLFWBackend::executeRenderCommands()
+{
+    std::vector<RenderCommand> commands;
+    {
+        std::lock_guard<std::mutex> lock(m_renderCommandsMutex);
+        commands = std::move(m_renderCommands);
+        m_renderCommands.clear();
     }
 
-    const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(mesh);
-    if (openglMesh && openglMesh->isValid()) {
-        openglMesh->render();
+    for (const auto& cmd : commands) {
+        const auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
+        if (openglShader && openglShader->isValid()) {
+            openglShader->use();
+
+            for (const auto& uniform : cmd.uniforms) {
+                openglShader->setUniform(uniform);
+            }
+        }
+
+        const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(cmd.mesh);
+        if (openglMesh && openglMesh->isValid()) {
+            if (cmd.instanceCount > 1) {
+                // TODO: Implement instancing
+            } else {
+                openglMesh->render();
+            }
+        }
     }
 }
 

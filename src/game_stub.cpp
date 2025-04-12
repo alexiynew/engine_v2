@@ -180,16 +180,21 @@ void GameStub::onDraw()
 
     float time = (static_cast<float>(m_framesCount) * 3.14f) / 180.0f;
 
+    using game_engine::Matrix4;
+    using game_engine::Vector3;
     using game_engine::core::Uniform;
-    const Uniform model      = glm::rotate(glm::mat4(1.0f), time, glm::vec3(0.5f, 1.0f, 0.0f));
-    const Uniform view       = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    const Uniform projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_shader->setUniform("model", model);
-    m_shader->setUniform("view", view);
-    m_shader->setUniform("projection", projection);
+    const auto model      = glm::rotate(Matrix4(1.0f), time, Vector3(0.5f, 1.0f, 0.0f));
+    const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));
+    const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_engine.render(m_mesh, m_shader);
+    m_engine.render(m_mesh,
+                    m_shader,
+                    {
+                        Uniform{     "model",      model},
+                        Uniform{      "view",       view},
+                        Uniform{"projection", projection},
+    });
 }
 
 void GameStub::onShutdown()

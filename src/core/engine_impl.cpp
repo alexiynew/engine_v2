@@ -91,10 +91,17 @@ std::shared_ptr<Shader> EngineImpl::createShader()
     return m_backend->createShader();
 }
 
-// TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
-void EngineImpl::render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader)
+void EngineImpl::render(const std::shared_ptr<Mesh>& mesh,
+                        const std::shared_ptr<Shader>& shader,
+                        const std::vector<Uniform>& uniforms)
 {
-    m_backend->render(mesh, shader);
+    backend::RenderCommand cmd;
+    cmd.mesh          = mesh;
+    cmd.shader        = shader;
+    cmd.uniforms      = uniforms;
+    cmd.instanceCount = 1;
+
+    m_backend->addRenderCommand(cmd);
 }
 
 void EngineImpl::onEvent(const KeyboardInputEvent& event)
@@ -189,7 +196,11 @@ void EngineImpl::render()
 
     m_game->onDraw();
 
+    m_backend->executeRenderCommands();
+
     m_backend->endFrame();
+
+    m_backend->clearRenderCommands();
 }
 
 } // namespace game_engine::core
