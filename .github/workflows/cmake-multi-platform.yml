@@ -26,7 +26,17 @@ jobs:
           # nothing, all configs should be in presets
         exclude:
           - os: windows-latest
+            preset: visual-studio
             compiler: clang
+          - os: windows-latest
+            preset: visual-studio
+            compiler: gcc
+          - os: windows-latest
+            preset: ninja
+            compiler: cl
+          - os: windows-latest
+            preset: ninja-multi
+            compiler: cl
           - os: ubuntu-latest
             compiler: cl
           - os: ubuntu-latest
@@ -66,7 +76,7 @@ jobs:
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build --preset=${{ steps.strings.outputs.build-preset }} --target=all
+      run: cmake --build --preset=${{ steps.strings.outputs.build-preset }}
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
