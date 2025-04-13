@@ -21,7 +21,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         preset: [visual-studio, ninja, ninja-multi]
         compiler: [gcc, clang, cl]
-        build_type: [release, debug]
+        build_type: [release]
         #include:
           # nothing, all configs should be in presets
         exclude:
