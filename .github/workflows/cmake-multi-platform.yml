@@ -19,91 +19,64 @@ jobs:
       # Set up a matrix
       matrix:
         os: [ubuntu-latest, windows-latest]
-        preset: [ninja-multi, windows-only, ninja]
-        build_type: [Release, Debug]
+        preset: [visual-studio, ninja, ninja-multi]
         compiler: [gcc, clang, cl]
-        include:
-          # Windows configurations
-          - os: windows-latest
-            preset: windows-only
-            generator: "Visual Studio 17 2022"
-            compiler: cl
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: windows-latest
-            preset: ninja
-            generator: "Ninja"
-            compiler: cl
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: windows-latest
-            preset: ninja-multi
-            generator: "Ninja Multi-Config"
-            compiler: cl
-            c_compiler: cl
-            cpp_compiler: cl
-
-          # Linux configurations
-          - os: ubuntu-latest
-            preset: ninja
-            generator: "Ninja"
-            compiler: gcc
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: ubuntu-latest
-            preset: ninja
-            generator: "Ninja"
-            compiler: clang
-            c_compiler: clang
-            cpp_compiler: clang++
-          - os: ubuntu-latest
-            preset: ninja-multi
-            generator: "Ninja Multi-Config"
-            compiler: gcc
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: ubuntu-latest
-            preset: ninja-multi
-            generator: "Ninja Multi-Config"
-            compiler: clang
-            c_compiler: clang
-            cpp_compiler: clang++
+        build_type: [release]
+        #include:
+          # nothing, all configs should be in presets
         exclude:
           - os: windows-latest
+            preset: visual-studio
+            compiler: clang
+          - os: windows-latest
+            preset: visual-studio
             compiler: gcc
           - os: windows-latest
-            compiler: clang
+            preset: ninja
+            compiler: cl
+          - os: windows-latest
+            preset: ninja-multi
+            compiler: cl
           - os: ubuntu-latest
             compiler: cl
           - os: ubuntu-latest
-            preset: windows-only
+            preset: visual-studio
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install Ninja (Linux)
-      if: matrix.os == 'ubuntu-latest' && matrix.preset == 'ninja'
-      run: sudo apt-get install -y ninja-build
 
     - name: Set reusable strings
       id: strings
       shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build/${{ matrix.preset }}-${{ matrix.compiler }}" >> "$GITHUB_OUTPUT"
+        if [ "${{ matrix.preset }}" == "visual-studio" ]; then
+          CONFIG_PRESET_NAME="${{ matrix.preset }}"
+          BUILD_PRESET_NAME="${{ matrix.preset }}-${{ matrix.build_type }}"
+        elif [ "${{ matrix.preset }}" == "ninja-multi" ]; then
+          CONFIG_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}"
+          BUILD_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}"
+        elif [ "${{ matrix.preset }}" == "ninja" ]; then
+          CONFIG_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}"
+          BUILD_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}"
+        else
+          echo "Invalid preset configuration"
+          exit 1
+        fi        
+
+        echo "build-output-dir=${{ github.workspace }}/build/$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
+        echo "config-preset=$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
+        echo "build-preset=$BUILD_PRESET_NAME" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
       run: >
-        cmake --preset=${{ matrix.preset }}
+        cmake --preset=${{ steps.strings.outputs.config-preset }}
         -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DENABLE_CPPCHECK=OFF
         -DUSE_STUB_BACKEND=ON
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build --preset=${{ matrix.preset }}-${{ lower(matrix.build_type) }}
+      run: cmake --build --preset=${{ steps.strings.outputs.build-preset }}
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}

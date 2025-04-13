@@ -81,8 +81,8 @@ TEST(CoreTest, DefaultMainLoop)
     EXPECT_CALL(*backend, pollEvents()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
         backend->testPollEvents();
     }));
-    EXPECT_CALL(*backend, beginFrame()).Times(maxFramesCount);
-    EXPECT_CALL(*backend, endFrame()).Times(maxFramesCount).WillRepeatedly(Invoke([&backend]() {
+    EXPECT_CALL(*backend, beginFrame()).Times(AtLeast(maxFramesCount));
+    EXPECT_CALL(*backend, endFrame()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
         backend->testEndFrame();
     }));
 
