@@ -54,16 +54,13 @@ jobs:
           exit 1
         fi
 
-        echo "config-preset=$CONFIG_PRESET_NAME"
-        echo "build-preset=$BUILD_PRESET_NAME"
-
         echo "build-output-dir=${{ github.workspace }}/build/$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
         echo "config-preset=$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
         echo "build-preset=$BUILD_PRESET_NAME" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
       run: >
-        cmake --preset=${{ steps.strings.config-preset }}
+        cmake --preset=${{ steps.strings.outputs.config-preset }}
         -B ${{ steps.strings.outputs.build-output-dir }}
         -DENABLE_CPPCHECK=OFF
         -DUSE_STUB_BACKEND=ON
