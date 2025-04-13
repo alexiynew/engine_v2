@@ -1,8 +1,8 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
 #include <unordered_map>
 
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 namespace game_engine::backend
@@ -10,6 +10,7 @@ namespace game_engine::backend
 
 class GLFWBackend;
 
+// TODO: Should be threadsave
 class GLFWBackendContext
 {
 public:

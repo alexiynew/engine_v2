@@ -160,13 +160,13 @@ void GameStub::onInitialize()
 
     m_mesh = m_engine.createMesh();
     m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
-    m_mesh->flush();
+    //m_mesh->flush();
 
     m_shader = m_engine.createShader();
     m_shader->setSource(VertexShaderSource, FragmentShaderSource);
-    if (!m_shader->link()) {
-        std::cout << "Failed to load shader" << std::endl;
-    }
+    //if (!m_shader->link()) {
+    //    std::cout << "Failed to load shader" << std::endl;
+    //}
 }
 
 void GameStub::onUpdate(std::chrono::nanoseconds)
@@ -188,13 +188,13 @@ void GameStub::onDraw()
     const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_engine.render(m_mesh,
-                    m_shader,
-                    {
-                        Uniform{     "model",      model},
-                        Uniform{      "view",       view},
-                        Uniform{"projection", projection},
-    });
+    // m_engine.render(m_mesh,
+    //                 m_shader,
+    //                 {
+    //                     Uniform{     "model",      model},
+    //                     Uniform{      "view",       view},
+    //                     Uniform{"projection", projection},
+    // });
 }
 
 void GameStub::onShutdown()
