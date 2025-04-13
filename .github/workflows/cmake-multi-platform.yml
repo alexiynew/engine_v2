@@ -22,7 +22,7 @@ jobs:
         preset: [visual-studio, ninja, ninja-multi]
         compiler: [gcc, clang, cl]
         build_type: [release, debug]
-        include:
+        #include:
           # nothing, all configs should be in presets
         exclude:
           - os: windows-latest
@@ -39,7 +39,6 @@ jobs:
       id: strings
       shell: bash
       if: matrix.os == 'ubuntu-latest'
-      run: echo "Это Ubuntu"
       run: |
         if [ "${{ matrix.preset }}" == "visual-studio" ]; then
           CONFIG_PRESET_NAME="${{ matrix.preset }}"
