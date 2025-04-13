@@ -35,34 +35,32 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set reusable strings for Visual Studio
+    - name: Set reusable strings
       id: strings
       shell: bash
-      if: matrix.preset == 'visual-studio'
       run: |
-        echo "config-preset=${{ matrix.preset }}" >> "$GITHUB_OUTPUT"
-        echo "build-preset=${{ matrix.preset }}-${{ matrix.build_type }}" >> "$GITHUB_OUTPUT"
+        if [ "${{ matrix.preset }}" == "visual-studio" ]; then
+          CONFIG_PRESET_NAME="${{ matrix.preset }}"
+          BUILD_PRESET_NAME="${{ matrix.preset }}-${{ matrix.build_type }}"
+        elif [ "${{ matrix.preset }}" == "ninja-multi" ]; then
+          CONFIG_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}"
+          BUILD_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}"
+        elif [ "${{ matrix.preset }}" == "ninja" ]; then
+          CONFIG_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}"
+          BUILD_PRESET_NAME="${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}"
+        else
+          echo "Invalid preset configuration"
+          exit 1
+        fi        
 
-    - name: Set reusable strings for Ninja
-      id: strings
-      shell: bash
-      if: matrix.preset == 'ninja'
-      run: |
-        echo "config-preset=${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}" >> "$GITHUB_OUTPUT"
-        echo "build-preset=${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}" >> "$GITHUB_OUTPUT"
-
-    - name: Set reusable strings for Ninja Multi-Config
-      id: strings
-      shell: bash
-      if: matrix.preset == 'ninja-multi'
-      run: |
-        echo "config-preset=${{ matrix.preset }}-${{ matrix.compiler }}" >> "$GITHUB_OUTPUT"
-        echo "build-preset=${{ matrix.preset }}-${{ matrix.compiler }}-${{ matrix.build_type }}" >> "$GITHUB_OUTPUT"
+        echo "build-output-dir=${{ github.workspace }}/build/$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
+        echo "config-preset=$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
+        echo "build-preset=$BUILD_PRESET_NAME" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
       run: >
         cmake --preset=${{ steps.strings.outputs.config-preset }}
-        -B ${{ github.workspace }}/build/${{ steps.strings.outputs.config-preset }}
+        -B ${{ steps.strings.outputs.build-output-dir }}
         -DENABLE_CPPCHECK=OFF
         -DUSE_STUB_BACKEND=ON
         -S ${{ github.workspace }}
@@ -71,5 +69,5 @@ jobs:
       run: cmake --build --preset=${{ steps.strings.outputs.build-preset }} --target=all
 
     - name: Test
-      working-directory: ${{ github.workspace }}/build/${{ steps.strings.outputs.config-preset }}
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }} --verbose --output-on-failure
