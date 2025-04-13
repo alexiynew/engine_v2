@@ -195,7 +195,7 @@
         },
         {
             "name": "ninja-multi-gcc-debug",
-            "displayName": "Ninja-Multi Gcc Debug",
+            "displayName": "Ninja Multi-Config Gcc Debug",
             "configurePreset": "ninja-multi-gcc",
             "configuration": "Debug",
             "inherits": [
@@ -204,7 +204,7 @@
         },
         {
             "name": "ninja-multi-gcc-release",
-            "displayName": "Ninja-Multi Gcc Release",
+            "displayName": "Ninja Multi-Config Gcc Release",
             "configurePreset": "ninja-multi-gcc",
             "configuration": "Release",
             "inherits": [
@@ -213,7 +213,7 @@
         },
         {
             "name": "ninja-multi-clang-debug",
-            "displayName": "Ninja-Multi Clang Debug",
+            "displayName": "Ninja Multi-Config Clang Debug",
             "configurePreset": "ninja-multi-clang",
             "configuration": "Debug",
             "inherits": [
@@ -222,7 +222,7 @@
         },
         {
             "name": "ninja-multi-clang-release",
-            "displayName": "Ninja-Multi Clang Release",
+            "displayName": "Ninja MultiConfig Clang Release",
             "configurePreset": "ninja-multi-clang",
             "configuration": "Release",
             "inherits": [
