@@ -55,8 +55,8 @@ jobs:
         fi
 
         echo "build-output-dir=${{ github.workspace }}/build/$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
-        echo "config-preset=$CONFIG_PRESET_NAME >> "$GITHUB_OUTPUT"
-        echo "build-preset=$BUILD_PRESET_NAME >> "$GITHUB_OUTPUT"
+        echo "config-preset=$CONFIG_PRESET_NAME" >> "$GITHUB_OUTPUT"
+        echo "build-preset=$BUILD_PRESET_NAME" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
       run: >
