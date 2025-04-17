@@ -1,5 +1,8 @@
 #include "stub_backend.hpp"
 
+#include <stub/stub_mesh.hpp>
+#include <stub/stub_shader.hpp>
+
 namespace game_engine::backend
 {
 
@@ -12,7 +15,7 @@ StubBackend::StubBackend() = default;
 
 StubBackend::~StubBackend() = default;
 
-bool StubBackend::initialize()
+bool StubBackend::initialize(const GameSettings&)
 {
     return true;
 }
@@ -22,7 +25,7 @@ void StubBackend::shutdown()
 
 void StubBackend::pollEvents()
 {
-    if (m_framesCount <= m_targetFramesCount) {
+    if (m_framesCount >= m_targetFramesCount) {
         notify(WindowCloseEvent{});
     }
 }
@@ -35,12 +38,20 @@ void StubBackend::endFrame()
     m_framesCount++;
 }
 
-core::MeshId StubBackend::loadMesh(const core::Mesh&)
+void StubBackend::applySettings(const GameSettings&)
+{}
+
+std::shared_ptr<core::Shader> StubBackend::createShader()
 {
-    return 0;
+    return std::make_shared<StubShader>();
 }
 
-void StubBackend::renderMesh(core::MeshId)
+std::shared_ptr<core::Mesh> StubBackend::createMesh()
+{
+    return std::make_shared<StubMesh>();
+}
+
+void StubBackend::render(const std::shared_ptr<core::Mesh>&, const std::shared_ptr<core::Shader>&)
 {}
 
 } // namespace game_engine::backend

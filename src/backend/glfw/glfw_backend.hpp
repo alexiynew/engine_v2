@@ -9,6 +9,7 @@ namespace game_engine::backend
 {
 
 class OpenGLShader;
+class OpenGLMesh;
 
 class GLFWBackend final : public Backend
 {
@@ -16,14 +17,18 @@ public:
     GLFWBackend();
     ~GLFWBackend() override;
 
-    bool initialize() override;
+    bool initialize(const GameSettings& settings) override;
     void shutdown() override;
     void pollEvents() override;
     void beginFrame() override;
     void endFrame() override;
 
-    core::MeshId loadMesh(const core::Mesh& mesh) override;
-    void renderMesh(core::MeshId meshId) override;
+    void applySettings(const GameSettings& settings) override;
+
+    std::shared_ptr<core::Shader> createShader() override;
+    std::shared_ptr<core::Mesh> createMesh() override;
+
+    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
 
     void handleKeyEvent(int key, int scancode, int action, int mods);
     void handleWindowResize(int width, int height);
@@ -35,21 +40,12 @@ public:
 
 private:
 
-    struct MeshInfo
-    {
-        unsigned int VAO = 0;
-        unsigned int VBO = 0;
-        unsigned int EBO = 0;
+    std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
+    std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
-        std::size_t indicesCount = 0;
-    };
-
-    std::unique_ptr<OpenGLShader> m_shader;
-
-    core::MeshId m_nextMeshId = 0; ///< ID counter for loaded meshes
-    std::unordered_map<std::size_t, MeshInfo> m_loadedMeshes;
-
-    std::expected<MeshInfo, bool> loadMeshToGPU(const core::Mesh& mesh);
+    bool setupOpenGL();
+    void applyDisplayMode(const GameSettings& settings);
+    void applyAntiAliasing(const GameSettings& settings);
 };
 
 } // namespace game_engine::backend

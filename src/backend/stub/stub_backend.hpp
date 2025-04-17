@@ -13,14 +13,18 @@ public:
     StubBackend();
     ~StubBackend() override;
 
-    bool initialize() override;
+    bool initialize(const GameSettings&) override;
     void shutdown() override;
     void pollEvents() override;
     void beginFrame() override;
     void endFrame() override;
 
-    core::MeshId loadMesh(const core::Mesh& mesh) override;
-    void renderMesh(core::MeshId meshId) override;
+    void applySettings(const GameSettings&) override;
+
+    std::shared_ptr<core::Shader> createShader() override;
+    std::shared_ptr<core::Mesh> createMesh() override;
+
+    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
 
 private:
     int m_framesCount       = 0;

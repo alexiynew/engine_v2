@@ -7,8 +7,8 @@ namespace game_engine::backend
 
 GLFWBackendContext& GLFWBackendContext::getInstance()
 {
-    static GLFWBackendContext instance;
-    return instance;
+    static GLFWBackendContext s_instance;
+    return s_instance;
 }
 
 void GLFWBackendContext::registerBackend(GLFWwindow* window, GLFWBackend* backend)

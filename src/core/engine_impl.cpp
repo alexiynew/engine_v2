@@ -3,20 +3,20 @@
 #include <iostream>
 #include <thread>
 
+namespace
+{
+
+inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
+
+} // namespace
+
 namespace game_engine::core
 {
 
 EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
     : m_backend(std::move(backend))
-{
-    m_modelLoader = std::make_shared<ModelLoader>();
-
-    std::chrono::nanoseconds second = std::chrono::seconds(1);
-    std::size_t fps                 = 60;
-
-    m_targetUpdateTime = second / fps;
-    m_targetFrameTime  = second / fps;
-}
+    , m_modelLoader(std::make_shared<ModelLoader>())
+{}
 
 EngineImpl::~EngineImpl()
 {
@@ -35,9 +35,11 @@ int EngineImpl::run() noexcept
     Logger() << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count();
 
     try {
-        if (!m_backend->initialize()) {
+        const GameSettings& settings = m_game->getSettings();
+        if (!m_backend->initialize(settings)) {
             return -1;
         }
+        setupFrameRate(settings);
         m_backend->attachBackendObserver(*this);
 
         m_game->onInitialize();
@@ -79,15 +81,20 @@ std::shared_ptr<ModelLoader> EngineImpl::getModelLoader()
     return m_modelLoader;
 }
 
-MeshId EngineImpl::loadMesh(const Mesh& mesh)
+std::shared_ptr<Mesh> EngineImpl::createMesh()
 {
-    return m_backend->loadMesh(mesh);
+    return m_backend->createMesh();
+}
+
+std::shared_ptr<Shader> EngineImpl::createShader()
+{
+    return m_backend->createShader();
 }
 
 // TODO: Add automatic instancing. User can call several render comands with same mesh, but different attributes.
-void EngineImpl::renderMesh(MeshId meshId)
+void EngineImpl::render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader)
 {
-    m_backend->renderMesh(meshId);
+    m_backend->render(mesh, shader);
 }
 
 void EngineImpl::onEvent(const KeyboardInputEvent& event)
@@ -95,6 +102,8 @@ void EngineImpl::onEvent(const KeyboardInputEvent& event)
     m_game->onKeyboardInputEvent(event);
 }
 
+// TODO: Handle window events
+// TODO: Save view aspect ratio on window resize
 void EngineImpl::onEvent(const WindowResizeEvent&)
 {}
 
@@ -116,6 +125,12 @@ void EngineImpl::onEvent(const WindowIconifyEvent&)
 
 void EngineImpl::onEvent(const WindowMaximizeEvent&)
 {}
+
+void EngineImpl::setupFrameRate(const GameSettings& settings)
+{
+    m_targetUpdateTime = Second / settings.updateRate;
+    m_targetFrameTime  = Second / settings.frameRate;
+}
 
 void EngineImpl::mainLoop()
 {
@@ -145,6 +160,7 @@ void EngineImpl::mainLoop()
         if (framesDeltaTime >= m_targetFrameTime) {
             render();
             m_frames++;
+            m_totalFrames++;
             framesDeltaTime -= m_targetFrameTime;
         }
 
@@ -171,7 +187,9 @@ void EngineImpl::update(std::chrono::nanoseconds elapsedTime)
 void EngineImpl::render()
 {
     m_backend->beginFrame();
+
     m_game->onDraw();
+
     m_backend->endFrame();
 }
 

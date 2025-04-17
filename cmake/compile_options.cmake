@@ -20,6 +20,7 @@ set(GCC_OPTIONS
     -Wmisleading-indentation
     -Wno-unused-parameter
     -Wno-sign-conversion
+    -Wno-unused-variable
     -Werror
 )
 

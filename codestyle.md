@@ -41,15 +41,23 @@ private:
 };
 ```
 
-### 1.5. Global and Static Variables
-Use the g_ prefix for global variables and s_ for static variables.
+### 1.5. Static Variables
+Use the s_ prefix for for static variables.
 
 ```cpp
-int g_globalCounter;
 static int s_staticValue;
 ```
 
-### 1.6. Macros
+### 1.6. Global Constants
+Use CamelCase for global constants defined in .cpp files.
+
+```cpp
+const int MaxUsers = 100;
+constexpr double Pi = 3.14159;
+const std::string DefaultUsername = "guest";
+```
+
+### 1.7. Macros
 Use UPPER_SNAKE_CASE exclusively for macros.
 
 ```cpp
