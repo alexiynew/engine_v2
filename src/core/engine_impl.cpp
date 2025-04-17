@@ -32,7 +32,7 @@ void EngineImpl::setGameInstance(std::shared_ptr<Game> game)
 int EngineImpl::run() noexcept
 {
     m_engineStartTime = getTime();
-    std::cout << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count() << std::endl;
+    Logger() << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count();
 
     try {
         if (!m_backend->initialize()) {
@@ -126,6 +126,7 @@ void EngineImpl::mainLoop()
     std::chrono::nanoseconds framesDeltaTime{0};
 
     while (!shouldStop()) {
+        Logger() << "Pooping from main loop";
         m_backend->pollEvents();
 
         const TimePoint nowTime = getTime();

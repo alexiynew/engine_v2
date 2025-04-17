@@ -3,6 +3,7 @@
 
 #include <game_engine/core/engine.hpp>
 #include <game_engine/game.hpp>
+#include <game_engine/core/logger.hpp>
 
 #include <backend/backend.hpp>
 

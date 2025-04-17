@@ -30,11 +30,13 @@ target_sources(engine
         include/game_engine/core/engine.hpp
         include/game_engine/core/mesh.hpp
         include/game_engine/core/model_loader.hpp
+        include/game_engine/core/logger.hpp
     PRIVATE
         src/core/engine_impl.hpp
         src/core/engine_impl.cpp
         src/core/mesh.cpp
         src/core/model_loader.cpp
+        src/core/logger.cpp
         src/game_stub.hpp
         src/game_stub.cpp
         src/entry_point/entry_point.cpp
