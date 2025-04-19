@@ -11,9 +11,6 @@ bool StubShader::link()
     return true;
 }
 
-void StubShader::setUniform(const std::string& name, const core::Uniform& uniform)
-{}
-
 void StubShader::clear() noexcept
 {}
 

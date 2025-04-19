@@ -24,7 +24,9 @@ public:
     std::shared_ptr<core::Shader> createShader() override;
     std::shared_ptr<core::Mesh> createMesh() override;
 
-    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
+    void addRenderCommand(const RenderCommand& command) override;
+    void clearRenderCommands() override;
+    void executeRenderCommands() override;
 
 private:
     int m_framesCount       = 0;
