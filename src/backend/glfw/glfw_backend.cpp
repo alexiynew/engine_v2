@@ -26,7 +26,6 @@ std::shared_ptr<Backend> createBackendInstance()
 }
 
 GLFWBackend::GLFWBackend()
-    : m_shutdownFuture(m_shutdownPromise.get_future())
 {}
 
 GLFWBackend::~GLFWBackend()
@@ -61,7 +60,7 @@ bool GLFWBackend::initialize(const GameSettings& settings)
     GLFWBackendContext::registerBackend(window, this);
 
     // Create render thread before making context current
-    m_renderThread = std::thread(&GLFWBackend::renderThreadFunction, this);
+    m_renderThread = std::make_shared<RenderThread>(window);
 
     if (!setupOpenGL()) {
         shutdown();
@@ -75,31 +74,38 @@ bool GLFWBackend::initialize(const GameSettings& settings)
 
 void GLFWBackend::shutdown()
 {
-    if (m_shouldStop) {
-        return;
+    if (m_renderThread) {
+        // TODO: check resources before run task in render thread
+        auto result = m_renderThread->submitSync([this] {
+            // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
+            for (auto& mesh : m_meshes) {
+                mesh->clear();
+            }
+            // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
+            for (auto& shader : m_shaders) {
+                shader->clear();
+            }
+        });
+
+        // Wait for resources to unload
+        try {
+            result.get();
+        } catch (std::exception& e) {
+            LOG_ERROR << "Exception: " << e.what() << std::endl;
+        }
+
+        m_meshes.clear();
+        m_shaders.clear();
+
+        if (m_renderThread.use_count() != 1) {
+            LOG_ERROR << "Render thread instance leaked" << std::endl;
+        }
+
+        m_renderThread->shutdown();
+        m_renderThread.reset();
     }
 
-    submitCommand([this] {
-        // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
-        for (auto& mesh : m_meshes) {
-            mesh->clear();
-        }
-        // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
-        for (auto& shader : m_shaders) {
-            shader->clear();
-        }
-    });
-
-    m_shouldStop = true;
-    m_commandCondition.notify_one();
-
-    if (m_renderThread.joinable()) {
-        m_renderThread.join();
-    }
-
-    m_meshes.clear();
-    m_shaders.clear();
-
+    // TODO: Remove window from context
     glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
 }
@@ -110,20 +116,10 @@ void GLFWBackend::pollEvents()
 }
 
 void GLFWBackend::beginFrame()
-{
-    submitCommand([] {
-        glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    });
-}
+{}
 
 void GLFWBackend::endFrame()
-{
-    submitCommand([this] {
-        // --
-        glfwSwapBuffers(GLFWBackendContext::getWindow(this));
-    });
-}
+{}
 
 void GLFWBackend::applySettings(const GameSettings& settings)
 {
@@ -139,39 +135,44 @@ void GLFWBackend::applySettings(const GameSettings& settings)
 
 std::shared_ptr<core::Shader> GLFWBackend::createShader()
 {
-    m_shaders.push_back(std::make_shared<OpenGLShader>());
+    m_shaders.push_back(std::make_shared<OpenGLShader>(m_renderThread));
     return m_shaders.back();
 }
 
 std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
 {
-    m_meshes.push_back(std::make_shared<OpenGLMesh>());
+    m_meshes.push_back(std::make_shared<OpenGLMesh>(m_renderThread));
     return m_meshes.back();
 }
 
 void GLFWBackend::addRenderCommand(const RenderCommand& command)
 {
-    std::lock_guard<std::mutex> lock(m_renderCommandsMutex);
-    m_renderCommands.push_back(command);
+    std::lock_guard<std::mutex> lock(m_commandsMutex);
+    m_commands.push_back(command);
 }
 
 void GLFWBackend::clearRenderCommands()
 {
-    std::lock_guard<std::mutex> lock(m_renderCommandsMutex);
-    m_renderCommands.clear();
+    std::lock_guard<std::mutex> lock(m_commandsMutex);
+    m_commands.clear();
 }
 
 // TODO: Add submeshes support with materials
 void GLFWBackend::executeRenderCommands()
 {
+    m_renderThread->submit([] {
+        glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    });
+
     std::vector<RenderCommand> commands;
     {
-        std::lock_guard<std::mutex> lock(m_renderCommandsMutex);
-        commands = std::move(m_renderCommands);
-        m_renderCommands.clear();
+        std::lock_guard<std::mutex> lock(m_commandsMutex);
+        commands = std::move(m_commands);
+        m_commands.clear();
     }
 
-    submitCommand([commands = std::move(commands)] {
+    m_renderThread->submit([commands = std::move(commands)] {
         for (const auto& cmd : commands) {
             const auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
             if (openglShader && openglShader->isValid()) {
@@ -191,6 +192,11 @@ void GLFWBackend::executeRenderCommands()
                 }
             }
         }
+    });
+
+    m_renderThread->submit([this] {
+        // --
+        glfwSwapBuffers(GLFWBackendContext::getWindow(this));
     });
 }
 
@@ -242,32 +248,26 @@ void GLFWBackend::handleWindowMaximize(bool maximized)
 
 #pragma region GLFWBackend private
 
-template <typename F>
-void GLFWBackend::submitCommand(F&& command)
-{
-    std::lock_guard lock(m_commandMutex);
-    m_commandQueue.emplace_back(std::forward<F>(command));
-    m_commandCondition.notify_one();
-}
-
 bool GLFWBackend::setupOpenGL()
 {
-    std::promise<bool> completionPromise;
-    auto completionFuture = completionPromise.get_future();
-
-    submitCommand([&completionPromise] {
+    auto result = m_renderThread->submitSync([] {
         if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
-            completionPromise.set_value(false);
+            throw std::runtime_error("Unsupported OpenGL version");
         }
 
         glEnable(GL_DEPTH_TEST);
         glFrontFace(GL_CCW);
         glCullFace(GL_BACK);
-
-        completionPromise.set_value(true);
     });
 
-    return completionFuture.get();
+    try {
+        result.get();
+    } catch (std::exception& e) {
+        LOG_ERROR << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 void GLFWBackend::applyDisplayMode(const GameSettings& settings)
@@ -312,40 +312,6 @@ void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
         case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
         case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
         case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
-    }
-}
-
-void GLFWBackend::renderThreadFunction()
-{
-    while (!m_shouldStop) {
-        std::vector<std::function<void()>> commands;
-
-        {
-            std::unique_lock lock(m_commandMutex);
-            m_commandCondition.wait(lock, [this] { return !m_commandQueue.empty() || m_shouldStop; });
-
-            if (m_shouldStop) {
-                break;
-            }
-
-            commands = std::move(m_commandQueue);
-            m_commandQueue.clear();
-        }
-
-        try {
-            glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
-
-            for (auto& command : commands) {
-                command();
-            }
-
-            // Ensure context is released
-            glfwMakeContextCurrent(nullptr);
-        } catch (const std::exception& e) {
-            LOG_ERROR << "Render thread error: " << e.what() << std::endl;
-            m_shutdownPromise.set_exception(std::current_exception());
-            m_shouldStop = true;
-        }
     }
 }
 

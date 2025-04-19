@@ -1,10 +1,13 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/mesh.hpp>
+
+#include <glfw/render_thread.hpp>
 
 namespace game_engine::backend
 {
@@ -12,7 +15,7 @@ namespace game_engine::backend
 class OpenGLMesh final : public core::Mesh
 {
 public:
-    OpenGLMesh() noexcept;
+    explicit OpenGLMesh(std::shared_ptr<RenderThread> renderThread) noexcept;
     ~OpenGLMesh() noexcept override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
@@ -30,15 +33,18 @@ public:
     void render() const;
 
 private:
+    friend void swap(OpenGLMesh& a, OpenGLMesh& b);
+
+    //
+    bool loadToGPU();
+
+    std::shared_ptr<RenderThread> m_renderThread;
+
     unsigned int m_VAO = 0;
     unsigned int m_VBO = 0;
     unsigned int m_EBO = 0;
 
     core::MeshData m_data = {};
-
-    friend void swap(OpenGLMesh& a, OpenGLMesh& b);
-
-    bool loadToGPU();
 };
 
 } // namespace game_engine::backend

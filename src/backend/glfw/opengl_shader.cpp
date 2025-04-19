@@ -9,6 +9,7 @@
 
 #define LOG_ERROR std::cerr
 
+// TODO: move all opengl stuff in render thread
 namespace
 {
 std::string shaderTypeString(int shaderType)
@@ -102,7 +103,9 @@ bool compileShaderProgram(GLuint programId, GLuint vertexShaderId, GLuint fragme
 namespace game_engine::backend
 {
 
-OpenGLShader::OpenGLShader() noexcept = default;
+OpenGLShader::OpenGLShader(std::shared_ptr<RenderThread> renderThread) noexcept
+    : m_renderThread(std::move(renderThread))
+{}
 
 OpenGLShader::~OpenGLShader() noexcept
 {
@@ -130,42 +133,17 @@ void OpenGLShader::setSource(const std::string& vertexSource, const std::string&
 
 bool OpenGLShader::link()
 {
-    if (m_vertexSource.empty() || m_fragmentSource.empty()) {
-        return false;
-    }
+    auto result = m_renderThread->submitSync([this]() {
+        if (!linkImpl()) {
+            // TODO: report error
+        }
+    });
 
-    if (m_vertexShader == 0) {
-        m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    try {
+        result.get();
+    } catch (std::exception& e) {
+        LOG_ERROR << "Exception: " << e.what() << std::endl;
     }
-
-    if (m_fragmentShader == 0) {
-        m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    }
-
-    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
-        clear();
-        return false;
-    }
-
-    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
-        clear();
-        return false;
-    }
-
-    if (hasOpenGLErrors()) {
-        clear();
-        return false;
-    }
-
-    if (m_shaderProgram == 0) {
-        m_shaderProgram = glCreateProgram();
-    }
-
-    if (!compileShaderProgram(m_shaderProgram, m_vertexShader, m_fragmentShader)) {
-        clear();
-        return false;
-    }
-
     return true;
 }
 
@@ -270,10 +248,52 @@ int OpenGLShader::getUniformLocation(const std::string& name) const
     return location;
 }
 
+bool OpenGLShader::linkImpl()
+{
+    if (m_vertexSource.empty() || m_fragmentSource.empty()) {
+        return false;
+    }
+
+    if (m_vertexShader == 0) {
+        m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    }
+
+    if (m_fragmentShader == 0) {
+        m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    }
+
+    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
+        clear();
+        return false;
+    }
+
+    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
+        clear();
+        return false;
+    }
+
+    if (hasOpenGLErrors()) {
+        clear();
+        return false;
+    }
+
+    if (m_shaderProgram == 0) {
+        m_shaderProgram = glCreateProgram();
+    }
+
+    if (!compileShaderProgram(m_shaderProgram, m_vertexShader, m_fragmentShader)) {
+        clear();
+        return false;
+    }
+
+    return true;
+}
+
 void swap(OpenGLShader& a, OpenGLShader& b)
 {
     using std::swap;
 
+    swap(a.m_renderThread, b.m_renderThread);
     swap(a.m_vertexSource, b.m_vertexSource);
     swap(a.m_fragmentSource, b.m_fragmentSource);
     swap(a.m_vertexShader, b.m_vertexShader);

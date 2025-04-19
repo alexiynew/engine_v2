@@ -6,7 +6,9 @@
 #include <glfw/opengl_utils.hpp>
 
 #define LOG_ERROR std::cerr
+#include <iostream>
 
+// TODO: move all openGL stuff in render thread
 namespace
 {
 
@@ -41,7 +43,9 @@ GLenum ToGLPrimitiveType(game_engine::core::PrimitiveType primitiveType)
 namespace game_engine::backend
 {
 
-OpenGLMesh::OpenGLMesh() noexcept = default;
+OpenGLMesh::OpenGLMesh(std::shared_ptr<RenderThread> renderThread) noexcept
+    : m_renderThread(renderThread)
+{}
 
 OpenGLMesh::~OpenGLMesh() noexcept
 {
@@ -61,6 +65,8 @@ OpenGLMesh& OpenGLMesh::operator=(OpenGLMesh&& other) noexcept
     return *this;
 }
 
+#pragma region core::Mesh
+
 void OpenGLMesh::setMeshData(const core::MeshData& data)
 {
     m_data = data;
@@ -68,8 +74,16 @@ void OpenGLMesh::setMeshData(const core::MeshData& data)
 
 void OpenGLMesh::flush()
 {
-    if (!loadToGPU()) {
-        // TODO: report error
+    auto result = m_renderThread->submitSync([this]() {
+        if (!loadToGPU()) {
+            // TODO: report error
+        }
+    });
+
+    try {
+        result.get();
+    } catch (std::exception& e) {
+        LOG_ERROR << "Exception: " << e.what() << std::endl;
     }
 }
 
@@ -89,6 +103,10 @@ bool OpenGLMesh::isValid() const noexcept
     return m_VAO != 0 && m_VBO != 0 && m_EBO != 0;
 }
 
+#pragma endregion
+
+#pragma region OpenGLMesh
+
 void OpenGLMesh::render() const
 {
     if (m_data.submeshes.empty()) {
@@ -106,8 +124,16 @@ void OpenGLMesh::render() const
     glDrawElements(primitiveType, indicesCount, GL_UNSIGNED_INT, 0);
 }
 
+#pragma endregion
+
+#pragma region OpenGLMesh private
+
 bool OpenGLMesh::loadToGPU()
 {
+    if (std::this_thread::get_id() != m_renderThread->getId()) {
+        throw std::runtime_error("Must run on render thread");
+    }
+
     // Create buffers
     if (m_VAO == 0) {
         glGenVertexArrays(1, &m_VAO);
@@ -189,10 +215,13 @@ void swap(OpenGLMesh& a, OpenGLMesh& b)
 {
     using std::swap;
 
+    swap(a.m_renderThread, b.m_renderThread);
     swap(a.m_VAO, b.m_VAO);
     swap(a.m_VBO, b.m_VBO);
     swap(a.m_EBO, b.m_EBO);
     swap(a.m_data, b.m_data);
 }
+
+#pragma endregion
 
 } // namespace game_engine::backend

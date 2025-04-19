@@ -12,6 +12,8 @@ target_sources(backend
         glfw/opengl_shader.hpp
         glfw/opengl_utils.cpp
         glfw/opengl_utils.hpp
+        glfw/render_thread.cpp
+        glfw/render_thread.hpp
 )
 
 include(libs/glfw)

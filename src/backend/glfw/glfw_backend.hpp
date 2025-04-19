@@ -1,14 +1,10 @@
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
-#include <expected>
-#include <functional>
-#include <future>
 #include <memory>
 #include <mutex>
 
 #include <backend.hpp>
+#include <glfw/render_thread.hpp>
 
 namespace game_engine::backend
 {
@@ -49,30 +45,17 @@ public:
 
 private:
 
-    template <typename F>
-    void submitCommand(F&& command);
-
     bool setupOpenGL();
     void applyDisplayMode(const GameSettings& settings);
     void applyAntiAliasing(const GameSettings& settings);
 
-    void renderThreadFunction();
-
     std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
     std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
-    std::thread m_renderThread;
+    std::shared_ptr<RenderThread> m_renderThread;
 
-    std::mutex m_commandMutex;
-    std::condition_variable m_commandCondition;
-    std::vector<std::function<void()>> m_commandQueue;
-
-    std::atomic<bool> m_shouldStop{false};
-    std::promise<void> m_shutdownPromise;
-    std::future<void> m_shutdownFuture;
-
-    std::mutex m_renderCommandsMutex;
-    std::vector<RenderCommand> m_renderCommands;
+    std::mutex m_commandsMutex;
+    std::vector<RenderCommand> m_commands;
 };
 
 } // namespace game_engine::backend

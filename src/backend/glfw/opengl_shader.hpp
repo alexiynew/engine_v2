@@ -1,10 +1,13 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/shader.hpp>
+
+#include <glfw/render_thread.hpp>
 
 namespace game_engine::backend
 {
@@ -12,7 +15,7 @@ namespace game_engine::backend
 class OpenGLShader final : public core::Shader
 {
 public:
-    OpenGLShader() noexcept;
+    explicit OpenGLShader(std::shared_ptr<RenderThread> renderThread) noexcept;
     ~OpenGLShader() noexcept override;
 
     OpenGLShader(const OpenGLShader&) = delete;
@@ -34,6 +37,14 @@ public:
     int getAttributeLocation(const std::string& name) const;
 
 private:
+    friend void swap(OpenGLShader& a, OpenGLShader& b);
+
+    int getUniformLocation(const std::string& name) const;
+
+    bool linkImpl();
+
+    std::shared_ptr<RenderThread> m_renderThread;
+
     std::string m_vertexSource;
     std::string m_fragmentSource;
 
@@ -42,10 +53,6 @@ private:
     std::uint32_t m_fragmentShader = 0;
 
     mutable std::unordered_map<std::string, int> m_uniformCache;
-
-    friend void swap(OpenGLShader& a, OpenGLShader& b);
-
-    int getUniformLocation(const std::string& name) const;
 };
 
 } // namespace game_engine::backend
