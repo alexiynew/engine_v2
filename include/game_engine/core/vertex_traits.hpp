@@ -38,12 +38,14 @@ inline constexpr VertexAttributeType getAttributeType() noexcept
     else if constexpr (IsUIntVertexAttribute<T>)
         return VertexAttributeType::UInt;
     else
-        static_assert(false, "Unsupported vertex attribute type");
+        static_assert(!std::is_same_v<T, T>, "Unsupported vertex attribute type");
 }
 
 template <typename T>
 inline constexpr int getComponentCount() noexcept
 {
+    static_assert(SupportedVertexAttribute<T>, "Unsupported vertex attribute type");
+
     if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int> || std::is_same_v<T, unsigned int>)
         return 1; // for scalar types
     else if constexpr (std::is_same_v<T, Vector2> || std::is_same_v<T, Vector2i> || std::is_same_v<T, Vector2u>)
@@ -53,11 +55,11 @@ inline constexpr int getComponentCount() noexcept
     else if constexpr (std::is_same_v<T, Vector4> || std::is_same_v<T, Vector4i> || std::is_same_v<T, Vector4u>)
         return 4;
     else
-        static_assert(false, "Unsupported vertex attribute type");
+        static_assert(!std::is_same_v<T, T>, "Unsupported vertex attribute type");
 }
 
 template <typename T, typename U>
-inline std::size_t memberOffset(U T::*ptr) noexcept
+inline std::size_t memberOffset(U T::* ptr) noexcept
 {
     constexpr T* nullObj = nullptr;
     return std::bit_cast<std::size_t>(&(nullObj->*ptr));
@@ -68,7 +70,7 @@ inline std::size_t memberOffset(U T::*ptr) noexcept
 template <typename VertexType, typename MemberType>
 inline constexpr VertexAttribute generateAttribute(int location,
                                                    const char* name,
-                                                   MemberType(VertexType::*ptr),
+                                                   MemberType(VertexType::* ptr),
                                                    bool normalized = false) noexcept
 {
     static_assert(vertex_traits::SupportedVertexAttribute<MemberType>, "Unsupported vertex attribute type");

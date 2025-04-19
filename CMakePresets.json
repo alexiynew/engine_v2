@@ -227,7 +227,7 @@
         },
         {
             "name": "ninja-multi-clang-release",
-            "displayName": "Ninja MultiConfig Clang Release",
+            "displayName": "Ninja Multi-Config Clang Release",
             "configurePreset": "ninja-multi-clang",
             "configuration": "Release",
             "inherits": [
