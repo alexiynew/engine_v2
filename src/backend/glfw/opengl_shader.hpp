@@ -7,7 +7,7 @@
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/shader.hpp>
 
-#include <glfw/render_thread.hpp>
+#include <glfw/opengl_renderer.hpp>
 
 namespace game_engine::backend
 {
@@ -15,7 +15,7 @@ namespace game_engine::backend
 class OpenGLShader final : public core::Shader
 {
 public:
-    explicit OpenGLShader(std::shared_ptr<RenderThread> renderThread) noexcept;
+    explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
     ~OpenGLShader() noexcept override;
 
     OpenGLShader(const OpenGLShader&) = delete;
@@ -43,7 +43,7 @@ private:
 
     bool linkImpl();
 
-    std::shared_ptr<RenderThread> m_renderThread;
+    std::shared_ptr<OpenGLRenderer> m_renderer;
 
     std::string m_vertexSource;
     std::string m_fragmentSource;

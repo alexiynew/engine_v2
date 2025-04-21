@@ -4,7 +4,7 @@
 #include <mutex>
 
 #include <backend.hpp>
-#include <glfw/render_thread.hpp>
+#include <glfw/opengl_renderer.hpp>
 
 namespace game_engine::backend
 {
@@ -22,8 +22,6 @@ public:
     bool initialize(const GameSettings& settings) override;
     void shutdown() override;
     void pollEvents() override;
-    void beginFrame() override;
-    void endFrame() override;
 
     void applySettings(const GameSettings& settings) override;
 
@@ -52,7 +50,7 @@ private:
     std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
     std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
-    std::shared_ptr<RenderThread> m_renderThread;
+    std::shared_ptr<OpenGLRenderer> m_renderer;
 
     std::mutex m_commandsMutex;
     std::vector<RenderCommand> m_commands;

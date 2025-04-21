@@ -7,7 +7,7 @@
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/mesh.hpp>
 
-#include <glfw/render_thread.hpp>
+#include <glfw/opengl_renderer.hpp>
 
 namespace game_engine::backend
 {
@@ -15,7 +15,7 @@ namespace game_engine::backend
 class OpenGLMesh final : public core::Mesh
 {
 public:
-    explicit OpenGLMesh(std::shared_ptr<RenderThread> renderThread) noexcept;
+    explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
     ~OpenGLMesh() noexcept override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
@@ -38,7 +38,7 @@ private:
     //
     bool loadToGPU();
 
-    std::shared_ptr<RenderThread> m_renderThread;
+    std::shared_ptr<OpenGLRenderer> m_renderer;
 
     unsigned int m_VAO = 0;
     unsigned int m_VBO = 0;

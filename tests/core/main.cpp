@@ -43,8 +43,6 @@ public:
     MOCK_METHOD(bool, initialize, (const GameSettings&), (override));
     MOCK_METHOD(void, shutdown, (), (override));
     MOCK_METHOD(void, pollEvents, (), (override));
-    MOCK_METHOD(void, beginFrame, (), (override));
-    MOCK_METHOD(void, endFrame, (), (override));
     MOCK_METHOD(void, applySettings, (const GameSettings&), (override));
     MOCK_METHOD(std::shared_ptr<core::Shader>, createShader, (), (override));
     MOCK_METHOD(std::shared_ptr<core::Mesh>, createMesh, (), (override));
@@ -81,10 +79,6 @@ TEST(CoreTest, DefaultMainLoop)
 
     EXPECT_CALL(*backend, pollEvents()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
         backend->testPollEvents();
-    }));
-    EXPECT_CALL(*backend, beginFrame()).Times(AtLeast(maxFramesCount));
-    EXPECT_CALL(*backend, endFrame()).Times(AtLeast(maxFramesCount)).WillRepeatedly(Invoke([&backend]() {
-        backend->testEndFrame();
     }));
 
     EXPECT_CALL(*backend, createShader())

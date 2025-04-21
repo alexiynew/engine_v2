@@ -60,7 +60,7 @@ bool GLFWBackend::initialize(const GameSettings& settings)
     GLFWBackendContext::registerBackend(window, this);
 
     // Create render thread before making context current
-    m_renderThread = std::make_shared<RenderThread>(window);
+    m_renderer = std::make_shared<OpenGLRenderer>();
 
     if (!setupOpenGL()) {
         shutdown();
@@ -74,9 +74,9 @@ bool GLFWBackend::initialize(const GameSettings& settings)
 
 void GLFWBackend::shutdown()
 {
-    if (m_renderThread) {
+    if (m_renderer) {
         // TODO: check resources before run task in render thread
-        auto result = m_renderThread->submitSync([this] {
+        auto result = m_renderer->submitSync([this] {
             // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
             for (auto& mesh : m_meshes) {
                 mesh->clear();
@@ -85,6 +85,8 @@ void GLFWBackend::shutdown()
             for (auto& shader : m_shaders) {
                 shader->clear();
             }
+
+            glfwMakeContextCurrent(nullptr);
         });
 
         // Wait for resources to unload
@@ -97,12 +99,12 @@ void GLFWBackend::shutdown()
         m_meshes.clear();
         m_shaders.clear();
 
-        if (m_renderThread.use_count() != 1) {
+        if (m_renderer.use_count() != 1) {
             LOG_ERROR << "Render thread instance leaked" << std::endl;
         }
 
-        m_renderThread->shutdown();
-        m_renderThread.reset();
+        m_renderer->shutdown();
+        m_renderer.reset();
     }
 
     // TODO: Remove window from context
@@ -114,12 +116,6 @@ void GLFWBackend::pollEvents()
 {
     glfwPollEvents();
 }
-
-void GLFWBackend::beginFrame()
-{}
-
-void GLFWBackend::endFrame()
-{}
 
 void GLFWBackend::applySettings(const GameSettings& settings)
 {
@@ -135,13 +131,13 @@ void GLFWBackend::applySettings(const GameSettings& settings)
 
 std::shared_ptr<core::Shader> GLFWBackend::createShader()
 {
-    m_shaders.push_back(std::make_shared<OpenGLShader>(m_renderThread));
+    m_shaders.push_back(std::make_shared<OpenGLShader>(m_renderer));
     return m_shaders.back();
 }
 
 std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
 {
-    m_meshes.push_back(std::make_shared<OpenGLMesh>(m_renderThread));
+    m_meshes.push_back(std::make_shared<OpenGLMesh>(m_renderer));
     return m_meshes.back();
 }
 
@@ -160,7 +156,7 @@ void GLFWBackend::clearRenderCommands()
 // TODO: Add submeshes support with materials
 void GLFWBackend::executeRenderCommands()
 {
-    m_renderThread->submit([] {
+    m_renderer->submit([] {
         glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     });
@@ -172,7 +168,7 @@ void GLFWBackend::executeRenderCommands()
         m_commands.clear();
     }
 
-    m_renderThread->submit([commands = std::move(commands)] {
+    m_renderer->submit([commands = std::move(commands)] {
         for (const auto& cmd : commands) {
             const auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
             if (openglShader && openglShader->isValid()) {
@@ -194,7 +190,7 @@ void GLFWBackend::executeRenderCommands()
         }
     });
 
-    m_renderThread->submit([this] {
+    m_renderer->submit([this] {
         // --
         glfwSwapBuffers(GLFWBackendContext::getWindow(this));
     });
@@ -250,7 +246,9 @@ void GLFWBackend::handleWindowMaximize(bool maximized)
 
 bool GLFWBackend::setupOpenGL()
 {
-    auto result = m_renderThread->submitSync([] {
+    auto result = m_renderer->submitSync([this] {
+        glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
+
         if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
             throw std::runtime_error("Unsupported OpenGL version");
         }

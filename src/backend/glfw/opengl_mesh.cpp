@@ -43,8 +43,8 @@ GLenum ToGLPrimitiveType(game_engine::core::PrimitiveType primitiveType)
 namespace game_engine::backend
 {
 
-OpenGLMesh::OpenGLMesh(std::shared_ptr<RenderThread> renderThread) noexcept
-    : m_renderThread(renderThread)
+OpenGLMesh::OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
+    : m_renderer(renderThread)
 {}
 
 OpenGLMesh::~OpenGLMesh() noexcept
@@ -74,7 +74,7 @@ void OpenGLMesh::setMeshData(const core::MeshData& data)
 
 void OpenGLMesh::flush()
 {
-    auto result = m_renderThread->submitSync([this]() {
+    auto result = m_renderer->submitSync([this]() {
         if (!loadToGPU()) {
             // TODO: report error
         }
@@ -130,7 +130,7 @@ void OpenGLMesh::render() const
 
 bool OpenGLMesh::loadToGPU()
 {
-    if (std::this_thread::get_id() != m_renderThread->getId()) {
+    if (std::this_thread::get_id() != m_renderer->getId()) {
         throw std::runtime_error("Must run on render thread");
     }
 
@@ -215,7 +215,7 @@ void swap(OpenGLMesh& a, OpenGLMesh& b)
 {
     using std::swap;
 
-    swap(a.m_renderThread, b.m_renderThread);
+    swap(a.m_renderer, b.m_renderer);
     swap(a.m_VAO, b.m_VAO);
     swap(a.m_VBO, b.m_VBO);
     swap(a.m_EBO, b.m_EBO);

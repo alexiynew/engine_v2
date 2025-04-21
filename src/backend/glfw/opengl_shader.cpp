@@ -103,8 +103,8 @@ bool compileShaderProgram(GLuint programId, GLuint vertexShaderId, GLuint fragme
 namespace game_engine::backend
 {
 
-OpenGLShader::OpenGLShader(std::shared_ptr<RenderThread> renderThread) noexcept
-    : m_renderThread(std::move(renderThread))
+OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
+    : m_renderer(std::move(renderThread))
 {}
 
 OpenGLShader::~OpenGLShader() noexcept
@@ -133,7 +133,7 @@ void OpenGLShader::setSource(const std::string& vertexSource, const std::string&
 
 bool OpenGLShader::link()
 {
-    auto result = m_renderThread->submitSync([this]() {
+    auto result = m_renderer->submitSync([this]() {
         if (!linkImpl()) {
             // TODO: report error
         }
@@ -293,7 +293,7 @@ void swap(OpenGLShader& a, OpenGLShader& b)
 {
     using std::swap;
 
-    swap(a.m_renderThread, b.m_renderThread);
+    swap(a.m_renderer, b.m_renderer);
     swap(a.m_vertexSource, b.m_vertexSource);
     swap(a.m_fragmentSource, b.m_fragmentSource);
     swap(a.m_vertexShader, b.m_vertexShader);

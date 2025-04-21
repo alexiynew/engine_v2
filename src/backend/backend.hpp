@@ -66,12 +66,6 @@ public:
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;
 
-    /// @brief Begin a new frame (e.g., clear the screen)
-    virtual void beginFrame() = 0;
-
-    /// @brief End the frame (e.g., swap buffers)
-    virtual void endFrame() = 0;
-
     /// @brief Apply game settings
     /// @param settings New game settings.
     virtual void applySettings(const GameSettings& settings) = 0;

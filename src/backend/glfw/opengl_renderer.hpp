@@ -7,19 +7,16 @@
 #include <future>
 #include <thread>
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
 namespace game_engine::backend
 {
 
-class RenderThread final
+class OpenGLRenderer final
 {
 public:
     using Task = std::function<void()>;
 
-    explicit RenderThread(GLFWwindow* window);
-    ~RenderThread();
+    OpenGLRenderer();
+    ~OpenGLRenderer();
 
     void shutdown() noexcept;
 
@@ -34,7 +31,6 @@ private:
 
     void renderLoop();
 
-    GLFWwindow* m_window = nullptr;
     std::atomic<bool> m_running{false};
     std::thread m_thread;
 

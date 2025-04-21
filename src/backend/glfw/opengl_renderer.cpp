@@ -1,4 +1,4 @@
-#include "render_thread.hpp"
+#include "opengl_renderer.hpp"
 
 #define LOG_ERROR std::cerr
 #include <iostream>
@@ -6,24 +6,23 @@
 namespace game_engine::backend
 {
 
-RenderThread::RenderThread(GLFWwindow* window)
-    : m_window(window)
+OpenGLRenderer::OpenGLRenderer()
 {
     m_running.store(true, std::memory_order_release);
-    m_thread = std::thread(&RenderThread::renderLoop, this);
+    m_thread = std::thread(&OpenGLRenderer::renderLoop, this);
 
     // Wait for tread to start
     m_initPromise.get_future().get();
 }
 
-RenderThread::~RenderThread()
+OpenGLRenderer::~OpenGLRenderer()
 {
     shutdown();
 }
 
-#pragma region RenderThread
+#pragma region OpenGLRenderer
 
-void RenderThread::shutdown() noexcept
+void OpenGLRenderer::shutdown() noexcept
 {
     try {
         m_running.store(false, std::memory_order_release);
@@ -38,7 +37,7 @@ void RenderThread::shutdown() noexcept
     }
 }
 
-void RenderThread::submit(Task task)
+void OpenGLRenderer::submit(Task task)
 {
     std::packaged_task<void()> packagedTask(std::move(task));
 
@@ -50,7 +49,7 @@ void RenderThread::submit(Task task)
     m_cv.notify_one();
 }
 
-std::future<void> RenderThread::submitSync(Task task)
+std::future<void> OpenGLRenderer::submitSync(Task task)
 {
     std::packaged_task<void()> packagedTask(std::move(task));
     auto future = packagedTask.get_future();
@@ -64,19 +63,17 @@ std::future<void> RenderThread::submitSync(Task task)
     return future;
 }
 
-std::thread::id RenderThread::getId() const noexcept
+std::thread::id OpenGLRenderer::getId() const noexcept
 {
     return m_thread.get_id();
 }
 
 #pragma endregion
 
-#pragma region RenderThread private
+#pragma region OpenGLRenderer private
 
-void RenderThread::renderLoop()
+void OpenGLRenderer::renderLoop()
 {
-    glfwMakeContextCurrent(m_window);
-
     // Signal tread start
     m_initPromise.set_value();
 
@@ -105,8 +102,6 @@ void RenderThread::renderLoop()
             // report error
         }
     }
-
-    glfwMakeContextCurrent(nullptr);
 }
 
 #pragma endregion

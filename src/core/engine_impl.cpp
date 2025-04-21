@@ -192,14 +192,9 @@ void EngineImpl::update(std::chrono::nanoseconds elapsedTime)
 
 void EngineImpl::render()
 {
-    m_backend->beginFrame();
-
     m_game->onDraw();
 
     m_backend->executeRenderCommands();
-
-    m_backend->endFrame();
-
     m_backend->clearRenderCommands();
 }
 
