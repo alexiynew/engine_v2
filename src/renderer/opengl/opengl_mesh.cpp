@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include <glad/glad.h>
-#include <glfw/opengl_utils.hpp>
+#include <renderer/opengl/opengl_utils.hpp>
 
 #define LOG_ERROR std::cerr
 #include <iostream>
@@ -40,7 +40,7 @@ GLenum ToGLPrimitiveType(game_engine::core::PrimitiveType primitiveType)
 
 } // namespace
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 OpenGLMesh::OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
@@ -130,10 +130,6 @@ void OpenGLMesh::render() const
 
 bool OpenGLMesh::loadToGPU()
 {
-    if (std::this_thread::get_id() != m_renderer->getId()) {
-        throw std::runtime_error("Must run on render thread");
-    }
-
     // Create buffers
     if (m_VAO == 0) {
         glGenVertexArrays(1, &m_VAO);
@@ -224,4 +220,4 @@ void swap(OpenGLMesh& a, OpenGLMesh& b)
 
 #pragma endregion
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

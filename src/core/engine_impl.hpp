@@ -5,6 +5,7 @@
 #include <game_engine/game.hpp>
 
 #include <backend/backend.hpp>
+#include <renderer/renderer.hpp>
 
 namespace game_engine::core
 {
@@ -16,7 +17,7 @@ class EngineImpl final
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    explicit EngineImpl(std::shared_ptr<backend::Backend> backend);
+    explicit EngineImpl(std::shared_ptr<backend::Backend> backend, std::shared_ptr<renderer::Renderer> renderer);
     ~EngineImpl() override;
 
     // Engine
@@ -40,6 +41,7 @@ public:
 
 private:
     std::shared_ptr<game_engine::backend::Backend> m_backend;
+    std::shared_ptr<game_engine::renderer::Renderer> m_renderer;
     std::shared_ptr<game_engine::Game> m_game;
 
     std::shared_ptr<game_engine::core::ModelLoader> m_modelLoader;

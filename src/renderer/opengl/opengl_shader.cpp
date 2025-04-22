@@ -1,13 +1,13 @@
 #include "opengl_shader.hpp"
 
-#include <iostream>
 #include <memory>
 #include <string_view>
 
 #include <glad/glad.h>
-#include <glfw/opengl_utils.hpp>
+#include <renderer/opengl/opengl_utils.hpp>
 
 #define LOG_ERROR std::cerr
+#include <iostream>
 
 // TODO: move all opengl stuff in render thread
 namespace
@@ -100,7 +100,7 @@ bool compileShaderProgram(GLuint programId, GLuint vertexShaderId, GLuint fragme
 
 } // namespace
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
@@ -302,4 +302,4 @@ void swap(OpenGLShader& a, OpenGLShader& b)
     swap(a.m_uniformCache, b.m_uniformCache);
 }
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

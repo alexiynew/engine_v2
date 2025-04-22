@@ -7,9 +7,9 @@
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/mesh.hpp>
 
-#include <glfw/opengl_renderer.hpp>
+#include <renderer/opengl/opengl_renderer.hpp>
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 class OpenGLMesh final : public core::Mesh
@@ -47,4 +47,4 @@ private:
     core::MeshData m_data = {};
 };
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

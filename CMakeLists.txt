@@ -74,9 +74,13 @@ target_link_libraries(engine PRIVATE engine::compile_options)
 add_subdirectory(src/backend)
 target_link_libraries(engine PRIVATE engine::backend)
 
+# Renderer
+add_subdirectory(src/renderer)
+target_link_libraries(engine PRIVATE engine::renderer)
+
 # GLM
 include(libs/glm)
-target_link_libraries(engine PUBLIC Libs::glm)
+target_link_libraries(engine PUBLIC libs::glm)
 
 # Tests
 if(ENABLE_TESTING)

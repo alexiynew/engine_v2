@@ -1,18 +1,19 @@
 #pragma once
 
-#include <memory>
 #include <mutex>
 
-#include <backend.hpp>
-#include <glfw/opengl_renderer.hpp>
+#include <backend/backend.hpp>
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 namespace game_engine::backend
 {
 
-class OpenGLShader;
-class OpenGLMesh;
-
-class GLFWBackend final : public Backend
+class GLFWBackend final
+    : public Backend
+    , public renderer::RendererContext
+    , public std::enable_shared_from_this<GLFWBackend>
 {
 public:
     GLFWBackend();
@@ -23,16 +24,14 @@ public:
     void shutdown() override;
     void pollEvents() override;
 
-    void applySettings(const GameSettings& settings) override;
+    std::shared_ptr<renderer::RendererContext> getRendererContext() override;
 
-    std::shared_ptr<core::Shader> createShader() override;
-    std::shared_ptr<core::Mesh> createMesh() override;
+    // renderer::RendererContext
+    void makeCurrent() override;
+    void dropCurrent() override;
+    void swapBuffers() override;
 
-    void addRenderCommand(const RenderCommand& command) override;
-    void clearRenderCommands() override;
-    void executeRenderCommands() override;
-
-    // GLFWBackend
+    // Event handling
     void handleKeyEvent(int key, int scancode, int action, int mods);
     void handleWindowResize(int width, int height);
     void handleWindowMove(int xpos, int ypos);
@@ -43,17 +42,12 @@ public:
 
 private:
 
-    bool setupOpenGL();
+        void applySettings(const GameSettings& settings);
     void applyDisplayMode(const GameSettings& settings);
     void applyAntiAliasing(const GameSettings& settings);
 
-    std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
-    std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
-
-    std::shared_ptr<OpenGLRenderer> m_renderer;
-
-    std::mutex m_commandsMutex;
-    std::vector<RenderCommand> m_commands;
+    std::mutex m_windowMutex;
+    GLFWwindow* m_window = nullptr;
 };
 
 } // namespace game_engine::backend

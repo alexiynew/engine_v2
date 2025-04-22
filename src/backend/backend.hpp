@@ -4,10 +4,10 @@
 #include <memory>
 #include <string>
 
-#include <game_engine/core/engine.hpp>
-#include <game_engine/core/shader.hpp>
 #include <game_engine/game_settings.hpp>
 #include <game_engine/system_events.hpp>
+
+#include <renderer/renderer.hpp>
 
 namespace game_engine::backend
 {
@@ -42,14 +42,6 @@ public:
     virtual void onEvent(const WindowMaximizeEvent& event) = 0;
 };
 
-struct RenderCommand
-{
-    std::shared_ptr<core::Mesh> mesh;
-    std::shared_ptr<core::Shader> shader;
-    std::vector<core::Uniform> uniforms;
-    uint32_t instanceCount = 1;
-};
-
 class Backend
 {
 public:
@@ -66,22 +58,7 @@ public:
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;
 
-    /// @brief Apply game settings
-    /// @param settings New game settings.
-    virtual void applySettings(const GameSettings& settings) = 0;
-
-    /// @brief Creates new shader instance.
-    /// @return The new shader pointer.
-    virtual std::shared_ptr<core::Shader> createShader() = 0;
-
-    /// @brief Loads mesh to backend.
-    /// @param mesh The model mesh to load.
-    /// @return The ID of the loaded mesh.
-    virtual std::shared_ptr<core::Mesh> createMesh() = 0;
-
-    virtual void addRenderCommand(const RenderCommand& command) = 0;
-    virtual void clearRenderCommands()                          = 0;
-    virtual void executeRenderCommands()                        = 0;
+    virtual std::shared_ptr<renderer::RendererContext> getRendererContext() = 0;
 
     void attachBackendObserver(BackendObserver& observer);
     void detachBackendObserver(const BackendObserver& observer);

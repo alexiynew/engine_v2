@@ -1,21 +1,94 @@
 #include "glfw_backend.hpp"
 
-#include <unordered_map>
-
-#include <game_engine/common_types.hpp>
-
-#include <glfw/glfw_backend_context.hpp>
-#include <glfw/glfw_keyboard.hpp>
-#include <glfw/opengl_mesh.hpp>
-#include <glfw/opengl_shader.hpp>
-#include <glfw/opengl_utils.hpp>
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include <backend/glfw/glfw_keyboard.hpp>
 
 #define LOG_ERROR std::cerr
 #include <iostream>
+
+namespace
+{
+using game_engine::backend::GLFWBackend;
+
+void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleKeyEvent(key, scancode, action, mods);
+    }
+}
+
+void onWindowResize(GLFWwindow* window, int width, int height)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowResize(width, height);
+    }
+}
+
+void onWindowMove(GLFWwindow* window, int xpos, int ypos)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowMove(xpos, ypos);
+    }
+}
+
+void onWindowClose(GLFWwindow* window)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowClose();
+    }
+}
+
+void onWindowFocus(GLFWwindow* window, int focused)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowFocus(focused == GLFW_TRUE);
+    }
+}
+
+void onWindowIconify(GLFWwindow* window, int iconified)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowIconify(iconified == GLFW_TRUE);
+    }
+}
+
+void onWindowMaximize(GLFWwindow* window, int maximized)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowMaximize(maximized == GLFW_TRUE);
+    }
+}
+
+void setCallbacks(GLFWwindow* window)
+{
+    glfwSetKeyCallback(window, &onKeyEvent);
+    glfwSetWindowSizeCallback(window, &onWindowResize);
+    glfwSetWindowPosCallback(window, &onWindowMove);
+    glfwSetWindowCloseCallback(window, &onWindowClose);
+    glfwSetWindowFocusCallback(window, &onWindowFocus);
+    glfwSetWindowIconifyCallback(window, &onWindowIconify);
+    glfwSetWindowMaximizeCallback(window, &onWindowMaximize);
+}
+
+void dropCallbacks(GLFWwindow* window)
+{
+    glfwSetKeyCallback(window, nullptr);
+    glfwSetWindowSizeCallback(window, nullptr);
+    glfwSetWindowPosCallback(window, nullptr);
+    glfwSetWindowCloseCallback(window, nullptr);
+    glfwSetWindowFocusCallback(window, nullptr);
+    glfwSetWindowIconifyCallback(window, nullptr);
+}
+
+void logErrors()
+{
+    const char* error = nullptr;
+    const int code    = glfwGetError(&error);
+    if (error) {
+        LOG_ERROR << "GLFW Error: " << code << " " << error << std::endl;
+    }
+}
+
+} // namespace
 
 namespace game_engine::backend
 {
@@ -37,7 +110,15 @@ GLFWBackend::~GLFWBackend()
 
 bool GLFWBackend::initialize(const GameSettings& settings)
 {
+    std::lock_guard lock(m_windowMutex);
+
+    if (m_window) {
+        LOG_ERROR << "Already initialized";
+        return false;
+    }
+
     if (!glfwInit()) {
+        logErrors();
         return false;
     }
 
@@ -47,68 +128,40 @@ bool GLFWBackend::initialize(const GameSettings& settings)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    auto window = glfwCreateWindow(settings.resolutionWidth,
-                                   settings.resolutionHeight,
-                                   settings.windowTitle.c_str(),
-                                   nullptr,
-                                   nullptr);
-    if (!window) {
+    if (settings.displayMode == DisplayMode::BorderlessFullscreen) {
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    }
+    applyAntiAliasing(settings);
+
+    m_window = glfwCreateWindow(settings.resolutionWidth,
+                                settings.resolutionHeight,
+                                settings.windowTitle.c_str(),
+                                nullptr,
+                                nullptr);
+    if (!m_window) {
+        logErrors();
         glfwTerminate();
         return false;
     }
 
-    GLFWBackendContext::registerBackend(window, this);
-
-    // Create render thread before making context current
-    m_renderer = std::make_shared<OpenGLRenderer>();
-
-    if (!setupOpenGL()) {
-        shutdown();
-        return false;
-    }
-
     applySettings(settings);
+
+    glfwSetWindowUserPointer(m_window, this);
+
+    setCallbacks(m_window);
 
     return true;
 }
 
 void GLFWBackend::shutdown()
 {
-    if (m_renderer) {
-        // TODO: check resources before run task in render thread
-        auto result = m_renderer->submitSync([this] {
-            // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
-            for (auto& mesh : m_meshes) {
-                mesh->clear();
-            }
-            // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
-            for (auto& shader : m_shaders) {
-                shader->clear();
-            }
-
-            glfwMakeContextCurrent(nullptr);
-        });
-
-        // Wait for resources to unload
-        try {
-            result.get();
-        } catch (std::exception& e) {
-            LOG_ERROR << "Exception: " << e.what() << std::endl;
-        }
-
-        m_meshes.clear();
-        m_shaders.clear();
-
-        if (m_renderer.use_count() != 1) {
-            LOG_ERROR << "Render thread instance leaked" << std::endl;
-        }
-
-        m_renderer->shutdown();
-        m_renderer.reset();
+    std::lock_guard lock(m_windowMutex);
+    if (m_window) {
+        glfwSetWindowUserPointer(m_window, nullptr);
+        dropCallbacks(m_window);
+        glfwDestroyWindow(m_window);
+        m_window = nullptr;
     }
-
-    // TODO: Remove window from context
-    glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
 }
 
@@ -117,88 +170,36 @@ void GLFWBackend::pollEvents()
     glfwPollEvents();
 }
 
-void GLFWBackend::applySettings(const GameSettings& settings)
+std::shared_ptr<renderer::RendererContext> GLFWBackend::getRendererContext()
 {
-    GLFWwindow* window = GLFWBackendContext::getWindow(this);
-
-    applyDisplayMode(settings);
-    applyAntiAliasing(settings);
-
-    glfwSetWindowTitle(window, settings.windowTitle.c_str());
-
-    glfwSwapInterval(settings.vSync ? 1 : 0);
-}
-
-std::shared_ptr<core::Shader> GLFWBackend::createShader()
-{
-    m_shaders.push_back(std::make_shared<OpenGLShader>(m_renderer));
-    return m_shaders.back();
-}
-
-std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
-{
-    m_meshes.push_back(std::make_shared<OpenGLMesh>(m_renderer));
-    return m_meshes.back();
-}
-
-void GLFWBackend::addRenderCommand(const RenderCommand& command)
-{
-    std::lock_guard<std::mutex> lock(m_commandsMutex);
-    m_commands.push_back(command);
-}
-
-void GLFWBackend::clearRenderCommands()
-{
-    std::lock_guard<std::mutex> lock(m_commandsMutex);
-    m_commands.clear();
-}
-
-// TODO: Add submeshes support with materials
-void GLFWBackend::executeRenderCommands()
-{
-    m_renderer->submit([] {
-        glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    });
-
-    std::vector<RenderCommand> commands;
-    {
-        std::lock_guard<std::mutex> lock(m_commandsMutex);
-        commands = std::move(m_commands);
-        m_commands.clear();
-    }
-
-    m_renderer->submit([commands = std::move(commands)] {
-        for (const auto& cmd : commands) {
-            const auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
-            if (openglShader && openglShader->isValid()) {
-                openglShader->use();
-
-                for (const auto& uniform : cmd.uniforms) {
-                    openglShader->setUniform(uniform);
-                }
-            }
-
-            const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(cmd.mesh);
-            if (openglMesh && openglMesh->isValid()) {
-                if (cmd.instanceCount > 1) {
-                    // TODO: Implement instancing
-                } else {
-                    openglMesh->render();
-                }
-            }
-        }
-    });
-
-    m_renderer->submit([this] {
-        // --
-        glfwSwapBuffers(GLFWBackendContext::getWindow(this));
-    });
+    return shared_from_this();
 }
 
 #pragma endregion
 
-#pragma region GLWFBackend
+#pragma region renderer::RendererContext
+
+void GLFWBackend::makeCurrent()
+{
+    std::lock_guard lock(m_windowMutex);
+    glfwMakeContextCurrent(m_window);
+}
+
+void GLFWBackend::dropCurrent()
+{
+    std::lock_guard lock(m_windowMutex);
+    glfwMakeContextCurrent(nullptr);
+}
+
+void GLFWBackend::swapBuffers()
+{
+    std::lock_guard lock(m_windowMutex);
+    glfwSwapBuffers(m_window);
+}
+
+#pragma endregion
+
+#pragma region Event handling
 
 void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods)
 {
@@ -244,39 +245,23 @@ void GLFWBackend::handleWindowMaximize(bool maximized)
 
 #pragma region GLFWBackend private
 
-bool GLFWBackend::setupOpenGL()
+void GLFWBackend::applySettings(const GameSettings& settings)
 {
-    auto result = m_renderer->submitSync([this] {
-        glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
+    applyDisplayMode(settings);
 
-        if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
-            throw std::runtime_error("Unsupported OpenGL version");
-        }
+    glfwSetWindowTitle(m_window, settings.windowTitle.c_str());
 
-        glEnable(GL_DEPTH_TEST);
-        glFrontFace(GL_CCW);
-        glCullFace(GL_BACK);
-    });
-
-    try {
-        result.get();
-    } catch (std::exception& e) {
-        LOG_ERROR << "Exception: " << e.what() << std::endl;
-        return false;
-    }
-
-    return true;
+    glfwSwapInterval(settings.vSync ? 1 : 0);
 }
 
 void GLFWBackend::applyDisplayMode(const GameSettings& settings)
 {
-    GLFWwindow* window      = GLFWBackendContext::getWindow(this);
     GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
     switch (settings.displayMode) {
         case DisplayMode::Fullscreen:
-            glfwSetWindowMonitor(window,
+            glfwSetWindowMonitor(m_window,
                                  monitor,
                                  0,
                                  0,
@@ -285,14 +270,13 @@ void GLFWBackend::applyDisplayMode(const GameSettings& settings)
                                  mode->refreshRate);
             break;
         case DisplayMode::BorderlessFullscreen:
-            glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
-            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            glfwSetWindowMonitor(m_window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
             break;
         case DisplayMode::Windowed: {
             const int xPos = (mode->width - settings.resolutionWidth) / 2;
             const int yPos = (mode->height - settings.resolutionHeight) / 2;
 
-            glfwSetWindowMonitor(window,
+            glfwSetWindowMonitor(m_window,
                                  nullptr,
                                  xPos,
                                  yPos,

@@ -7,9 +7,9 @@
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/shader.hpp>
 
-#include <glfw/opengl_renderer.hpp>
+#include <renderer/opengl/opengl_renderer.hpp>
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 class OpenGLShader final : public core::Shader
@@ -55,4 +55,4 @@ private:
     mutable std::unordered_map<std::string, int> m_uniformCache;
 };
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

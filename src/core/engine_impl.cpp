@@ -1,7 +1,9 @@
 #include "engine_impl.hpp"
 
-#include <iostream>
 #include <thread>
+
+#define LOG_ERROR std::cerr
+#include <iostream>
 
 namespace
 {
@@ -13,14 +15,16 @@ inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
 namespace game_engine::core
 {
 
-EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend)
+EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend, std::shared_ptr<renderer::Renderer> renderer)
     : m_backend(std::move(backend))
+    , m_renderer(std::move(renderer))
     , m_modelLoader(std::make_shared<ModelLoader>())
 {}
 
 EngineImpl::~EngineImpl()
 {
     m_game.reset();
+    m_renderer.reset();
     m_backend.reset();
 }
 
@@ -39,7 +43,13 @@ int EngineImpl::run() noexcept
         if (!m_backend->initialize(settings)) {
             return -1;
         }
+
+        if (!m_renderer->initialize()) {
+            return -1;
+        }
+
         setupFrameRate(settings);
+
         m_backend->attachBackendObserver(*this);
 
         m_game->onInitialize();
@@ -49,7 +59,19 @@ int EngineImpl::run() noexcept
         m_backend->detachBackendObserver(*this);
 
         m_game->onShutdown();
+
+        m_renderer->shutdown();
+
         m_backend->shutdown();
+
+        if (m_renderer.use_count() != 1) {
+            LOG_ERROR << "Renderer instance leaked" << std::endl;
+        }
+
+        if (m_backend.use_count() != 1) {
+            LOG_ERROR << "Backend instance leaked" << std::endl;
+        }
+
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         return -1;
@@ -83,25 +105,25 @@ std::shared_ptr<ModelLoader> EngineImpl::getModelLoader()
 
 std::shared_ptr<Mesh> EngineImpl::createMesh()
 {
-    return m_backend->createMesh();
+    return m_renderer->createMesh();
 }
 
 std::shared_ptr<Shader> EngineImpl::createShader()
 {
-    return m_backend->createShader();
+    return m_renderer->createShader();
 }
 
 void EngineImpl::render(const std::shared_ptr<Mesh>& mesh,
                         const std::shared_ptr<Shader>& shader,
                         const std::vector<Uniform>& uniforms)
 {
-    backend::RenderCommand cmd;
+    renderer::RenderCommand cmd;
     cmd.mesh          = mesh;
     cmd.shader        = shader;
     cmd.uniforms      = uniforms;
     cmd.instanceCount = 1;
 
-    m_backend->addRenderCommand(cmd);
+    m_renderer->addRenderCommand(cmd);
 }
 
 void EngineImpl::onEvent(const KeyboardInputEvent& event)
@@ -194,8 +216,8 @@ void EngineImpl::render()
 {
     m_game->onDraw();
 
-    m_backend->executeRenderCommands();
-    m_backend->clearRenderCommands();
+    m_renderer->executeRenderCommands();
+    m_renderer->clearRenderCommands();
 }
 
 } // namespace game_engine::core

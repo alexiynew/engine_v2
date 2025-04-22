@@ -18,16 +18,18 @@ target_sources(backend
 target_include_directories(backend 
     PRIVATE 
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/src
 )
 
 set_target_properties(backend PROPERTIES FOLDER "backend")
 
 include(${ENGINE_BACKEND_TYPE}/CMakeLists.txt)
-
 include(libs/glm)
-target_link_libraries(backend PUBLIC Libs::glm)
 
-target_link_libraries(backend PRIVATE engine::compile_options)
+target_link_libraries(backend
+    PRIVATE 
+        engine::compile_options
+        libs::glm
+)
 
 add_library(engine::backend ALIAS backend)

@@ -13,10 +13,10 @@ FetchContent_MakeAvailable(googletest)
 set_target_properties(gtest gtest_main gmock gmock_main PROPERTIES FOLDER "libs/gtest")
 
 # Define lids to link
-add_library(Libs::gtest INTERFACE IMPORTED)
-target_link_libraries(Libs::gtest INTERFACE gtest_main)
-target_include_directories(Libs::gtest INTERFACE ${googletest_SOURCE_DIR}/googletest/include)
+add_library(libs::gtest INTERFACE IMPORTED)
+target_link_libraries(libs::gtest INTERFACE gtest_main)
+target_include_directories(libs::gtest INTERFACE ${googletest_SOURCE_DIR}/googletest/include)
 
-add_library(Libs::gmock INTERFACE IMPORTED)
-target_link_libraries(Libs::gmock INTERFACE gmock_main)
-target_include_directories(Libs::gmock INTERFACE ${googletest_SOURCE_DIR}/googlemock/include)
+add_library(libs::gmock INTERFACE IMPORTED)
+target_link_libraries(libs::gmock INTERFACE gmock_main)
+target_include_directories(libs::gmock INTERFACE ${googletest_SOURCE_DIR}/googlemock/include)
