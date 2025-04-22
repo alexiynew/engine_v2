@@ -42,7 +42,7 @@ public:
 
 private:
 
-        void applySettings(const GameSettings& settings);
+    void applySettings(const GameSettings& settings);
     void applyDisplayMode(const GameSettings& settings);
     void applyAntiAliasing(const GameSettings& settings);
 

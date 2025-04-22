@@ -65,10 +65,12 @@ int EngineImpl::run() noexcept
         m_backend->shutdown();
 
         if (m_renderer.use_count() != 1) {
+            // TODO: Fix Renderer leaking
             LOG_ERROR << "Renderer instance leaked" << std::endl;
         }
 
         if (m_backend.use_count() != 1) {
+            // TODO: Fix Backend leaking
             LOG_ERROR << "Backend instance leaked" << std::endl;
         }
 
