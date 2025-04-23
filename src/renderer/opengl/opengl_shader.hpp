@@ -16,7 +16,7 @@ class OpenGLShader final : public core::Shader
 {
 public:
     explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
-    ~OpenGLShader() noexcept override;
+    ~OpenGLShader() override;
 
     OpenGLShader(const OpenGLShader&) = delete;
     OpenGLShader(OpenGLShader&& other) noexcept;

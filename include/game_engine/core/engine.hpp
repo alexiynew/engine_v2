@@ -13,8 +13,6 @@ namespace game_engine::core
 
 // TODO: Add tests for mesh loading
 // TODO: Add ECS
-// TODO: Renderer in separate thread
-// TODO: Backend in separate thread
 // TODO: Game in separate thread
 // TODO: Add rendering methods like in web canvas2d
 

@@ -202,6 +202,9 @@ void GameStub::onShutdown()
     std::cout << "GameStub::onShutdown" << std::endl;
     std::cout << " -- updates count: " << m_updatesCount << std::endl;
     std::cout << " -- frames count: " << m_framesCount << std::endl;
+
+    m_shader.reset();
+    m_mesh.reset();
 }
 
 void GameStub::onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event)

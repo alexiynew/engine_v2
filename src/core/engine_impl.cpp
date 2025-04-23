@@ -64,14 +64,16 @@ int EngineImpl::run() noexcept
 
         m_backend->shutdown();
 
+        if (m_game.use_count() != 1) {
+            LOG_ERROR << "Game instance leaked. Uses: " << m_game.use_count() << std::endl;
+        }
+
         if (m_renderer.use_count() != 1) {
-            // TODO: Fix Renderer leaking
-            LOG_ERROR << "Renderer instance leaked" << std::endl;
+            LOG_ERROR << "Renderer instance leaked. Uses: " << m_renderer.use_count() << std::endl;
         }
 
         if (m_backend.use_count() != 1) {
-            // TODO: Fix Backend leaking
-            LOG_ERROR << "Backend instance leaked" << std::endl;
+            LOG_ERROR << "Backend instance leaked. Uses: " << m_backend.use_count() << std::endl;
         }
 
     } catch (std::exception& e) {

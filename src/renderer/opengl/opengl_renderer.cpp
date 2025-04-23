@@ -102,6 +102,8 @@ void OpenGLRenderer::shutdown() noexcept
 
     m_meshes.clear();
     m_shaders.clear();
+
+    m_context.reset();
 }
 
 std::shared_ptr<core::Shader> OpenGLRenderer::createShader()
@@ -140,7 +142,6 @@ void OpenGLRenderer::executeRenderCommands()
     {
         std::lock_guard<std::mutex> lock(m_commandsMutex);
         commands = std::move(m_commands);
-        m_commands.clear();
     }
 
     submit([commands = std::move(commands)] {
@@ -218,7 +219,6 @@ void OpenGLRenderer::renderLoop()
             }
 
             tasks = std::move(m_tasks);
-            m_tasks.clear();
         }
 
         try {

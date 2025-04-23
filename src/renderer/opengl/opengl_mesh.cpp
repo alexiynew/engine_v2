@@ -47,7 +47,7 @@ OpenGLMesh::OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
     : m_renderer(renderThread)
 {}
 
-OpenGLMesh::~OpenGLMesh() noexcept
+OpenGLMesh::~OpenGLMesh()
 {
     clear();
 }

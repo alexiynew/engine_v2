@@ -16,7 +16,7 @@ class OpenGLMesh final : public core::Mesh
 {
 public:
     explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
-    ~OpenGLMesh() noexcept override;
+    ~OpenGLMesh() override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
     OpenGLMesh(OpenGLMesh&& other) noexcept;

@@ -4,12 +4,16 @@
 
 int main()
 {
-    auto backend  = game_engine::backend::createBackendInstance();
-    auto renderer = game_engine::renderer::createRendererInstance(backend->getRendererContext());
-    auto engine   = std::make_shared<game_engine::core::EngineImpl>(backend, renderer);
-    auto game     = game_engine::createGameInstance(*engine);
+    auto engine = []() {
+        auto backend  = game_engine::backend::createBackendInstance();
+        auto renderer = game_engine::renderer::createRendererInstance(backend->getRendererContext());
+        auto engine   = std::make_shared<game_engine::core::EngineImpl>(backend, renderer);
+        auto game     = game_engine::createGameInstance(*engine);
 
-    engine->setGameInstance(game);
+        engine->setGameInstance(game);
+
+        return engine;
+    }();
 
     const int returnCode = engine->run();
 

@@ -23,7 +23,7 @@ public:
     using Task = std::function<void()>;
 
     explicit OpenGLRenderer(std::shared_ptr<RendererContext> context);
-    ~OpenGLRenderer();
+    ~OpenGLRenderer() override;
 
     // Renderer
     bool initialize() noexcept override;

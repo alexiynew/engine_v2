@@ -107,7 +107,7 @@ OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcep
     : m_renderer(std::move(renderThread))
 {}
 
-OpenGLShader::~OpenGLShader() noexcept
+OpenGLShader::~OpenGLShader()
 {
     clear();
 }
