@@ -1,30 +1,30 @@
 #pragma once
 
-#include <memory>
-
-#include "../backend.hpp"
+#include <backend/backend.hpp>
 
 namespace game_engine::backend
 {
 
-class StubBackend final : public Backend
+class StubBackend final
+    : public Backend
+    , public renderer::RendererContext
+    , public std::enable_shared_from_this<StubBackend>
 {
 public:
     StubBackend();
     ~StubBackend() override;
 
+    // Backend
     bool initialize(const GameSettings&) override;
     void shutdown() override;
     void pollEvents() override;
-    void beginFrame() override;
-    void endFrame() override;
 
-    void applySettings(const GameSettings&) override;
+    std::shared_ptr<renderer::RendererContext> getRendererContext() override;
 
-    std::shared_ptr<core::Shader> createShader() override;
-    std::shared_ptr<core::Mesh> createMesh() override;
-
-    void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) override;
+    // renderer::RendererContext
+    void makeCurrent() override;
+    void dropCurrent() override;
+    void swapBuffers() override;
 
 private:
     int m_framesCount       = 0;

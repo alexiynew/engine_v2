@@ -7,7 +7,7 @@ add_library(glad STATIC src/glad.c)
 
 set_target_properties(glad PROPERTIES C_STANDARD 99)
 
-set_target_properties(glad PROPERTIES FOLDER "backend")
+set_target_properties(glad PROPERTIES FOLDER "renderer")
 target_include_directories(glad PUBLIC include)
 
 add_library(backend::glad ALIAS glad)

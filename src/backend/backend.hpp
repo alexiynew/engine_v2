@@ -4,10 +4,10 @@
 #include <memory>
 #include <string>
 
-#include <game_engine/core/engine.hpp>
-#include <game_engine/core/shader.hpp>
 #include <game_engine/game_settings.hpp>
 #include <game_engine/system_events.hpp>
+
+#include <renderer/renderer.hpp>
 
 namespace game_engine::backend
 {
@@ -58,28 +58,7 @@ public:
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;
 
-    /// @brief Begin a new frame (e.g., clear the screen)
-    virtual void beginFrame() = 0;
-
-    /// @brief End the frame (e.g., swap buffers)
-    virtual void endFrame() = 0;
-
-    /// @brief Apply game settings
-    /// @param settings New game settings.
-    virtual void applySettings(const GameSettings& settings) = 0;
-
-    /// @brief Creates new shader instance.
-    /// @return The new shader pointer.
-    virtual std::shared_ptr<core::Shader> createShader() = 0;
-
-    /// @brief Loads mesh to backend.
-    /// @param mesh The model mesh to load.
-    /// @return The ID of the loaded mesh.
-    virtual std::shared_ptr<core::Mesh> createMesh() = 0;
-
-    /// @brief Renders a model by its ID.
-    /// @param meshId The ID of the model to render.
-    virtual void render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader) = 0;
+    virtual std::shared_ptr<renderer::RendererContext> getRendererContext() = 0;
 
     void attachBackendObserver(BackendObserver& observer);
     void detachBackendObserver(const BackendObserver& observer);

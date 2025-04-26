@@ -12,7 +12,13 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "BUILD_PRESET_NAME": "${presetName}",
-                "USE_STUB_BACKEND": "OFF"
+                "ENABLE_TESTING": "ON",
+                "ENABLE_ASAN": "OFF",
+                "ENABLE_CPPCHECK": "ON",
+                "ENABLE_CLANG_TIDY": "OFF",
+                "BUILD_DOCUMENTATION": "OFF",
+                "USE_STUB_BACKEND": "OFF",
+                "USE_STUB_RENDERER": "OFF"
             }
         },
         {
@@ -195,7 +201,7 @@
         },
         {
             "name": "ninja-multi-gcc-debug",
-            "displayName": "Ninja-Multi Gcc Debug",
+            "displayName": "Ninja Multi-Config Gcc Debug",
             "configurePreset": "ninja-multi-gcc",
             "configuration": "Debug",
             "inherits": [
@@ -204,7 +210,7 @@
         },
         {
             "name": "ninja-multi-gcc-release",
-            "displayName": "Ninja-Multi Gcc Release",
+            "displayName": "Ninja Multi-Config Gcc Release",
             "configurePreset": "ninja-multi-gcc",
             "configuration": "Release",
             "inherits": [
@@ -213,7 +219,7 @@
         },
         {
             "name": "ninja-multi-clang-debug",
-            "displayName": "Ninja-Multi Clang Debug",
+            "displayName": "Ninja Multi-Config Clang Debug",
             "configurePreset": "ninja-multi-clang",
             "configuration": "Debug",
             "inherits": [
@@ -222,7 +228,7 @@
         },
         {
             "name": "ninja-multi-clang-release",
-            "displayName": "Ninja-Multi Clang Release",
+            "displayName": "Ninja Multi-Config Clang Release",
             "configurePreset": "ninja-multi-clang",
             "configuration": "Release",
             "inherits": [

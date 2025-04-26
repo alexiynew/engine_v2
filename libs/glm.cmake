@@ -23,6 +23,6 @@ target_compile_options(glm
 set_target_properties(glm PROPERTIES FOLDER "libs/glm")
 
 # Define lids to link
-add_library(Libs::glm INTERFACE IMPORTED)
-target_link_libraries(Libs::glm INTERFACE glm)
-target_include_directories(Libs::glm INTERFACE ${glm_SOURCE_DIR})
+add_library(libs::glm INTERFACE IMPORTED)
+target_link_libraries(libs::glm INTERFACE glm)
+target_include_directories(libs::glm INTERFACE ${glm_SOURCE_DIR})

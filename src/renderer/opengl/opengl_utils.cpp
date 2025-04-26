@@ -1,12 +1,11 @@
 #include "opengl_utils.hpp"
 
-#include <iostream>
-
 #include <glad/glad.h>
 
 #define LOG_ERROR std::cerr
+#include <iostream>
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 std::string_view getErrorName(unsigned int error)
@@ -37,4 +36,4 @@ bool hasOpenGLErrors()
     return hasErrors;
 }
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

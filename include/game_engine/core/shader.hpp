@@ -9,7 +9,13 @@ namespace game_engine::core
 {
 
 /// @brief Type alias for a variant that can hold various types of uniform values.
-using Uniform = std::variant<int, float, Vector2, Vector3, Vector4, Matrix3, Matrix4>;
+using UniformValue = std::variant<int, float, Vector2, Vector3, Vector4, Matrix3, Matrix4>;
+
+struct Uniform
+{
+    std::string name;
+    UniformValue value;
+};
 
 /// @brief Base class for managing shader programs.
 ///
@@ -29,11 +35,6 @@ public:
     /// This method compiles the vertex and fragment shaders and links them into a single shader program.
     /// @return True if the shader program was successfully linked, false otherwise.
     virtual bool link() = 0;
-
-    /// @brief Sets a uniform variable in the shader program.
-    /// @param name The name of the uniform variable in the shader.
-    /// @param uniform The value to set for the uniform variable.
-    virtual void setUniform(const std::string& name, const Uniform& uniform) = 0;
 
     /// @brief Clears the shader program by removing it from the context.
     virtual void clear() noexcept = 0;

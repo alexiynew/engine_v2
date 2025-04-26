@@ -1,6 +1,8 @@
 #pragma once
 
+#include <bit>
 #include <cstring>
+#include <type_traits>
 
 #include <game_engine/core/mesh_data.hpp>
 
@@ -9,22 +11,41 @@ namespace game_engine::core
 
 namespace vertex_traits
 {
+
 template <typename T>
-constexpr VertexAttributeType getAttributeType()
+inline constexpr bool IsFloatVertexAttribute = std::is_same_v<T, float> || std::is_same_v<T, Vector2> ||
+                                               std::is_same_v<T, Vector3> || std::is_same_v<T, Vector4>;
+
+template <typename T>
+inline constexpr bool IsIntVertexAttribute = std::is_same_v<T, int> || std::is_same_v<T, Vector2i> ||
+                                             std::is_same_v<T, Vector3i> || std::is_same_v<T, Vector4i>;
+
+template <typename T>
+inline constexpr bool IsUIntVertexAttribute = std::is_same_v<T, unsigned int> || std::is_same_v<T, Vector2u> ||
+                                              std::is_same_v<T, Vector3u> || std::is_same_v<T, Vector4u>;
+
+template <typename T>
+inline constexpr bool SupportedVertexAttribute = IsFloatVertexAttribute<T> || IsIntVertexAttribute<T> ||
+                                                 IsUIntVertexAttribute<T>;
+
+template <typename T>
+inline constexpr VertexAttributeType getAttributeType() noexcept
 {
-    if constexpr (std::is_same_v<T, float>)
+    if constexpr (IsFloatVertexAttribute<T>)
         return VertexAttributeType::Float;
-    else if constexpr (std::is_same_v<T, int>)
+    else if constexpr (IsIntVertexAttribute<T>)
         return VertexAttributeType::Int;
-    else if constexpr (std::is_same_v<T, unsigned int>)
+    else if constexpr (IsUIntVertexAttribute<T>)
         return VertexAttributeType::UInt;
     else
         static_assert(!std::is_same_v<T, T>, "Unsupported vertex attribute type");
 }
 
 template <typename T>
-constexpr int getComponentCount()
+inline constexpr int getComponentCount() noexcept
 {
+    static_assert(SupportedVertexAttribute<T>, "Unsupported vertex attribute type");
+
     if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int> || std::is_same_v<T, unsigned int>)
         return 1; // for scalar types
     else if constexpr (std::is_same_v<T, Vector2> || std::is_same_v<T, Vector2i> || std::is_same_v<T, Vector2u>)
@@ -37,61 +58,49 @@ constexpr int getComponentCount()
         static_assert(!std::is_same_v<T, T>, "Unsupported vertex attribute type");
 }
 
+template <typename T, typename U>
+inline std::size_t memberOffset(U T::* ptr) noexcept
+{
+    constexpr T* nullObj = nullptr;
+    return std::bit_cast<std::size_t>(&(nullObj->*ptr));
+}
+
 } // namespace vertex_traits
 
-template <typename VertexType, auto MemberPtr, std::size_t Offset>
-constexpr VertexAttribute generateAttribute(int location, const char* name, bool normalized = false)
+template <typename VertexType, typename MemberType>
+inline constexpr VertexAttribute generateAttribute(int location,
+                                                   const char* name,
+                                                   MemberType(VertexType::* ptr),
+                                                   bool normalized = false) noexcept
 {
-    using MemberType = std::decay_t<decltype(VertexType{}.*MemberPtr)>;
+    static_assert(vertex_traits::SupportedVertexAttribute<MemberType>, "Unsupported vertex attribute type");
 
-    static constexpr auto isFloat = std::is_same_v<MemberType, Vector2> || std::is_same_v<MemberType, Vector3> ||
-                                    std::is_same_v<MemberType, Vector4>;
-
-    static constexpr auto isInt = std::is_same_v<MemberType, Vector2i> || std::is_same_v<MemberType, Vector3i> ||
-                                  std::is_same_v<MemberType, Vector4i>;
-
-    static constexpr auto isUInt = std::is_same_v<MemberType, Vector2u> || std::is_same_v<MemberType, Vector3u> ||
-                                   std::is_same_v<MemberType, Vector4u>;
-
-    using ScalarType = std::
-    conditional_t<isFloat, float, std::conditional_t<isInt, int, std::conditional_t<isUInt, unsigned int, void>>>;
-
-    static_assert(!std::is_same_v<ScalarType, void>, "Unsupported vertex scalar type");
+    const std::size_t offset = vertex_traits::memberOffset(ptr);
 
     return {location,
             vertex_traits::getComponentCount<MemberType>(),
-            Offset,
-            vertex_traits::getAttributeType<ScalarType>(),
+            offset,
+            vertex_traits::getAttributeType<MemberType>(),
             normalized,
             name};
 }
 
-/// @brief Create VertexLayout for VertexType
-/// User must provide specialization of this function for their VertexType
-/// @return VertexLayout for VertexType
-template <typename VertexType>
-inline VertexLayout getVertexLayout()
+template <typename AttributeType>
+inline constexpr VertexAttribute generateAttribute(int location, const char* name, bool normalized = false) noexcept
 {
-    static_assert(sizeof(VertexType) == 0, "You must provide getVertexLayout specialization for your vertex type");
-    return {};
-}
-
-template <>
-inline VertexLayout getVertexLayout<Vector3>()
-{
-    return {.vertexSize = sizeof(Vector3),
-            .attributes{{.location   = 0,
-                         .components = 3,
-                         .offset     = 0,
-                         .type       = VertexAttributeType::Float,
-                         .normalized = false,
-                         .name       = "position"}}};
+    return {location,
+            vertex_traits::getComponentCount<AttributeType>(),
+            0,
+            vertex_traits::getAttributeType<AttributeType>(),
+            normalized,
+            name};
 }
 
 template <typename VertexType>
 MeshData createMeshData(const std::vector<VertexType>& vertices,
                         const std::vector<SubMesh>& submeshes,
-                        PrimitiveType primitiveType)
+                        PrimitiveType primitiveType,
+                        VertexLayout&& layout)
 {
     static_assert(std::is_standard_layout_v<VertexType>, "Vertex type must be standard layout");
 
@@ -100,7 +109,7 @@ MeshData createMeshData(const std::vector<VertexType>& vertices,
                      .submeshes     = submeshes,
                      .instances     = {},
                      .primitiveType = primitiveType,
-                     .layout        = getVertexLayout<VertexType>()};
+                     .layout        = std::move(layout)};
 
     data.vertexData.resize(vertices.size() * sizeof(VertexType));
     std::memcpy(data.vertexData.data(), vertices.data(), data.vertexData.size());

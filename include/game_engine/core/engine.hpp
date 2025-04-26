@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <memory>
+#include <vector>
 
 #include <game_engine/core/mesh.hpp>
 #include <game_engine/core/model_loader.hpp>
@@ -12,8 +13,6 @@ namespace game_engine::core
 
 // TODO: Add tests for mesh loading
 // TODO: Add ECS
-// TODO: Renderer in separate thread
-// TODO: Backend in separate thread
 // TODO: Game in separate thread
 // TODO: Add rendering methods like in web canvas2d
 
@@ -47,7 +46,10 @@ public:
     /// @brief Renders a mesh with shader.
     /// @param mesh Mesh to render.
     /// @param shader Shader ot use to render mesh.
-    virtual void render(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Shader>& shader) = 0;
+    /// @param unifors Unifors to use in shader.
+    virtual void render(const std::shared_ptr<Mesh>& mesh,
+                        const std::shared_ptr<Shader>& shader,
+                        const std::vector<Uniform>& uniforms) = 0;
 
     /// @brief Sets the flag to stop the engine.
     virtual void setShouldStopFlag() noexcept = 0;
