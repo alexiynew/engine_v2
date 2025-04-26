@@ -1,19 +1,22 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/mesh.hpp>
 
-namespace game_engine::backend
+#include <renderer/opengl/opengl_renderer.hpp>
+
+namespace game_engine::renderer
 {
 
 class OpenGLMesh final : public core::Mesh
 {
 public:
-    OpenGLMesh() noexcept;
-    ~OpenGLMesh() noexcept override;
+    explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
+    ~OpenGLMesh() override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
     OpenGLMesh(OpenGLMesh&& other) noexcept;
@@ -30,15 +33,17 @@ public:
     void render() const;
 
 private:
+    friend void swap(OpenGLMesh& a, OpenGLMesh& b);
+
+    bool loadToGPU();
+
+    std::shared_ptr<OpenGLRenderer> m_renderer;
+
     unsigned int m_VAO = 0;
     unsigned int m_VBO = 0;
     unsigned int m_EBO = 0;
 
     core::MeshData m_data = {};
-
-    friend void swap(OpenGLMesh& a, OpenGLMesh& b);
-
-    bool loadToGPU();
 };
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

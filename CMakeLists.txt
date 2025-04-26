@@ -14,7 +14,8 @@ option(ENABLE_CLANG_TIDY "Enable code checking with clang-tidy" OFF)
 # TODO: Implement documentation generation
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
-option(USE_STUB_BACKEND "Use backend stub for testing" ON)
+option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
+option(USE_STUB_RENDERER "Use renderer stub for testing" OFF)
 
 # Main project setup
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
@@ -32,6 +33,17 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(ENGINE_BACKEND_TYPE glfw CACHE STRING "" FORCE)
 if(USE_STUB_BACKEND)
     set(ENGINE_BACKEND_TYPE stub CACHE STRING "" FORCE)
+endif()
+
+# Choose renderer type
+set(ENGINE_RENDERER_TYPE opengl CACHE STRING "" FORCE)
+if(USE_STUB_RENDERER)
+    set(ENGINE_RENDERER_TYPE stub CACHE STRING "" FORCE)
+endif()
+
+# Check backend and renderer
+if(USE_STUB_BACKEND AND NOT USE_STUB_RENDERER)
+    message(FATAL_ERROR "Can't use any renderer with stub backend")
 endif()
 
 # Add modules path
@@ -76,9 +88,13 @@ target_link_libraries(engine PRIVATE engine::compile_options)
 add_subdirectory(src/backend)
 target_link_libraries(engine PRIVATE engine::backend)
 
+# Renderer
+add_subdirectory(src/renderer)
+target_link_libraries(engine PRIVATE engine::renderer)
+
 # GLM
 include(libs/glm)
-target_link_libraries(engine PUBLIC Libs::glm)
+target_link_libraries(engine PUBLIC libs::glm)
 
 # Tests
 if(ENABLE_TESTING)
@@ -101,6 +117,7 @@ message(STATUS "#########################################")
 message(STATUS "Version:             \t ${PROJECT_VERSION}")
 message(STATUS "-----------------------------------------")
 message(STATUS "Backend type:        \t ${ENGINE_BACKEND_TYPE}")
+message(STATUS "Renderer type:       \t ${ENGINE_RENDERER_TYPE}")
 message(STATUS "Build type:          \t ${CMAKE_BUILD_TYPE}")
 message(STATUS "Install prefix:      \t ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Compiler:            \t ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")

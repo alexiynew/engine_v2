@@ -2,7 +2,7 @@
 
 #include <game_engine/core/mesh.hpp>
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 class StubMesh final : public core::Mesh
@@ -16,4 +16,4 @@ public:
     bool isValid() const noexcept override;
 };
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

@@ -1,14 +1,15 @@
 #include "opengl_shader.hpp"
 
-#include <iostream>
 #include <memory>
 #include <string_view>
 
 #include <glad/glad.h>
-#include <glfw/opengl_utils.hpp>
+#include <renderer/opengl/opengl_utils.hpp>
 
 #define LOG_ERROR std::cerr
+#include <iostream>
 
+// TODO: move all opengl stuff in render thread
 namespace
 {
 std::string shaderTypeString(int shaderType)
@@ -99,12 +100,14 @@ bool compileShaderProgram(GLuint programId, GLuint vertexShaderId, GLuint fragme
 
 } // namespace
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
-OpenGLShader::OpenGLShader() noexcept = default;
+OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
+    : m_renderer(std::move(renderThread))
+{}
 
-OpenGLShader::~OpenGLShader() noexcept
+OpenGLShader::~OpenGLShader()
 {
     clear();
 }
@@ -130,42 +133,17 @@ void OpenGLShader::setSource(const std::string& vertexSource, const std::string&
 
 bool OpenGLShader::link()
 {
-    if (m_vertexSource.empty() || m_fragmentSource.empty()) {
-        return false;
-    }
+    auto result = m_renderer->submitSync([this]() {
+        if (!linkImpl()) {
+            // TODO: report error
+        }
+    });
 
-    if (m_vertexShader == 0) {
-        m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    try {
+        result.get();
+    } catch (std::exception& e) {
+        LOG_ERROR << "Exception: " << e.what() << std::endl;
     }
-
-    if (m_fragmentShader == 0) {
-        m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    }
-
-    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
-        clear();
-        return false;
-    }
-
-    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
-        clear();
-        return false;
-    }
-
-    if (hasOpenGLErrors()) {
-        clear();
-        return false;
-    }
-
-    if (m_shaderProgram == 0) {
-        m_shaderProgram = glCreateProgram();
-    }
-
-    if (!compileShaderProgram(m_shaderProgram, m_vertexShader, m_fragmentShader)) {
-        clear();
-        return false;
-    }
-
     return true;
 }
 
@@ -178,9 +156,9 @@ void OpenGLShader::use() const
     glUseProgram(m_shaderProgram);
 }
 
-void OpenGLShader::setUniform(const std::string& name, const core::Uniform& uniform)
+void OpenGLShader::setUniform(const core::Uniform& uniform) const
 {
-    const GLint location = getUniformLocation(name);
+    const GLint location = getUniformLocation(uniform.name);
 
     if (location < 0 || m_shaderProgram == 0) {
         LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
@@ -194,20 +172,20 @@ void OpenGLShader::setUniform(const std::string& name, const core::Uniform& unif
             glUniform1i(location, arg);
         } else if constexpr (std::is_same_v<T, float>) {
             glUniform1f(location, arg);
-        } else if constexpr (std::is_same_v<T, glm::vec2>) {
+        } else if constexpr (std::is_same_v<T, Vector2>) {
             glUniform2f(location, arg.x, arg.y);
-        } else if constexpr (std::is_same_v<T, glm::vec3>) {
+        } else if constexpr (std::is_same_v<T, Vector3>) {
             glUniform3f(location, arg.x, arg.y, arg.z);
-        } else if constexpr (std::is_same_v<T, glm::vec4>) {
+        } else if constexpr (std::is_same_v<T, Vector4>) {
             glUniform4f(location, arg.x, arg.y, arg.z, arg.w);
-        } else if constexpr (std::is_same_v<T, glm::mat3>) {
+        } else if constexpr (std::is_same_v<T, Matrix3>) {
             glUniformMatrix3fv(location, 1, GL_FALSE, &arg[0][0]);
-        } else if constexpr (std::is_same_v<T, glm::mat4>) {
+        } else if constexpr (std::is_same_v<T, Matrix4>) {
             glUniformMatrix4fv(location, 1, GL_FALSE, &arg[0][0]);
         } else {
             static_assert(false, "Unsupported uniform type");
         }
-    }, uniform);
+    }, uniform.value);
 }
 
 void OpenGLShader::clear() noexcept
@@ -270,10 +248,52 @@ int OpenGLShader::getUniformLocation(const std::string& name) const
     return location;
 }
 
+bool OpenGLShader::linkImpl()
+{
+    if (m_vertexSource.empty() || m_fragmentSource.empty()) {
+        return false;
+    }
+
+    if (m_vertexShader == 0) {
+        m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    }
+
+    if (m_fragmentShader == 0) {
+        m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    }
+
+    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
+        clear();
+        return false;
+    }
+
+    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
+        clear();
+        return false;
+    }
+
+    if (hasOpenGLErrors()) {
+        clear();
+        return false;
+    }
+
+    if (m_shaderProgram == 0) {
+        m_shaderProgram = glCreateProgram();
+    }
+
+    if (!compileShaderProgram(m_shaderProgram, m_vertexShader, m_fragmentShader)) {
+        clear();
+        return false;
+    }
+
+    return true;
+}
+
 void swap(OpenGLShader& a, OpenGLShader& b)
 {
     using std::swap;
 
+    swap(a.m_renderer, b.m_renderer);
     swap(a.m_vertexSource, b.m_vertexSource);
     swap(a.m_fragmentSource, b.m_fragmentSource);
     swap(a.m_vertexShader, b.m_vertexShader);
@@ -282,4 +302,4 @@ void swap(OpenGLShader& a, OpenGLShader& b)
     swap(a.m_uniformCache, b.m_uniformCache);
 }
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

@@ -109,27 +109,24 @@ const char* FragmentShaderSource = R"(
         }
     )";
 
-} // namespace
-
-// Specialization of Vertex layout
-namespace game_engine::core
-{
-
-template <>
-inline VertexLayout getVertexLayout<Vertex>()
+inline game_engine::core::VertexLayout getVertexLayout()
 {
     return {
         .vertexSize = sizeof(Vertex),
         .attributes = {
-                       generateAttribute<Vertex, &Vertex::position, offsetof(Vertex, position)>(0, "position"),
-                       generateAttribute<Vertex, &Vertex::normal, offsetof(Vertex, normal)>(1, "normal"),
-                       generateAttribute<Vertex, &Vertex::uv, offsetof(Vertex, uv)>(2, "uv"),
-                       generateAttribute<Vertex, &Vertex::color, offsetof(Vertex, color)>(3, "color"),
+                       game_engine::core::generateAttribute(0, "position", &Vertex::position),
+                       game_engine::core::generateAttribute(1, "normal", &Vertex::normal),
+                       game_engine::core::generateAttribute(2, "uv", &Vertex::uv),
+                       game_engine::core::generateAttribute(3, "color", &Vertex::color),
                        }
     };
 }
 
-} // namespace game_engine::core
+} // namespace
+
+// Specialization of Vertex layout
+namespace game_engine::core
+{} // namespace game_engine::core
 
 // Implement game factory
 namespace game_engine
@@ -162,7 +159,7 @@ void GameStub::onInitialize()
     };
 
     m_mesh = m_engine.createMesh();
-    m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles));
+    m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
     m_mesh->flush();
 
     m_shader = m_engine.createShader();
@@ -183,16 +180,21 @@ void GameStub::onDraw()
 
     float time = (static_cast<float>(m_framesCount) * 3.14f) / 180.0f;
 
+    using game_engine::Matrix4;
+    using game_engine::Vector3;
     using game_engine::core::Uniform;
-    const Uniform model      = glm::rotate(glm::mat4(1.0f), time, glm::vec3(0.5f, 1.0f, 0.0f));
-    const Uniform view       = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    const Uniform projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_shader->setUniform("model", model);
-    m_shader->setUniform("view", view);
-    m_shader->setUniform("projection", projection);
+    const auto model      = glm::rotate(Matrix4(1.0f), time, Vector3(0.5f, 1.0f, 0.0f));
+    const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));
+    const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_engine.render(m_mesh, m_shader);
+    m_engine.render(m_mesh,
+                    m_shader,
+                    {
+                        Uniform{     "model",      model},
+                        Uniform{      "view",       view},
+                        Uniform{"projection", projection},
+    });
 }
 
 void GameStub::onShutdown()
@@ -200,6 +202,9 @@ void GameStub::onShutdown()
     game_engine::core::Logger() << "GameStub::onShutdown";
     game_engine::core::Logger() << " -- updates count: " << m_updatesCount;
     game_engine::core::Logger() << " -- frames count: " << m_framesCount;
+
+    m_shader.reset();
+    m_mesh.reset();
 }
 
 void GameStub::onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event)

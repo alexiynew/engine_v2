@@ -1,18 +1,94 @@
 #include "glfw_backend.hpp"
 
-#include <unordered_map>
+#include <backend/glfw/glfw_keyboard.hpp>
 
-#include <game_engine/common_types.hpp>
+#define LOG_ERROR std::cerr
+#include <iostream>
 
-#include <glfw/glfw_backend_context.hpp>
-#include <glfw/glfw_keyboard.hpp>
-#include <glfw/opengl_mesh.hpp>
-#include <glfw/opengl_shader.hpp>
-#include <glfw/opengl_utils.hpp>
+namespace
+{
+using game_engine::backend::GLFWBackend;
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleKeyEvent(key, scancode, action, mods);
+    }
+}
+
+void onWindowResize(GLFWwindow* window, int width, int height)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowResize(width, height);
+    }
+}
+
+void onWindowMove(GLFWwindow* window, int xpos, int ypos)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowMove(xpos, ypos);
+    }
+}
+
+void onWindowClose(GLFWwindow* window)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowClose();
+    }
+}
+
+void onWindowFocus(GLFWwindow* window, int focused)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowFocus(focused == GLFW_TRUE);
+    }
+}
+
+void onWindowIconify(GLFWwindow* window, int iconified)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowIconify(iconified == GLFW_TRUE);
+    }
+}
+
+void onWindowMaximize(GLFWwindow* window, int maximized)
+{
+    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+        backend->handleWindowMaximize(maximized == GLFW_TRUE);
+    }
+}
+
+void setCallbacks(GLFWwindow* window)
+{
+    glfwSetKeyCallback(window, &onKeyEvent);
+    glfwSetWindowSizeCallback(window, &onWindowResize);
+    glfwSetWindowPosCallback(window, &onWindowMove);
+    glfwSetWindowCloseCallback(window, &onWindowClose);
+    glfwSetWindowFocusCallback(window, &onWindowFocus);
+    glfwSetWindowIconifyCallback(window, &onWindowIconify);
+    glfwSetWindowMaximizeCallback(window, &onWindowMaximize);
+}
+
+void dropCallbacks(GLFWwindow* window)
+{
+    glfwSetKeyCallback(window, nullptr);
+    glfwSetWindowSizeCallback(window, nullptr);
+    glfwSetWindowPosCallback(window, nullptr);
+    glfwSetWindowCloseCallback(window, nullptr);
+    glfwSetWindowFocusCallback(window, nullptr);
+    glfwSetWindowIconifyCallback(window, nullptr);
+}
+
+void logErrors()
+{
+    const char* error = nullptr;
+    const int code    = glfwGetError(&error);
+    if (error) {
+        LOG_ERROR << "GLFW Error: " << code << " " << error << std::endl;
+    }
+}
+
+} // namespace
 
 namespace game_engine::backend
 {
@@ -25,11 +101,24 @@ std::shared_ptr<Backend> createBackendInstance()
 GLFWBackend::GLFWBackend()
 {}
 
-GLFWBackend::~GLFWBackend() = default;
+GLFWBackend::~GLFWBackend()
+{
+    shutdown();
+}
+
+#pragma region Backend
 
 bool GLFWBackend::initialize(const GameSettings& settings)
 {
+    std::lock_guard lock(m_windowMutex);
+
+    if (m_window) {
+        LOG_ERROR << "Already initialized";
+        return false;
+    }
+
     if (!glfwInit()) {
+        logErrors();
         return false;
     }
 
@@ -39,43 +128,40 @@ bool GLFWBackend::initialize(const GameSettings& settings)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    auto window = glfwCreateWindow(settings.resolutionWidth,
-                                   settings.resolutionHeight,
-                                   settings.windowTitle.c_str(),
-                                   nullptr,
-                                   nullptr);
-    if (!window) {
-        glfwTerminate();
-        return false;
+    if (settings.displayMode == DisplayMode::BorderlessFullscreen) {
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     }
+    applyAntiAliasing(settings);
 
-    GLFWBackendContext::registerBackend(window, this);
-
-    if (!setupOpenGL()) {
+    m_window = glfwCreateWindow(settings.resolutionWidth,
+                                settings.resolutionHeight,
+                                settings.windowTitle.c_str(),
+                                nullptr,
+                                nullptr);
+    if (!m_window) {
+        logErrors();
         glfwTerminate();
         return false;
     }
 
     applySettings(settings);
 
+    glfwSetWindowUserPointer(m_window, this);
+
+    setCallbacks(m_window);
+
     return true;
 }
 
 void GLFWBackend::shutdown()
 {
-    // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
-    for (auto& mesh : m_meshes) {
-        mesh->clear();
+    std::lock_guard lock(m_windowMutex);
+    if (m_window) {
+        glfwSetWindowUserPointer(m_window, nullptr);
+        dropCallbacks(m_window);
+        glfwDestroyWindow(m_window);
+        m_window = nullptr;
     }
-    m_meshes.clear();
-
-    // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
-    for (auto& shader : m_shaders) {
-        shader->clear();
-    }
-    m_shaders.clear();
-
-    glfwDestroyWindow(GLFWBackendContext::getWindow(this));
     glfwTerminate();
 }
 
@@ -84,117 +170,36 @@ void GLFWBackend::pollEvents()
     glfwPollEvents();
 }
 
-void GLFWBackend::beginFrame()
+std::shared_ptr<renderer::RendererContext> GLFWBackend::getRendererContext()
 {
-    glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    return shared_from_this();
 }
 
-void GLFWBackend::endFrame()
+#pragma endregion
+
+#pragma region renderer::RendererContext
+
+void GLFWBackend::makeCurrent()
 {
-    glfwSwapBuffers(GLFWBackendContext::getWindow(this));
+    std::lock_guard lock(m_windowMutex);
+    glfwMakeContextCurrent(m_window);
 }
 
-void GLFWBackend::applySettings(const GameSettings& settings)
+void GLFWBackend::dropCurrent()
 {
-    GLFWwindow* window = GLFWBackendContext::getWindow(this);
-
-    applyDisplayMode(settings);
-    applyAntiAliasing(settings);
-
-    glfwSetWindowTitle(window, settings.windowTitle.c_str());
-
-    glfwSwapInterval(settings.vSync ? 1 : 0);
+    std::lock_guard lock(m_windowMutex);
+    glfwMakeContextCurrent(nullptr);
 }
 
-bool GLFWBackend::setupOpenGL()
+void GLFWBackend::swapBuffers()
 {
-    glfwMakeContextCurrent(GLFWBackendContext::getWindow(this));
-
-    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
-        glfwTerminate();
-        return false;
-    }
-
-    glEnable(GL_DEPTH_TEST);
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-
-    return true;
+    std::lock_guard lock(m_windowMutex);
+    glfwSwapBuffers(m_window);
 }
 
-void GLFWBackend::applyDisplayMode(const GameSettings& settings)
-{
-    GLFWwindow* window      = GLFWBackendContext::getWindow(this);
-    GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+#pragma endregion
 
-    switch (settings.displayMode) {
-        case DisplayMode::Fullscreen:
-            glfwSetWindowMonitor(window,
-                                 monitor,
-                                 0,
-                                 0,
-                                 settings.resolutionWidth,
-                                 settings.resolutionHeight,
-                                 mode->refreshRate);
-            break;
-        case DisplayMode::BorderlessFullscreen:
-            glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
-            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-            break;
-        case DisplayMode::Windowed: {
-            const int xPos = (mode->width - settings.resolutionWidth) / 2;
-            const int yPos = (mode->height - settings.resolutionHeight) / 2;
-
-            glfwSetWindowMonitor(window,
-                                 nullptr,
-                                 xPos,
-                                 yPos,
-                                 settings.resolutionWidth,
-                                 settings.resolutionHeight,
-                                 mode->refreshRate);
-        } break;
-    }
-}
-
-void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
-{
-    switch (settings.antiAliasing) {
-        case AntiAliasing::None:   glfwWindowHint(GLFW_SAMPLES, 0); break;
-        case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
-        case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
-        case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
-    }
-}
-
-std::shared_ptr<core::Shader> GLFWBackend::createShader()
-{
-    m_shaders.push_back(std::make_shared<OpenGLShader>());
-    return m_shaders.back();
-}
-
-std::shared_ptr<core::Mesh> GLFWBackend::createMesh()
-{
-    m_meshes.push_back(std::make_shared<OpenGLMesh>());
-    return m_meshes.back();
-}
-
-// TODO: Add submeshes support with materials
-// TODO: Add instancing
-// TODO: Add bounding box rendering
-void GLFWBackend::render(const std::shared_ptr<core::Mesh>& mesh, const std::shared_ptr<core::Shader>& shader)
-{
-    auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(shader);
-    if (openglShader && openglShader->isValid()) {
-        openglShader->use();
-    }
-
-    const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(mesh);
-    if (openglMesh && openglMesh->isValid()) {
-        openglMesh->render();
-    }
-}
+#pragma region Event handling
 
 void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods)
 {
@@ -235,5 +240,63 @@ void GLFWBackend::handleWindowMaximize(bool maximized)
 {
     notify(WindowMaximizeEvent{maximized});
 }
+
+#pragma endregion
+
+#pragma region GLFWBackend private
+
+void GLFWBackend::applySettings(const GameSettings& settings)
+{
+    applyDisplayMode(settings);
+
+    glfwSetWindowTitle(m_window, settings.windowTitle.c_str());
+
+    glfwSwapInterval(settings.vSync ? 1 : 0);
+}
+
+void GLFWBackend::applyDisplayMode(const GameSettings& settings)
+{
+    GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    switch (settings.displayMode) {
+        case DisplayMode::Fullscreen:
+            glfwSetWindowMonitor(m_window,
+                                 monitor,
+                                 0,
+                                 0,
+                                 settings.resolutionWidth,
+                                 settings.resolutionHeight,
+                                 mode->refreshRate);
+            break;
+        case DisplayMode::BorderlessFullscreen:
+            glfwSetWindowMonitor(m_window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
+            break;
+        case DisplayMode::Windowed: {
+            const int xPos = (mode->width - settings.resolutionWidth) / 2;
+            const int yPos = (mode->height - settings.resolutionHeight) / 2;
+
+            glfwSetWindowMonitor(m_window,
+                                 nullptr,
+                                 xPos,
+                                 yPos,
+                                 settings.resolutionWidth,
+                                 settings.resolutionHeight,
+                                 mode->refreshRate);
+        } break;
+    }
+}
+
+void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
+{
+    switch (settings.antiAliasing) {
+        case AntiAliasing::None:   glfwWindowHint(GLFW_SAMPLES, 0); break;
+        case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
+        case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
+        case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
+    }
+}
+
+#pragma endregion
 
 } // namespace game_engine::backend
