@@ -7,10 +7,6 @@
 #define LOG_ERROR std::cerr
 #include <iostream>
 
-//////////////////////////////
-
-/////////////////////////
-
 namespace game_engine::renderer
 {
 
@@ -138,10 +134,10 @@ void OpenGLRenderer::executeRenderCommands()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     });
 
-    std::vector<RenderCommand> commands;
+    std::deque<RenderCommand> commands;
     {
         std::lock_guard<std::mutex> lock(m_commandsMutex);
-        commands = std::move(m_commands);
+        std::swap(m_commands, commands);
     }
 
     submit([commands = std::move(commands)] {

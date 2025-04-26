@@ -25,6 +25,12 @@ public:
     explicit OpenGLRenderer(std::shared_ptr<RendererContext> context);
     ~OpenGLRenderer() override;
 
+    OpenGLRenderer(const OpenGLRenderer&)  = delete;
+    OpenGLRenderer(OpenGLRenderer&& other) = delete;
+
+    OpenGLRenderer& operator=(const OpenGLRenderer&)  = delete;
+    OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete;
+
     // Renderer
     bool initialize() noexcept override;
     void shutdown() noexcept override;
@@ -58,7 +64,7 @@ private:
     std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
     std::mutex m_commandsMutex;
-    std::vector<RenderCommand> m_commands;
+    std::deque<RenderCommand> m_commands;
 };
 
 } // namespace game_engine::renderer

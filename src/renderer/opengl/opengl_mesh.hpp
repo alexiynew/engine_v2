@@ -35,7 +35,6 @@ public:
 private:
     friend void swap(OpenGLMesh& a, OpenGLMesh& b);
 
-    //
     bool loadToGPU();
 
     std::shared_ptr<OpenGLRenderer> m_renderer;
