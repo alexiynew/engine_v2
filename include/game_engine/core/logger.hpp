@@ -5,31 +5,34 @@
 
 namespace game_engine::core
 {
-namespace logger
-{
-typedef std::unique_ptr<std::ostringstream> uniqueStream;
-typedef std::function<void(uniqueStream&&)> customStreamHandler;
-}
-
 class Logger {
 public:
-/*    Logger& operator<<(std::ostream& (*manip)(std::ostream&)) {
-        m_streamingDevice->operator<<(manip);
+    using uniqueStream = std::unique_ptr<std::ostringstream>;
+    using customStreamHandler = std::function<void(uniqueStream&&)>;
+
+    Logger& operator<<(std::ostream& (*manip)(std::ostream&)) {
+        *(m_streamingDevice.get()) << (manip);
         return *this;
     }
-*/
+
     template<typename T>
     Logger& operator<<(const T& data) {
        *(m_streamingDevice.get()) << data;
         return *this;
     }
+
+    template <typename... Args>
+    void print(Args&&... args) {
+        *(m_streamingDevice.get()) << ... << std::forward<Args>(args));
+    }
+
     Logger();
     ~Logger();
 
-    static void init();
-    static void init(logger::customStreamHandler&);
+    static void init(const uint64_t& bufferSize);
+    static void init(customStreamHandler&, const uint64_t& bufferSize);
 
 private:
-    logger::uniqueStream m_streamingDevice;
+    uniqueStream m_streamingDevice;
 };
 }

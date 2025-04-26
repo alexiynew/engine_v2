@@ -44,6 +44,7 @@ target_sources(engine
     PUBLIC
         include/game_engine/common_types.hpp
         include/game_engine/core/engine.hpp
+        include/game_engine/core/logger.hpp
         include/game_engine/core/mesh_data.hpp
         include/game_engine/core/mesh.hpp
         include/game_engine/core/model_loader.hpp
@@ -52,7 +53,6 @@ target_sources(engine
         include/game_engine/game_settings.hpp
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
-        include/game_engine/core/logger.hpp
     PRIVATE
         src/core/engine_impl.cpp
         src/core/engine_impl.hpp

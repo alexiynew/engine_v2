@@ -6,6 +6,7 @@
 #include <game_engine/core/mesh.hpp>
 #include <game_engine/core/model_loader.hpp>
 #include <game_engine/core/shader.hpp>
+#include <game_engine/core/logger.hpp>
 
 namespace game_engine::core
 {

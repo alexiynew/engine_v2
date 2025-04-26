@@ -11,6 +11,14 @@ set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(glm)
 
+FetchContent_GetProperties(GLM)
+if(GLM_POPULATED)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/${BUILD_PRESET_NAME}/libs/glm_patch.cmake ${GLM_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endif()
+
 set(GLM_GCC_CUSTOM_COMPILE_OPTIONS -Wno-unsafe-buffer-usage)
 set(GLM_MSVC_CUSTOM_COMPILE_OPTIONS )
 

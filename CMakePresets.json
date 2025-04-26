@@ -11,43 +11,22 @@
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "BUILD_PRESET_NAME": "${presetName}",
-                "USE_STUB_BACKEND": "OFF"
+                "BUILD_PRESET_NAME": "${presetName}"
             }
         },
         {
-            "name": "clang-compiler",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_C_COMPILER": "clang"
-            }
+            "name": "ninja-multi",
+            "inherits": "default-options",
+            "displayName": "Ninja Multi-Config",
+            "description": "Default build using Ninja Multi-Config generator",
+            "generator": "Ninja Multi-Config"
         },
         {
-            "name": "cl-compiler",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "cl",
-                "CMAKE_C_COMPILER": "cl"
-            }
-        },
-        {
-            "name": "gcc-compiler",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "g++",
-                "CMAKE_C_COMPILER": "gcc"
-            }
-        },
-        {
-            "name": "visual-studio",
+            "name": "windows-only",
+            "inherits": "default-options",
             "displayName": "Windows Visual Studio",
             "description": "This build is only available on Windows",
             "generator": "Visual Studio 17 2022",
-            "inherits": [
-                "default-options",
-                "cl-compiler"
-            ],
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -55,92 +34,39 @@
             }
         },
         {
-            "name": "ninja-gcc-debug",
-            "displayName": "Ninja Gcc Debug",
+            "name": "Ninja",
+            "inherits": "default-options",
+            "displayName": "Ninja",
             "description": "Default build using Ninja generator",
             "generator": "Ninja",
-            "inherits": [
-                "default-options",
-                "gcc-compiler"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
             }
-        },
-        {
-            "name": "ninja-gcc-release",
-            "displayName": "Ninja Gcc Release",
-            "description": "Default build using Ninja generator",
-            "generator": "Ninja",
-            "inherits": [
-                "default-options",
-                "gcc-compiler"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "ninja-clang-debug",
-            "displayName": "Ninja Clang Debug",
-            "description": "Default build using Ninja generator",
-            "generator": "Ninja",
-            "inherits": [
-                "default-options",
-                "clang-compiler"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "ninja-clang-release",
-            "displayName": "Ninja Clang Release",
-            "description": "Default build using Ninja generator",
-            "generator": "Ninja",
-            "inherits": [
-                "default-options",
-                "clang-compiler"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "ninja-multi-gcc",
-            "displayName": "Ninja Multi-Config Gcc",
-            "description": "Default build using Ninja Multi-Config generator",
-            "generator": "Ninja Multi-Config",
-            "inherits": [
-                "default-options",
-                "gcc-compiler"
-            ]
-        },
-        {
-            "name": "ninja-multi-clang",
-            "displayName": "Ninja Multi-Config Clang",
-            "description": "Default build using Ninja Multi-Config generator",
-            "generator": "Ninja Multi-Config",
-            "inherits": [
-                "default-options",
-                "clang-compiler"
-            ]
         }
     ],
     "buildPresets": [
         {
-            "name": "default-options",
-            "hidden": true,
-            "jobs": 12
+            "name": "ninja-multi-debug",
+            "configurePreset": "ninja-multi",
+            "displayName": "Ninja multiconfig Debug",
+            "jobs": 12,
+            "configuration": "Debug"
         },
         {
-            "name": "visual-studio-debug",
+            "name": "ninja-multi-release",
+            "configurePreset": "ninja-multi",
+            "displayName": "Ninja multiconfig Release",
+            "jobs": 12,
+            "configuration": "Release"
+        },
+        {
+            "name": "vs-debug",
+            "configurePreset": "windows-only",
             "displayName": "Windows Visual Studio Debug",
-            "configurePreset": "visual-studio",
+            "jobs": 12,
             "configuration": "Debug",
-            "inherits": [
-                "default-options"
-            ],
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -148,13 +74,11 @@
             }
         },
         {
-            "name": "visual-studio-release",
+            "name": "vs-release",
+            "configurePreset": "windows-only",
             "displayName": "Windows Visual Studio Release",
-            "configurePreset": "visual-studio",
+            "jobs": 12,
             "configuration": "Release",
-            "inherits": [
-                "default-options"
-            ],
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -162,72 +86,18 @@
             }
         },
         {
-            "name": "ninja-gcc-debug",
-            "displayName": "Ninja Gcc Debug",
-            "configurePreset": "ninja-gcc-debug",
-            "inherits": [
-                "default-options"
-            ]
+            "name": "ninja-debug",
+            "configurePreset": "Ninja",
+            "displayName": "Ninja Debug",
+            "jobs": 12,
+            "configuration": "Debug"
         },
         {
-            "name": "ninja-gcc-release",
-            "displayName": "Ninja Gcc Release",
-            "configurePreset": "ninja-gcc-release",
-            "inherits": [
-                "default-options"
-            ]
-        },
-        {
-            "name": "ninja-clang-debug",
-            "displayName": "Ninja Clang Debug",
-            "configurePreset": "ninja-clang-debug",
-            "inherits": [
-                "default-options"
-            ]
-        },
-        {
-            "name": "ninja-clang-release",
-            "displayName": "Ninja Clang Release",
-            "configurePreset": "ninja-clang-release",
-            "inherits": [
-                "default-options"
-            ]
-        },
-        {
-            "name": "ninja-multi-gcc-debug",
-            "displayName": "Ninja-Multi Gcc Debug",
-            "configurePreset": "ninja-multi-gcc",
-            "configuration": "Debug",
-            "inherits": [
-                "default-options"
-            ]
-        },
-        {
-            "name": "ninja-multi-gcc-release",
-            "displayName": "Ninja-Multi Gcc Release",
-            "configurePreset": "ninja-multi-gcc",
-            "configuration": "Release",
-            "inherits": [
-                "default-options"
-            ]
-        },
-        {
-            "name": "ninja-multi-clang-debug",
-            "displayName": "Ninja-Multi Clang Debug",
-            "configurePreset": "ninja-multi-clang",
-            "configuration": "Debug",
-            "inherits": [
-                "default-options"
-            ]
-        },
-        {
-            "name": "ninja-multi-clang-release",
-            "displayName": "Ninja-Multi Clang Release",
-            "configurePreset": "ninja-multi-clang",
-            "configuration": "Release",
-            "inherits": [
-                "default-options"
-            ]
+            "name": "ninja-release",
+            "configurePreset": "Ninja",
+            "displayName": "Ninja Release",
+            "jobs": 12,
+            "configuration": "Release"
         }
     ]
 }

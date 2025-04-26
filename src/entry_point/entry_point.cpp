@@ -3,6 +3,7 @@
 
 int main()
 {
+    game_engine::core::Logger::init(20);
     auto backend = game_engine::backend::createBackendInstance();
     auto engine  = std::make_shared<game_engine::core::EngineImpl>(backend);
     auto game    = game_engine::createGameInstance(*engine);
