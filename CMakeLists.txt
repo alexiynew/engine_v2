@@ -15,6 +15,7 @@ option(ENABLE_CLANG_TIDY "Enable code checking with clang-tidy" OFF)
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
 option(USE_STUB_BACKEND "Use backend stub for testing" ON)
+option(USE_STUB_RENDERER "Use renderer stub for testing" ON)
 
 # Main project setup
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
@@ -32,6 +33,12 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(ENGINE_BACKEND_TYPE glfw CACHE STRING "" FORCE)
 if(USE_STUB_BACKEND)
     set(ENGINE_BACKEND_TYPE stub CACHE STRING "" FORCE)
+endif()
+
+# Choose renderer type
+set(ENGINE_RENDERER_TYPE opengl CACHE STRING "" FORCE)
+if(USE_STUB_RENDERER)
+    set(ENGINE_RENDERER_TYPE stub CACHE STRING "" FORCE)
 endif()
 
 # Add modules path
@@ -103,6 +110,7 @@ message(STATUS "#########################################")
 message(STATUS "Version:             \t ${PROJECT_VERSION}")
 message(STATUS "-----------------------------------------")
 message(STATUS "Backend type:        \t ${ENGINE_BACKEND_TYPE}")
+message(STATUS "Renderer type:       \t ${ENGINE_RENDERER_TYPE}")
 message(STATUS "Build type:          \t ${CMAKE_BUILD_TYPE}")
 message(STATUS "Install prefix:      \t ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Compiler:            \t ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")

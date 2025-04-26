@@ -1,6 +1,6 @@
 #include "stub_mesh.hpp"
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 void StubMesh::setMeshData(const core::MeshData&)
@@ -17,4 +17,4 @@ bool StubMesh::isValid() const noexcept
     return true;
 }
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

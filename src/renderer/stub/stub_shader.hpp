@@ -6,7 +6,7 @@
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/shader.hpp>
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 class StubShader final : public core::Shader
@@ -20,4 +20,4 @@ public:
     bool isValid() const noexcept override;
 };
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer

@@ -1,6 +1,6 @@
 #include "stub_shader.hpp"
 
-namespace game_engine::backend
+namespace game_engine::renderer
 {
 
 void StubShader::setSource(const std::string& vertexSource, const std::string& fragmentSource)
@@ -19,4 +19,4 @@ bool StubShader::isValid() const noexcept
     return true;
 }
 
-} // namespace game_engine::backend
+} // namespace game_engine::renderer
