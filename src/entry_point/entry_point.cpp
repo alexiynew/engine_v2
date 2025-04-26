@@ -4,7 +4,7 @@
 
 int main()
 {
-    auto engine = []() {
+    auto engineInstance = []() {
         auto backend  = game_engine::backend::createBackendInstance();
         auto renderer = game_engine::renderer::createRendererInstance(backend->getRendererContext());
         auto engine   = std::make_shared<game_engine::core::EngineImpl>(backend, renderer);
@@ -15,7 +15,7 @@ int main()
         return engine;
     }();
 
-    const int returnCode = engine->run();
+    const int returnCode = engineInstance->run();
 
     return returnCode;
 }

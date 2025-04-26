@@ -73,6 +73,7 @@ jobs:
         -B ${{ steps.strings.outputs.build-output-dir }}
         -DENABLE_CPPCHECK=OFF
         -DUSE_STUB_BACKEND=ON
+        -DUSE_STUB_RENDERER=ON
         -S ${{ github.workspace }}
 
     - name: Build

@@ -17,7 +17,8 @@
                 "ENABLE_CPPCHECK": "ON",
                 "ENABLE_CLANG_TIDY": "OFF",
                 "BUILD_DOCUMENTATION": "OFF",
-                "USE_STUB_BACKEND": "ON"
+                "USE_STUB_BACKEND": "OFF",
+                "USE_STUB_RENDERER": "OFF"
             }
         },
         {
