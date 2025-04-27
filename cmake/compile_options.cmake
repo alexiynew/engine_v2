@@ -46,15 +46,5 @@ target_compile_options(compile_options
 #    target_compile_options(private_compile_options INTERFACE -fsanitize=address)
 #    target_link_libraries(private_compile_options INTERFACE -fsanitize=address)
 #endif()
-#
-#if(ENABLE_CLANG_TIDY)
-#    find_program(CLANGTIDY clang-tidy)
-#    if(CLANGTIDY)
-#        set(CXX_CLANG_TIDY ${CLANGTIDY})
-#        set_target_properties(private_compile_options PROPERTIES CXX_CLANG_TIDY "${CXX_CLANG_TIDY}")
-#    else()
-#        message(SEND_ERROR "clang-tidy requested but executable not found")
-#    endif()
-#endif()
 
 add_library(engine::compile_options ALIAS compile_options)
