@@ -6,11 +6,6 @@ option(ENABLE_TESTING "Enable the building of the test" ON)
 # TODO: Implement address sanitazer build
 option(ENABLE_ASAN "Build with address sanitazer" OFF)
 
-option(ENABLE_CPPCHECK "Enable code checking with cppcheck" ON)
-
-# TODO: Implement clang-tidy build
-option(ENABLE_CLANG_TIDY "Enable code checking with clang-tidy" OFF)
-
 # TODO: Implement documentation generation
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
@@ -102,13 +97,10 @@ if(ENABLE_TESTING)
     include(tests/CMakeLists.txt)
 endif()
 
-# Custom target to format all sources
-include (cmake/format_all)
-
-if(ENABLE_CPPCHECK)
-    include (cmake/cppcheck)
-endif()
-
+# Custom tool targets
+include(cmake/format_all)
+include(cmake/cppcheck)
+include(cmake/clang_tidy)
 
 # Status
 message(STATUS "#########################################")
@@ -122,9 +114,9 @@ message(STATUS "Build type:          \t ${CMAKE_BUILD_TYPE}")
 message(STATUS "Install prefix:      \t ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Compiler:            \t ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "Testing enabled:     \t ${ENABLE_TESTING}")
-message(STATUS "Sanitizers:          \t ${ENABLE_ASAN}")
-message(STATUS "Clang-tidy:          \t ${ENABLE_CLANG_TIDY} ${CLANGTIDY}")
-message(STATUS "Cppcheck:            \t ${ENABLE_CPPCHECK} ${CPPCHECK}")
+message(STATUS "Address sanitizer:   \t ${ENABLE_ASAN}")
+message(STATUS "Clang-tidy:          \t ${CLANG_TIDY}")
+message(STATUS "Cppcheck:            \t ${CPPCHECK}")
 message(STATUS "Preset name:         \t ${BUILD_PRESET_NAME}")
 message(STATUS "Build documentation: \t ${BUILD_DOCUMENTATION}")
 message(STATUS "#########################################")

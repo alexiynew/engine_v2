@@ -14,8 +14,6 @@
                 "BUILD_PRESET_NAME": "${presetName}",
                 "ENABLE_TESTING": "ON",
                 "ENABLE_ASAN": "OFF",
-                "ENABLE_CPPCHECK": "ON",
-                "ENABLE_CLANG_TIDY": "OFF",
                 "BUILD_DOCUMENTATION": "OFF",
                 "USE_STUB_BACKEND": "OFF",
                 "USE_STUB_RENDERER": "OFF"
