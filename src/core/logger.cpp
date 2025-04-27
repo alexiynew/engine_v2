@@ -124,7 +124,7 @@ public:
         m_handler = handler;
     }
 
-    void StartWithBufferSize(const uint64_t& bufferPoolSize = 20)
+    void StartWithBufferSize(const uint64_t& bufferPoolSize)
     {
         instance().InitWithPoolSize(bufferPoolSize);
     }
@@ -145,8 +145,13 @@ public:
 
 
 Logger::Logger()
-    :m_streamingDevice(IOdeviceHelper::instance().requestStreamDevice())
-{}
+{
+    if (!IOdeviceHelper::isWorking())
+    {
+        init(20); // Some random value for tests;
+    }
+    m_streamingDevice = IOdeviceHelper::instance().requestStreamDevice();
+}
 
 Logger::~Logger()
 {

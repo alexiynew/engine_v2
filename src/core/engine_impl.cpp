@@ -174,7 +174,6 @@ void EngineImpl::mainLoop()
     std::chrono::nanoseconds framesDeltaTime{0};
 
     while (!shouldStop()) {
-        Logger() << "Pooping from main loop";
         m_backend->pollEvents();
 
         const TimePoint nowTime = getTime();
