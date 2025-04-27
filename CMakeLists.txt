@@ -6,11 +6,6 @@ option(ENABLE_TESTING "Enable the building of the test" ON)
 # TODO: Implement address sanitazer build
 option(ENABLE_ASAN "Build with address sanitazer" OFF)
 
-option(ENABLE_CPPCHECK "Enable code checking with cppcheck" ON)
-
-# TODO: Implement clang-tidy build
-option(ENABLE_CLANG_TIDY "Enable code checking with clang-tidy" OFF)
-
 # TODO: Implement documentation generation
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
