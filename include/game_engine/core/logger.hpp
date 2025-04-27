@@ -25,7 +25,7 @@ public:
 
     template <typename... Args>
     void print(Args&&... args) {
-        *(m_streamingDevice.get()) << ... << std::forward<Args>(args));
+        *(m_streamingDevice.get())->operator<<(args...);
     }
 
     Logger();
