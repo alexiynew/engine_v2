@@ -2,6 +2,8 @@
 
 #include <sstream>
 #include <functional>
+#include <memory>
+#include <stdint.h>
 
 namespace game_engine::core
 {
