@@ -124,7 +124,7 @@ public:
         m_handler = handler;
     }
 
-    void StartWithBufferSize(const uint64_t& bufferPoolSize = 0)
+    void StartWithBufferSize(const uint64_t& bufferPoolSize = 20)
     {
         instance().InitWithPoolSize(bufferPoolSize);
     }
