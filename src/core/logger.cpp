@@ -49,6 +49,7 @@ private:
                     {
                         return !m_isRunning || !m_buffersToProcess.empty();
                     });
+                if (!m_isRunning) break;
                 
                 stream = std::move(m_buffersToProcess.front());
                 m_buffersToProcess.pop();
@@ -59,7 +60,6 @@ private:
                 m_bufferPool.push(std::make_unique<std::ostringstream>());
             }
             m_bufferReadyCondition.notify_one();
-            if (!m_isRunning) break;
         }
         std::lock_guard<std::mutex> lockProcess(m_mutexToProcess);
         std::lock_guard<std::mutex> lockShare(m_mutexToShare);
@@ -138,6 +138,7 @@ public:
     ~IOdeviceHelper()
     {
         m_isRunning = false;
+        m_bufferAwaitsCondition.notify_one();
         m_processingThread->join();
     }
 };
