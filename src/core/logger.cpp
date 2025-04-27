@@ -49,6 +49,7 @@ private:
                     {
                         return !m_isRunning || !m_buffersToProcess.empty();
                     });
+                if (!m_isRunning) break;
                 
                 stream = std::move(m_buffersToProcess.front());
                 m_buffersToProcess.pop();
@@ -59,7 +60,6 @@ private:
                 m_bufferPool.push(std::make_unique<std::ostringstream>());
             }
             m_bufferReadyCondition.notify_one();
-            if (!m_isRunning) break;
         }
         std::lock_guard<std::mutex> lockProcess(m_mutexToProcess);
         std::lock_guard<std::mutex> lockShare(m_mutexToShare);
@@ -124,7 +124,7 @@ public:
         m_handler = handler;
     }
 
-    void StartWithBufferSize(const uint64_t& bufferPoolSize = 20)
+    void StartWithBufferSize(const uint64_t& bufferPoolSize)
     {
         instance().InitWithPoolSize(bufferPoolSize);
     }
@@ -138,6 +138,7 @@ public:
     ~IOdeviceHelper()
     {
         m_isRunning = false;
+        m_bufferAwaitsCondition.notify_one();
         m_processingThread->join();
     }
 };
@@ -145,8 +146,13 @@ public:
 
 
 Logger::Logger()
-    :m_streamingDevice(IOdeviceHelper::instance().requestStreamDevice())
-{}
+{
+    if (!IOdeviceHelper::isWorking())
+    {
+        init(20); // Some random value for tests;
+    }
+    m_streamingDevice = IOdeviceHelper::instance().requestStreamDevice();
+}
 
 Logger::~Logger()
 {
