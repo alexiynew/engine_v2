@@ -22,5 +22,5 @@ if(CPPCHECK)
 
     set_target_properties(cppcheck PROPERTIES FOLDER "utils")
 else()
-    message(SEND_ERROR "cppcheck requested but executable not found")
+    message(WARNING "cppcheck executable not found")
 endif()
