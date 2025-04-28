@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <game_engine/core/mesh.hpp>
+#include <game_engine/core/logger.hpp>
 #include <game_engine/core/shader.hpp>
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -140,19 +141,18 @@ std::shared_ptr<Game> createGameInstance(game_engine::core::Engine& engine)
 GameStub::GameStub(game_engine::core::Engine& engine)
     : m_engine(engine)
 {
-    std::cout << "GameStub::GameStub" << std::endl;
+    game_engine::core::Logger() << "GameStub::GameStub";
 }
 
 GameStub::~GameStub()
 {
-    std::cout << "GameStub::~GameStub" << std::endl;
+    game_engine::core::Logger() << "GameStub::~GameStub";
 }
 
 void GameStub::onInitialize()
 {
     using namespace game_engine::core;
-
-    std::cout << "GameStub::onInitialize" << std::endl;
+    game_engine::core::Logger() << "GameStub::onInitialize";
 
     const std::vector<SubMesh> submeshes = {
         {cube_mesh::submesh_indices, {}}
@@ -199,9 +199,9 @@ void GameStub::onDraw()
 
 void GameStub::onShutdown()
 {
-    std::cout << "GameStub::onShutdown" << std::endl;
-    std::cout << " -- updates count: " << m_updatesCount << std::endl;
-    std::cout << " -- frames count: " << m_framesCount << std::endl;
+    game_engine::core::Logger() << "GameStub::onShutdown";
+    game_engine::core::Logger() << " -- updates count: " << m_updatesCount;
+    game_engine::core::Logger() << " -- frames count: " << m_framesCount;
 
     m_shader.reset();
     m_mesh.reset();

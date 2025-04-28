@@ -51,6 +51,7 @@ target_sources(engine
     PUBLIC
         include/game_engine/common_types.hpp
         include/game_engine/core/engine.hpp
+        include/game_engine/core/logger.hpp
         include/game_engine/core/mesh_data.hpp
         include/game_engine/core/mesh.hpp
         include/game_engine/core/model_loader.hpp
@@ -64,6 +65,7 @@ target_sources(engine
         src/core/engine_impl.hpp
         src/core/mesh_impl.cpp
         src/core/model_loader.cpp
+        src/core/logger.cpp
         src/entry_point/entry_point.cpp
         src/game_settings.cpp
         src/game_stub.cpp

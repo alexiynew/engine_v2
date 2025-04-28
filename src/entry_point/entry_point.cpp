@@ -4,6 +4,8 @@
 
 int main()
 {
+
+    game_engine::core::Logger::init(20);
     auto engineInstance = []() {
         auto backend  = game_engine::backend::createBackendInstance();
         auto renderer = game_engine::renderer::createRendererInstance(backend->getRendererContext());
