@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 
+include(CMakeDependentOption)
+
 # Options
 option(ENABLE_TESTING "Enable the building of the test" ON)
 
@@ -11,6 +13,10 @@ option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
 option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
 option(USE_STUB_RENDERER "Use renderer stub for testing" OFF)
+
+# Use WinMain on windows as entry point
+cmake_dependent_option(USE_WINMAIN "Use WinMain function as entry point instead of main (window application)" ON WIN32 OFF) 
+
 
 # Main project setup
 project(GameEngine LANGUAGES CXX VERSION 0.0.1)
@@ -77,6 +83,12 @@ target_include_directories(engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
 include(cmake/compile_options)
 target_link_libraries(engine PRIVATE engine::compile_options)
 
+# Properties and definitions
+if (USE_WINMAIN)
+    set_target_properties(engine PROPERTIES WIN32_EXECUTABLE ON)
+    target_compile_definitions(engine PRIVATE USE_WINMAIN)
+endif()
+
 # Backend
 add_subdirectory(src/backend)
 target_link_libraries(engine PRIVATE engine::backend)
@@ -106,8 +118,10 @@ message(STATUS "\t \t Summary")
 message(STATUS "#########################################")
 message(STATUS "Version:             \t ${PROJECT_VERSION}")
 message(STATUS "-----------------------------------------")
+message(STATUS "System:              \t ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
 message(STATUS "Backend type:        \t ${ENGINE_BACKEND_TYPE}")
 message(STATUS "Renderer type:       \t ${ENGINE_RENDERER_TYPE}")
+message(STATUS "Use WinMain:         \t ${USE_WINMAIN}")
 message(STATUS "Build type:          \t ${CMAKE_BUILD_TYPE}")
 message(STATUS "Install prefix:      \t ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Compiler:            \t ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")

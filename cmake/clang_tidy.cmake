@@ -20,7 +20,7 @@ if(CLANG_TIDY)
         COMMAND ${CLANG_TIDY}   
             -checks="${CHECKS}"
             -p ${CMAKE_BINARY_DIR}
-            -header-filter="\"^.*(include|src|tests).*\""
+            -header-filter= "\"^.*(include|src|tests).*\""
             ${FILES}
         COMMAND_EXPAND_LISTS
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"

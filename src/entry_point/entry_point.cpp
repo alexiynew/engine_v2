@@ -1,8 +1,17 @@
+#ifdef USE_WINMAIN
+    #include <windows.h>
+#endif
+
 #include <backend/backend.hpp>
 #include <core/engine_impl.hpp>
 #include <renderer/renderer.hpp>
 
-int main()
+#ifdef USE_WINMAIN
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
+int main(int argc, char* argv[])
+#endif
+
 {
     auto engineInstance = []() {
         auto backend  = game_engine::backend::createBackendInstance();
