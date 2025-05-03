@@ -16,7 +16,7 @@ public:
     MOCK_METHOD(bool, initialize, (const GameSettings&), (override));
     MOCK_METHOD(void, shutdown, (), (override));
     MOCK_METHOD(void, pollEvents, (), (override));
-    MOCK_METHOD(std::shared_ptr<renderer::RendererContext>, getRendererContext, (), (override));
+    MOCK_METHOD(std::shared_ptr<renderer::RenderContext>, getRenderContext, (), (override));
 };
 
 class RendererMock final : public renderer::Renderer

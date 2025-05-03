@@ -1,0 +1,10 @@
+target_sources(renderer
+    PRIVATE
+        src/stub/module_factory.cpp
+        src/stub/stub_mesh.cpp
+        src/stub/stub_mesh.hpp
+        src/stub/stub_shader.cpp
+        src/stub/stub_shader.hpp
+        src/stub/stub_renderer.cpp
+        src/stub/stub_renderer.hpp
+)

@@ -66,6 +66,7 @@ target_sources(engine
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
     PRIVATE
+        src/module_factory.hpp
         src/core/engine_impl.cpp
         src/core/engine_impl.hpp
         src/core/mesh_impl.cpp
@@ -90,12 +91,12 @@ if (USE_WINMAIN)
 endif()
 
 # Backend
-add_subdirectory(src/backend)
-target_link_libraries(engine PRIVATE engine::backend)
+add_subdirectory(src/modules/backend)
+target_link_libraries(engine PRIVATE backend)
 
 # Renderer
-add_subdirectory(src/renderer)
-target_link_libraries(engine PRIVATE engine::renderer)
+add_subdirectory(src/modules/renderer)
+target_link_libraries(engine PRIVATE renderer)
 
 # GLM
 include(libs/glm)

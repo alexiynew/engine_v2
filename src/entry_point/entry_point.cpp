@@ -4,6 +4,7 @@
 
 #include <backend/backend.hpp>
 #include <core/engine_impl.hpp>
+#include <module_factory.hpp>
 #include <renderer/renderer.hpp>
 
 #ifdef USE_WINMAIN
@@ -13,11 +14,16 @@ int main(int argc, char* argv[])
 #endif
 
 {
+    using namespace game_engine;
+
+    ModuleFactory<backend::Backend>::RegisterModule();
+    ModuleFactory<renderer::Renderer>::RegisterModule();
+
     auto engineInstance = []() {
-        auto backend  = game_engine::backend::createBackendInstance();
-        auto renderer = game_engine::renderer::createRendererInstance(backend->getRendererContext());
+        auto backend  = ModuleFactory<backend::Backend>::Create();
+        auto renderer = ModuleFactory<renderer::Renderer>::Create(backend->getRenderContext());
         auto engine   = std::make_shared<game_engine::core::EngineImpl>(backend, renderer);
-        auto game     = game_engine::createGameInstance(*engine);
+        auto game     = createGameInstance(*engine);
 
         engine->setGameInstance(game);
 
