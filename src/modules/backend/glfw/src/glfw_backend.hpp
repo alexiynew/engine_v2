@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-#include <backend/backend.hpp>
+#include <modules/backend.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -26,6 +26,9 @@ public:
 
     std::shared_ptr<RenderContext> getRenderContext() override;
 
+    void attachBackendObserver(BackendObserver& observer) override;
+    void detachBackendObserver(const BackendObserver& observer) override;
+
     // RenderContext
     void makeCurrent() override;
     void dropCurrent() override;
@@ -46,8 +49,13 @@ private:
     void applyDisplayMode(const GameSettings& settings);
     void applyAntiAliasing(const GameSettings& settings);
 
+    template <typename EventType>
+    void notify(const EventType& event);
+
     std::mutex m_windowMutex;
     GLFWwindow* m_window = nullptr;
+
+    std::list<RefObserver> m_observers;
 };
 
 } // namespace game_engine::backend

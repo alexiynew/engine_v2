@@ -1,8 +1,8 @@
 #include "opengl_renderer.hpp"
 
 #include <glad/glad.h>
-#include <opengl/opengl_mesh.hpp>
-#include <opengl/opengl_shader.hpp>
+#include <opengl_mesh.hpp>
+#include <opengl_shader.hpp>
 
 #define LOG_ERROR std::cerr
 #include <iostream>

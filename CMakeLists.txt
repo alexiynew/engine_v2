@@ -66,7 +66,9 @@ target_sources(engine
         include/game_engine/game.hpp
         include/game_engine/keyboard.hpp
     PRIVATE
-        src/module_factory.hpp
+        src/modules/include/modules/module_factory.hpp
+        src/modules/include/modules/backend.hpp
+        src/modules/include/modules/renderer.hpp
         src/core/engine_impl.cpp
         src/core/engine_impl.hpp
         src/core/mesh_impl.cpp
@@ -77,8 +79,13 @@ target_sources(engine
         src/game_stub.hpp
 )
 
-target_include_directories(engine PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(engine 
+    PUBLIC 
+        ${CMAKE_SOURCE_DIR}/include
+    PRIVATE 
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/modules/include
+)
 
 # Compile options
 include(cmake/compile_options)
@@ -91,12 +98,12 @@ if (USE_WINMAIN)
 endif()
 
 # Backend
-add_subdirectory(src/modules/backend)
-target_link_libraries(engine PRIVATE backend)
+include(src/modules/backend/backend)
+target_link_libraries(engine PRIVATE engine::backend)
 
 # Renderer
-add_subdirectory(src/modules/renderer)
-target_link_libraries(engine PRIVATE renderer)
+include(src/modules/renderer/renderer)
+target_link_libraries(engine PRIVATE engine::renderer)
 
 # GLM
 include(libs/glm)

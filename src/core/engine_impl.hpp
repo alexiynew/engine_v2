@@ -4,20 +4,20 @@
 #include <game_engine/core/engine.hpp>
 #include <game_engine/game.hpp>
 
-#include <backend/backend.hpp>
-#include <renderer/renderer.hpp>
+#include <modules/backend.hpp>
+#include <modules/renderer.hpp>
 
 namespace game_engine::core
 {
 
 class EngineImpl final
-    : public game_engine::core::Engine
-    , private game_engine::backend::BackendObserver
+    : public Engine
+    , private BackendObserver
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    explicit EngineImpl(std::shared_ptr<backend::Backend> backend, std::shared_ptr<renderer::Renderer> renderer);
+    explicit EngineImpl(std::shared_ptr<Backend> backend, std::shared_ptr<Renderer> renderer);
     ~EngineImpl() override;
 
     // Engine
@@ -40,9 +40,9 @@ public:
     int run() noexcept;
 
 private:
-    std::shared_ptr<game_engine::backend::Backend> m_backend;
-    std::shared_ptr<game_engine::renderer::Renderer> m_renderer;
-    std::shared_ptr<game_engine::Game> m_game;
+    std::shared_ptr<Backend> m_backend;
+    std::shared_ptr<Renderer> m_renderer;
+    std::shared_ptr<Game> m_game;
 
     std::shared_ptr<game_engine::core::ModelLoader> m_modelLoader;
 

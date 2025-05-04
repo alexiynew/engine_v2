@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include <glad/glad.h>
-#include <opengl/opengl_utils.hpp>
+#include <opengl_utils.hpp>
 
 #define LOG_ERROR std::cerr
 #include <iostream>

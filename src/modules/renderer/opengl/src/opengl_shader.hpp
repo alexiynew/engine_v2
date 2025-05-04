@@ -7,7 +7,7 @@
 #include <game_engine/common_types.hpp>
 #include <game_engine/core/shader.hpp>
 
-#include <opengl/opengl_renderer.hpp>
+#include <opengl_renderer.hpp>
 
 namespace game_engine::renderer
 {

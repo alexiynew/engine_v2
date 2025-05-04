@@ -15,7 +15,7 @@ inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
 namespace game_engine::core
 {
 
-EngineImpl::EngineImpl(std::shared_ptr<backend::Backend> backend, std::shared_ptr<renderer::Renderer> renderer)
+EngineImpl::EngineImpl(std::shared_ptr<Backend> backend, std::shared_ptr<Renderer> renderer)
     : m_backend(std::move(backend))
     , m_renderer(std::move(renderer))
     , m_modelLoader(std::make_shared<ModelLoader>())
@@ -121,7 +121,7 @@ void EngineImpl::render(const std::shared_ptr<Mesh>& mesh,
                         const std::shared_ptr<Shader>& shader,
                         const std::vector<Uniform>& uniforms)
 {
-    renderer::RenderCommand cmd;
+    RenderCommand cmd;
     cmd.mesh          = mesh;
     cmd.shader        = shader;
     cmd.uniforms      = uniforms;

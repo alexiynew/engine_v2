@@ -5,7 +5,7 @@
 #include <game_engine/core/mesh.hpp>
 #include <game_engine/core/shader.hpp>
 
-namespace game_engine::renderer
+namespace game_engine
 {
 
 struct RenderCommand
@@ -32,4 +32,4 @@ public:
     virtual void executeRenderCommands()                        = 0;
 };
 
-} // namespace game_engine::renderer
+} // namespace game_engine

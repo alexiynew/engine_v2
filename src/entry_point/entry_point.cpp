@@ -2,10 +2,10 @@
     #include <windows.h>
 #endif
 
-#include <backend/backend.hpp>
 #include <core/engine_impl.hpp>
-#include <module_factory.hpp>
-#include <renderer/renderer.hpp>
+#include <modules/backend.hpp>
+#include <modules/module_factory.hpp>
+#include <modules/renderer.hpp>
 
 #ifdef USE_WINMAIN
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -16,12 +16,12 @@ int main(int argc, char* argv[])
 {
     using namespace game_engine;
 
-    ModuleFactory<backend::Backend>::RegisterModule();
-    ModuleFactory<renderer::Renderer>::RegisterModule();
+    ModuleFactory<Backend>::RegisterModule();
+    ModuleFactory<Renderer>::RegisterModule();
 
     auto engineInstance = []() {
-        auto backend  = ModuleFactory<backend::Backend>::Create();
-        auto renderer = ModuleFactory<renderer::Renderer>::Create(backend->getRenderContext());
+        auto backend  = ModuleFactory<Backend>::Create();
+        auto renderer = ModuleFactory<Renderer>::Create(backend->getRenderContext());
         auto engine   = std::make_shared<game_engine::core::EngineImpl>(backend, renderer);
         auto game     = createGameInstance(*engine);
 

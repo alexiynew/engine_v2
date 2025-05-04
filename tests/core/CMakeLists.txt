@@ -3,7 +3,6 @@ add_executable(core_test)
 target_sources(core_test
     PRIVATE
         main.cpp
-        ${CMAKE_SOURCE_DIR}/src/modules/backend/src/backend.cpp
         ${CMAKE_SOURCE_DIR}/src/core/engine_impl.cpp
         ${CMAKE_SOURCE_DIR}/src/core/mesh_impl.cpp
         ${CMAKE_SOURCE_DIR}/src/game_settings.cpp

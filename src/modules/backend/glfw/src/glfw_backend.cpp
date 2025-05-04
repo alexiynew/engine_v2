@@ -1,6 +1,6 @@
 #include "glfw_backend.hpp"
 
-#include <glfw/glfw_keyboard.hpp>
+#include <glfw_keyboard.hpp>
 
 #define LOG_ERROR std::cerr
 #include <iostream>
@@ -165,6 +165,16 @@ void GLFWBackend::pollEvents()
     glfwPollEvents();
 }
 
+void GLFWBackend::attachBackendObserver(BackendObserver& observer)
+{
+    m_observers.push_front(observer);
+}
+
+void GLFWBackend::detachBackendObserver(const BackendObserver& observer)
+{
+    m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
+}
+
 std::shared_ptr<RenderContext> GLFWBackend::getRenderContext()
 {
     return shared_from_this();
@@ -172,7 +182,7 @@ std::shared_ptr<RenderContext> GLFWBackend::getRenderContext()
 
 #pragma endregion
 
-#pragma region renderer::RenderContext
+#pragma region RenderContext
 
 void GLFWBackend::makeCurrent()
 {
@@ -289,6 +299,14 @@ void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
         case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
         case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
         case AntiAliasing::MSAA8x: glfwWindowHint(GLFW_SAMPLES, 8); break;
+    }
+}
+
+template <typename EventType>
+void GLFWBackend::notify(const EventType& event)
+{
+    for (auto observer : m_observers) {
+        observer.get().onEvent(event);
     }
 }
 
