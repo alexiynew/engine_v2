@@ -1,7 +1,7 @@
 #include "stub_renderer.hpp"
 
-#include <stub/stub_mesh.hpp>
-#include <stub/stub_shader.hpp>
+#include <stub_mesh.hpp>
+#include <stub_shader.hpp>
 
 namespace game_engine::renderer
 {

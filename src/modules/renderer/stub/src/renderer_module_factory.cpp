@@ -1,12 +1,12 @@
-#include <module_factory.hpp>
+#include <modules/module_factory.hpp>
 #include <modules/render_context.hpp>
-#include <stub/stub_renderer.hpp>
+#include <stub_renderer.hpp>
 
 namespace game_engine
 {
 
 template <>
-void ModuleFactory<renderer::Renderer>::RegisterModule()
+void ModuleFactory<Renderer>::RegisterModule()
 {
     RegisterCreator([](std::shared_ptr<RenderContext> context) {
         return std::make_shared<renderer::StubRenderer>(std::move(context));

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <modules/render_context.hpp>
-#include <renderer/renderer.hpp>
+#include <modules/renderer.hpp>
 
 namespace game_engine::renderer
 {
