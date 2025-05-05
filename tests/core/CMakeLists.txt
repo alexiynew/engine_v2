@@ -17,9 +17,8 @@ target_include_directories(core_test
 
 target_link_libraries(core_test
     PRIVATE 
-        libs::gtest 
-        libs::gmock
-        libs::glm
+        third_party::gtest 
+        third_party::gmock
 )
 
 target_link_libraries(core_test PRIVATE engine::compile_options)

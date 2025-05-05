@@ -20,9 +20,9 @@ target_compile_options(glm
         $<${MSVC_LIKE_COMPILER}:${GLM_MSVC_CUSTOM_COMPILE_OPTIONS}>
 )
 
-set_target_properties(glm PROPERTIES FOLDER "libs/glm")
+set_target_properties(glm PROPERTIES FOLDER "third_party/glm")
 
 # Define lids to link
-add_library(libs::glm INTERFACE IMPORTED)
-target_link_libraries(libs::glm INTERFACE glm)
-target_include_directories(libs::glm INTERFACE ${glm_SOURCE_DIR})
+add_library(third_party::glm INTERFACE IMPORTED)
+target_link_libraries(third_party::glm INTERFACE glm)
+target_include_directories(third_party::glm INTERFACE ${glm_SOURCE_DIR})

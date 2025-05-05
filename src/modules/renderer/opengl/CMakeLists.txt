@@ -25,14 +25,16 @@ target_include_directories(opengl_renderer
 
 # Add glad
 add_subdirectory(third_party/glad)
-include(libs/glm)
+include(third_party/glm)
 
 # Link libraries
 target_link_libraries(opengl_renderer 
     PRIVATE 
         engine::compile_options
         third_party::glad
-        libs::glm
+        third_party::glm
 )
+
+set_target_properties(opengl_renderer PROPERTIES FOLDER "libs/renderer")
 
 add_library(engine::renderer ALIAS opengl_renderer)

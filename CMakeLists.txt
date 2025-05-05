@@ -106,8 +106,8 @@ include(src/modules/renderer/renderer)
 target_link_libraries(engine PRIVATE engine::renderer)
 
 # GLM
-include(libs/glm)
-target_link_libraries(engine PUBLIC libs::glm)
+include(third_party/glm)
+target_link_libraries(engine PUBLIC third_party::glm)
 
 # Tests
 if(ENABLE_TESTING)

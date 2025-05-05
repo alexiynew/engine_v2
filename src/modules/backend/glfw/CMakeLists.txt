@@ -29,4 +29,6 @@ target_link_libraries(glfw_backend
         third_party::glfw
 )
 
+set_target_properties(glfw_backend PROPERTIES FOLDER "libs/backend")
+
 add_library(engine::backend ALIAS glfw_backend)
