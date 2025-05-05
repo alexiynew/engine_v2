@@ -99,11 +99,11 @@ endif()
 
 # Backend
 include(src/modules/backend/backend)
-target_link_libraries(engine PRIVATE engine::backend)
+target_link_libraries(engine PRIVATE modules::backend)
 
 # Renderer
 include(src/modules/renderer/renderer)
-target_link_libraries(engine PRIVATE engine::renderer)
+target_link_libraries(engine PRIVATE modules::renderer)
 
 # GLM
 include(third_party/glm)

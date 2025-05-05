@@ -35,6 +35,6 @@ target_link_libraries(opengl_renderer
         third_party::glm
 )
 
-set_target_properties(opengl_renderer PROPERTIES FOLDER "libs/renderer")
+set_target_properties(opengl_renderer PROPERTIES FOLDER "modules/renderer")
 
-add_library(engine::renderer ALIAS opengl_renderer)
+add_library(modules::renderer ALIAS opengl_renderer)
