@@ -75,8 +75,6 @@ target_sources(engine
         src/core/model_loader.cpp
         src/entry_point/entry_point.cpp
         src/game_settings.cpp
-        src/game_stub.cpp
-        src/game_stub.hpp
 )
 
 target_include_directories(engine 
@@ -108,6 +106,10 @@ target_link_libraries(engine PRIVATE modules::renderer)
 # GLM
 include(third_party/glm)
 target_link_libraries(engine PUBLIC third_party::glm)
+
+# Game
+add_subdirectory(game)
+target_link_libraries(engine PRIVATE game)
 
 # Tests
 if(ENABLE_TESTING)

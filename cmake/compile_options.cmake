@@ -48,3 +48,4 @@ target_compile_options(compile_options
 #endif()
 
 add_library(engine::compile_options ALIAS compile_options)
+add_library(game::compile_options ALIAS compile_options)

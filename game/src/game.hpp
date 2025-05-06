@@ -2,11 +2,11 @@
 
 #include <game_engine/game.hpp>
 
-class GameStub final : public game_engine::Game
+class Game final : public game_engine::Game
 {
 public:
-    explicit GameStub(game_engine::core::Engine& engine);
-    ~GameStub() override;
+    explicit Game(game_engine::core::Engine& engine);
+    ~Game() override;
 
     void onInitialize() override;
     void onUpdate(std::chrono::nanoseconds elapsedTime) override;

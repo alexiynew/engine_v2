@@ -1,4 +1,4 @@
-#include "game_stub.hpp"
+#include "game.hpp"
 
 #include <iostream>
 
@@ -123,36 +123,22 @@ inline game_engine::core::VertexLayout getVertexLayout()
 
 } // namespace
 
-// Specialization of Vertex layout
-namespace game_engine::core
-{} // namespace game_engine::core
-
-// Implement game factory
-namespace game_engine
-{
-std::shared_ptr<Game> createGameInstance(game_engine::core::Engine& engine)
-{
-    return std::make_shared<GameStub>(engine);
-}
-
-} // namespace game_engine
-
-GameStub::GameStub(game_engine::core::Engine& engine)
+Game::Game(game_engine::core::Engine& engine)
     : m_engine(engine)
 {
-    std::cout << "GameStub::GameStub" << std::endl;
+    std::cout << "Game::Game" << std::endl;
 }
 
-GameStub::~GameStub()
+Game::~Game()
 {
-    std::cout << "GameStub::~GameStub" << std::endl;
+    std::cout << "Game::~Game" << std::endl;
 }
 
-void GameStub::onInitialize()
+void Game::onInitialize()
 {
     using namespace game_engine::core;
 
-    std::cout << "GameStub::onInitialize" << std::endl;
+    std::cout << "Game::onInitialize" << std::endl;
 
     const std::vector<SubMesh> submeshes = {
         {cube_mesh::submesh_indices, {}}
@@ -169,12 +155,12 @@ void GameStub::onInitialize()
     }
 }
 
-void GameStub::onUpdate(std::chrono::nanoseconds)
+void Game::onUpdate(std::chrono::nanoseconds)
 {
     m_updatesCount++;
 }
 
-void GameStub::onDraw()
+void Game::onDraw()
 {
     m_framesCount++;
 
@@ -197,9 +183,9 @@ void GameStub::onDraw()
     });
 }
 
-void GameStub::onShutdown()
+void Game::onShutdown()
 {
-    std::cout << "GameStub::onShutdown" << std::endl;
+    std::cout << "Game::onShutdown" << std::endl;
     std::cout << " -- updates count: " << m_updatesCount << std::endl;
     std::cout << " -- frames count: " << m_framesCount << std::endl;
 
@@ -207,7 +193,7 @@ void GameStub::onShutdown()
     m_mesh.reset();
 }
 
-void GameStub::onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event)
+void Game::onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event)
 {
     using namespace game_engine;
 
@@ -216,12 +202,12 @@ void GameStub::onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event
     }
 }
 
-bool GameStub::onShouldClose()
+bool Game::onShouldClose()
 {
     return true;
 }
 
-game_engine::GameSettings GameStub::getSettings()
+game_engine::GameSettings Game::getSettings()
 {
     using namespace game_engine;
 
