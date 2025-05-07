@@ -19,9 +19,7 @@ target_include_directories(game
 # Link libraries
 target_link_libraries(game 
     PRIVATE 
-        game::compile_options
-        third_party::glm
+        engine
 )
-
 
 set_target_properties(game PROPERTIES FOLDER "game")
