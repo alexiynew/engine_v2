@@ -7,17 +7,15 @@ target_sources(core_test
 
 target_include_directories(core_test
     PRIVATE 
-        ${CMAKE_SOURCE_DIR}/include 
-        ${CMAKE_SOURCE_DIR}/src
+        $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(core_test
     PRIVATE 
+        engine::compile_options
         third_party::gtest 
         third_party::gmock
 )
-
-target_link_libraries(core_test PRIVATE engine::compile_options)
 
 set_target_properties(core_test PROPERTIES FOLDER "engine/tests")
 

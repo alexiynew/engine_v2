@@ -6,4 +6,4 @@ if(NOT ENGINE_RENDERER_TYPE IN_LIST SUPPORTED_RENDERERS)
 endif()
 
 # Renderer library
-add_subdirectory(src/modules/renderer/${ENGINE_RENDERER_TYPE})
+add_subdirectory(renderer/${ENGINE_RENDERER_TYPE})

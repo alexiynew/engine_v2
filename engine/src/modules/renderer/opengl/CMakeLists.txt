@@ -24,7 +24,6 @@ target_include_directories(opengl_renderer
 
 # Add glad
 add_subdirectory(third_party/glad)
-include(third_party/glm)
 
 # Link libraries
 target_link_libraries(opengl_renderer 
@@ -36,5 +35,4 @@ target_link_libraries(opengl_renderer
 )
 
 set_target_properties(opengl_renderer PROPERTIES FOLDER "engine/modules/renderer")
-
-add_library(modules::renderer ALIAS opengl_renderer)
+add_library(engine::modules::renderer ALIAS opengl_renderer)

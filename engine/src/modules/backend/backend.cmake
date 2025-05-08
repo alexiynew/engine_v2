@@ -6,4 +6,4 @@ if(NOT ENGINE_BACKEND_TYPE IN_LIST SUPPORTED_BACKENDS)
 endif()
 
 # Backend library
-add_subdirectory(src/modules/backend/${ENGINE_BACKEND_TYPE})
+add_subdirectory(backend/${ENGINE_BACKEND_TYPE})

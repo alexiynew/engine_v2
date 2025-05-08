@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 project(game VERSION 1.0.0 LANGUAGES CXX)
 
-add_library(game STATIC)
+add_executable(game)
 
 target_sources(game
     PRIVATE
@@ -10,14 +10,14 @@ target_sources(game
         src/game.hpp
 )
 
-target_include_directories(game 
+target_include_directories(game
     PRIVATE 
-        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/engine/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # Link libraries
-target_link_libraries(game 
+target_link_libraries(game
     PRIVATE 
         engine
 )

@@ -6,6 +6,14 @@ target_include_directories(modules
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-set_target_properties(modules PROPERTIES FOLDER "engine/modules")
+include(backend/backend.cmake)
+include(renderer/renderer.cmake)
 
+target_link_libraries(modules 
+    INTERFACE
+    engine::modules::backend
+    engine::modules::renderer
+)
+
+set_target_properties(modules PROPERTIES FOLDER "engine/modules")
 add_library(engine::modules ALIAS modules)

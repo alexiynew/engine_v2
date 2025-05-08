@@ -3,7 +3,6 @@
 #endif
 
 #include <game_engine/core/engine.hpp>
-#include <game_engine/game.hpp>
 
 #ifdef USE_WINMAIN
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

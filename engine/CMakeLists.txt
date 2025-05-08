@@ -12,6 +12,8 @@ option(BUILD_DOCUMENTATION "Build documentation" OFF)
 option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
 option(USE_STUB_RENDERER "Use renderer stub for testing" OFF)
 
+option(USE_WINMAIN "Use WinMain entry point" $<IF:$<BOOL:WIN32>,ON,OFF>)
+
 # Engine project setup
 project(engine LANGUAGES CXX VERSION 0.0.1)
 
@@ -79,26 +81,25 @@ target_include_directories(engine
 
 # Include engine parts
 include(cmake/compile_options)
-include(src/modules/backend/backend)
-include(src/modules/renderer/renderer)
 include(third_party/glm)
 
+add_subdirectory(entry_point)
 add_subdirectory(src/modules)
 
 target_link_libraries(engine 
     PUBLIC 
         engine::compile_options
+        engine::entry_point
         third_party::glm
+
     PRIVATE
         engine::modules
-        modules::backend
-        modules::renderer
 )
 
 # Tests
 if(ENABLE_TESTING)
     enable_testing()
-    include(tests/CMakeLists.txt)
+    include(tests/tests)
 endif()
 
 # Custom tool targets
