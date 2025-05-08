@@ -12,8 +12,7 @@ target_sources(stub_backend
 
 target_include_directories(stub_backend 
     PRIVATE 
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/src/modules/include
+        $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
@@ -21,8 +20,8 @@ target_include_directories(stub_backend
 target_link_libraries(stub_backend 
     PRIVATE 
         engine::compile_options
+        engine::modules
 )
 
 set_target_properties(stub_backend PROPERTIES FOLDER "engine/modules/backend")
-
-add_library(modules::backend ALIAS stub_backend)
+add_library(engine::modules::backend ALIAS stub_backend)

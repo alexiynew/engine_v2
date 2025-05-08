@@ -16,21 +16,16 @@ target_sources(stub_renderer
 
 target_include_directories(stub_renderer 
     PRIVATE 
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/src/modules/include
+        $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-
-# Add glad
-include(third_party/glm)
 
 # Link libraries
 target_link_libraries(stub_renderer 
     PRIVATE 
         engine::compile_options
-        third_party::glm
+        engine::modules
 )
 
 set_target_properties(stub_renderer PROPERTIES FOLDER "engine/modules/renderer")
-
-add_library(modules::renderer ALIAS stub_renderer)
+add_library(engine::modules::renderer ALIAS stub_renderer)
