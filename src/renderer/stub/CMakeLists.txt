@@ -1,9 +1,0 @@
-target_sources(renderer
-    PRIVATE
-        stub/stub_mesh.cpp
-        stub/stub_mesh.hpp
-        stub/stub_shader.cpp
-        stub/stub_shader.hpp
-        stub/stub_renderer.cpp
-        stub/stub_renderer.hpp
-)
