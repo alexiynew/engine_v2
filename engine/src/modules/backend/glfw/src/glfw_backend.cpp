@@ -11,49 +11,49 @@ using game_engine::backend::GLFWBackend;
 
 void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleKeyEvent(key, scancode, action, mods);
     }
 }
 
 void onWindowResize(GLFWwindow* window, int width, int height)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleWindowResize(width, height);
     }
 }
 
 void onWindowMove(GLFWwindow* window, int xpos, int ypos)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleWindowMove(xpos, ypos);
     }
 }
 
 void onWindowClose(GLFWwindow* window)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleWindowClose();
     }
 }
 
 void onWindowFocus(GLFWwindow* window, int focused)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleWindowFocus(focused == GLFW_TRUE);
     }
 }
 
 void onWindowIconify(GLFWwindow* window, int iconified)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleWindowIconify(iconified == GLFW_TRUE);
     }
 }
 
 void onWindowMaximize(GLFWwindow* window, int maximized)
 {
-    if (GLFWBackend* backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
+    if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
         backend->handleWindowMaximize(maximized == GLFW_TRUE);
     }
 }
@@ -93,8 +93,7 @@ void logErrors()
 namespace game_engine::backend
 {
 
-GLFWBackend::GLFWBackend()
-{}
+GLFWBackend::GLFWBackend() = default;
 
 GLFWBackend::~GLFWBackend()
 {

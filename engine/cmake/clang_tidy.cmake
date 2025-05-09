@@ -1,8 +1,12 @@
+# Custom target to run clang-tidy
+
 find_program(CLANG_TIDY clang-tidy)
 if(CLANG_TIDY)
-    file(GLOB FILES ${CMAKE_SOURCE_DIR}/include/**/*.hpp
-                    ${CMAKE_SOURCE_DIR}/src/**/*.[ch]pp
-                    ${CMAKE_SOURCE_DIR}/tests/**/*.[ch]pp
+    file(GLOB_RECURSE SOURCES 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/**/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/entry_point/**/*.[ch]pp
     )
 
     set(CHECKS_LIST
@@ -21,9 +25,9 @@ if(CLANG_TIDY)
             -checks="${CHECKS}"
             -p ${CMAKE_BINARY_DIR}
             -header-filter= "\"^.*(include|src|tests).*\""
-            ${FILES}
+            ${SOURCES}
         COMMAND_EXPAND_LISTS
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT Run clang-tidy on source files
     )
 

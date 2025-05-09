@@ -1,15 +1,15 @@
-#ifdef USE_WINMAIN
+#ifdef USE_WINMAIN_ENTRY
     #include <windows.h>
 #endif
 
-#include <game_engine/core/engine.hpp>
+#include <engine/engine.hpp>
 
-#ifdef USE_WINMAIN
+#ifdef USE_WINMAIN_ENTRY
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
 int main(int argc, char* argv[])
 #endif
 
 {
-    return game_engine::core::createEngineInstance()->run();
+    return game_engine::createEngineInstance()->run();
 }

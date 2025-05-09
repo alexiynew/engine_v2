@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.27)
 
+# Engine project setup
+project(engine LANGUAGES CXX VERSION 0.0.1)
+
 # Options
 option(ENABLE_TESTING "Enable the building of the test" ON)
 
@@ -12,10 +15,12 @@ option(BUILD_DOCUMENTATION "Build documentation" OFF)
 option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
 option(USE_STUB_RENDERER "Use renderer stub for testing" OFF)
 
-option(USE_WINMAIN "Use WinMain entry point" $<IF:$<BOOL:WIN32>,ON,OFF>)
-
-# Engine project setup
-project(engine LANGUAGES CXX VERSION 0.0.1)
+if(WIN32)
+    set(USE_WINMAIN_DEFAULT ON)
+else()
+    set(USE_WINMAIN_DEFAULT OFF)
+endif()
+option(USE_WINMAIN "Use WinMain entry point" ${USE_WINMAIN_DEFAULT})
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,24 +56,24 @@ add_library(engine STATIC)
 
 target_sources(engine
     PUBLIC
-        include/game_engine/common_types.hpp
-        include/game_engine/core/engine.hpp
-        include/game_engine/core/mesh_data.hpp
-        include/game_engine/core/mesh.hpp
-        include/game_engine/core/model_loader.hpp
-        include/game_engine/core/shader.hpp
-        include/game_engine/core/vertex_traits.hpp
-        include/game_engine/game_settings.hpp
-        include/game_engine/game.hpp
-        include/game_engine/keyboard.hpp
+        include/engine/common_types.hpp
+        include/engine/engine.hpp
+        include/engine/game_settings.hpp
+        include/engine/game.hpp
+        include/engine/keyboard.hpp
+        include/engine/graphics/mesh_data.hpp
+        include/engine/graphics/mesh.hpp
+        include/engine/graphics/model_loader.hpp
+        include/engine/graphics/shader.hpp
+        include/engine/graphics/vertex_traits.hpp
     PRIVATE
-        src/modules/include/modules/module_factory.hpp
-        src/modules/include/modules/backend.hpp
-        src/modules/include/modules/renderer.hpp
+        src/game_settings.cpp
         src/core/create_engine_instance.cpp
         src/core/engine_impl.cpp
         src/core/engine_impl.hpp
-        src/game_settings.cpp
+        src/modules/include/modules/module_factory.hpp
+        src/modules/include/modules/backend/backend.hpp
+        src/modules/include/modules/graphics/renderer.hpp
 )
 
 target_include_directories(engine 
@@ -88,11 +93,10 @@ add_subdirectory(src/modules)
 
 target_link_libraries(engine 
     PUBLIC 
-        engine::compile_options
-        engine::entry_point
         third_party::glm
 
     PRIVATE
+        engine::compile_options
         engine::modules
 )
 
@@ -108,6 +112,7 @@ include(cmake/cppcheck)
 include(cmake/clang_tidy)
 
 set_target_properties(engine PROPERTIES FOLDER "engine")
+set_target_properties(engine PROPERTIES EXPORT_COMPILE_COMMANDS ON)
 
 # Status
 message(STATUS "#########################################")
@@ -118,6 +123,7 @@ message(STATUS "-----------------------------------------")
 message(STATUS "System:              \t ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
 message(STATUS "Backend type:        \t ${ENGINE_BACKEND_TYPE}")
 message(STATUS "Renderer type:       \t ${ENGINE_RENDERER_TYPE}")
+message(STATUS "Use WinMain:         \t ${USE_WINMAIN}")
 message(STATUS "Build type:          \t ${CMAKE_BUILD_TYPE}")
 message(STATUS "Install prefix:      \t ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Compiler:            \t ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")

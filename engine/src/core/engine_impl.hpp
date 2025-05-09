@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <game_engine/core/engine.hpp>
-#include <game_engine/game.hpp>
+#include <engine/engine.hpp>
+#include <engine/game.hpp>
 
-#include <modules/backend.hpp>
-#include <modules/renderer.hpp>
+#include <modules/backend/backend.hpp>
+#include <modules/graphics/renderer.hpp>
 
-namespace game_engine::core
+namespace game_engine
 {
 
 class EngineImpl final
@@ -26,18 +26,18 @@ public:
 
     void setShouldStopFlag() noexcept override;
 
-    std::shared_ptr<Mesh> createMesh() override;
-    std::shared_ptr<Shader> createShader() override;
+    std::shared_ptr<graphics::Mesh> createMesh() override;
+    std::shared_ptr<graphics::Shader> createShader() override;
 
-    void render(const std::shared_ptr<Mesh>& mesh,
-                const std::shared_ptr<Shader>& shader,
-                const std::vector<Uniform>& uniforms) override;
+    void render(const std::shared_ptr<graphics::Mesh>& mesh,
+                const std::shared_ptr<graphics::Shader>& shader,
+                const std::vector<graphics::Uniform>& uniforms) override;
 
     ReturnCode run() noexcept override;
 
 private:
-    std::shared_ptr<Backend> m_backend;
-    std::shared_ptr<Renderer> m_renderer;
+    std::shared_ptr<backend::Backend> m_backend;
+    std::shared_ptr<graphics::Renderer> m_renderer;
     std::shared_ptr<Game> m_game;
 
     TimePoint m_engineStartTime;
@@ -69,4 +69,4 @@ private:
     void render();
 };
 
-} // namespace game_engine::core
+} // namespace game_engine

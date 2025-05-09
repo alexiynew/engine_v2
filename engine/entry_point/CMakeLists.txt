@@ -17,7 +17,7 @@ target_include_directories(entry_point
 # Setup entry point on windows
 if(USE_WINMAIN)
     set_target_properties(entry_point PROPERTIES WIN32_EXECUTABLE ON)
-    target_compile_definitions(entry_point PRIVATE USE_WINMAIN)
+    target_compile_definitions(entry_point PRIVATE USE_WINMAIN_ENTRY)
 endif()
 
 set_target_properties(entry_point PROPERTIES FOLDER "engine")

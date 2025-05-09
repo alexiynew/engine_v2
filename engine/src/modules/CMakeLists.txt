@@ -7,12 +7,12 @@ target_include_directories(modules
 )
 
 include(backend/backend.cmake)
-include(renderer/renderer.cmake)
+include(graphics/graphics.cmake)
 
 target_link_libraries(modules 
     INTERFACE
     engine::modules::backend
-    engine::modules::renderer
+    engine::modules::graphics
 )
 
 set_target_properties(modules PROPERTIES FOLDER "engine/modules")
