@@ -2,8 +2,10 @@
 
 #include <iostream>
 
+#include <engine/event_system.hpp>
 #include <engine/graphics/mesh.hpp>
 #include <engine/graphics/shader.hpp>
+#include <engine/system_events.hpp>
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -153,6 +155,8 @@ void Game::onInitialize()
     if (!m_shader->link()) {
         std::cout << "Failed to load shader" << std::endl;
     }
+
+    subscribeForEvents();
 }
 
 void Game::onUpdate(std::chrono::nanoseconds)
@@ -189,17 +193,10 @@ void Game::onShutdown()
     std::cout << " -- updates count: " << m_updatesCount << std::endl;
     std::cout << " -- frames count: " << m_framesCount << std::endl;
 
+    unsubscribeFromEvents();
+
     m_shader.reset();
     m_mesh.reset();
-}
-
-void Game::onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event)
-{
-    using namespace game_engine;
-
-    if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
-        m_engine.setShouldStopFlag();
-    }
 }
 
 bool Game::onShouldClose()
@@ -222,3 +219,23 @@ game_engine::GameSettings Game::getSettings()
 
     return settings;
 }
+
+void Game::subscribeForEvents()
+{
+    using namespace game_engine;
+
+    m_subscriptions.push_back(m_engine.getEventSystem().subscribe<KeyboardInputEvent>([this](const auto& event) {
+        if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
+            m_engine.setShouldStopFlag();
+        }
+    }));
+}
+
+void Game::unsubscribeFromEvents()
+{
+    for (auto& s : m_subscriptions) {
+        s->unsubscribe();
+    }
+    m_subscriptions.clear();
+}
+

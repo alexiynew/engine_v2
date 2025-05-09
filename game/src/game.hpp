@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/event_system.hpp>
 #include <engine/game.hpp>
 
 class Game final : public game_engine::Game
@@ -8,19 +9,21 @@ public:
     explicit Game(game_engine::Engine& engine);
     ~Game() override;
 
+    // game_engine::Game
     void onInitialize() override;
     void onUpdate(std::chrono::nanoseconds elapsedTime) override;
     void onDraw() override;
     void onShutdown() override;
-
-    void onKeyboardInputEvent(const game_engine::KeyboardInputEvent& event) override;
-
     bool onShouldClose() override;
-
     game_engine::GameSettings getSettings() override;
 
 private:
+    void subscribeForEvents();
+    void unsubscribeFromEvents();
+
     game_engine::Engine& m_engine;
+
+    std::vector<game_engine::EventSystem::SubscriptionPtr> m_subscriptions;
 
     std::shared_ptr<game_engine::graphics::Shader> m_shader;
     std::shared_ptr<game_engine::graphics::Mesh> m_mesh;

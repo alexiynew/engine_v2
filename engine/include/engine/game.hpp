@@ -5,8 +5,6 @@
 
 #include <engine/engine.hpp>
 #include <engine/game_settings.hpp>
-#include <engine/keyboard.hpp>
-#include <engine/system_events.hpp>
 
 namespace game_engine
 {
@@ -28,10 +26,6 @@ public:
 
     /// @brief Called when the game is shutting down.
     virtual void onShutdown() = 0;
-
-    /// @brief Called when a keyboard input event occurs.
-    /// @param event The keyboard input event.
-    virtual void onKeyboardInputEvent(const KeyboardInputEvent& event) = 0;
 
     /// @brief Checks if the game should close.
     /// @return True if the game should close, false otherwise.
