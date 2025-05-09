@@ -25,15 +25,15 @@ public:
     OpenGLMesh& operator=(OpenGLMesh&& other) noexcept;
 
     // graphics::Mesh
-    virtual void setMeshData(const graphics::MeshData& data) override;
-    virtual void flush() override;
-    virtual void clear() noexcept override;
-    virtual bool isValid() const noexcept override;
+    void setMeshData(const graphics::MeshData& data) override;
+    void flush() override;
+    void clear() noexcept override;
+    bool isValid() const noexcept override;
 
     void render() const;
 
 private:
-    friend void swap(OpenGLMesh& a, OpenGLMesh& b);
+    friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
 
     bool loadToGPU();
 

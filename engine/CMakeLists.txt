@@ -113,6 +113,7 @@ include(cmake/cppcheck)
 include(cmake/clang_tidy)
 
 set_target_properties(engine PROPERTIES FOLDER "engine")
+set_target_properties(engine PROPERTIES EXPORT_COMPILE_COMMANDS ON)
 
 # Status
 message(STATUS "#########################################")

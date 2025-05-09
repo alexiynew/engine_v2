@@ -3,7 +3,7 @@
 add_custom_target(format-all
     COMMAND ${CMAKE_COMMAND} -P cmake/tools/format_all_command.cmake
     COMMAND_EXPAND_LISTS
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT Format all source files
 )
 

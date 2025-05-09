@@ -1,7 +1,9 @@
+# Custom target to run cppcheck
+
 find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
     add_custom_target(cppcheck
-        COMMAND ${CMAKE_COMMAND} -E make_directory build/cppcheck
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/build/cppcheck
         COMMAND ${CPPCHECK}   
                 -q
                 --enable=all   
@@ -13,10 +15,10 @@ if(CPPCHECK)
                 --inconclusive
                 --suppress=missingIncludeSystem:*
                 --suppress=checkersReport
-                --checkers-report=build/cppcheck/checkers_report.txt
-                --cppcheck-build-dir=build/cppcheck
+                --checkers-report=${CMAKE_SOURCE_DIR}/build/cppcheck/checkers_report.txt
+                --cppcheck-build-dir=${CMAKE_SOURCE_DIR}/build/cppcheck
         COMMAND_EXPAND_LISTS
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT Cppcheck source files
     )
 

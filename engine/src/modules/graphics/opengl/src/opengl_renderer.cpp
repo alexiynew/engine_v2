@@ -209,7 +209,7 @@ void OpenGLRenderer::renderLoop()
                 break;
             }
 
-            tasks = std::move(m_tasks);
+            swap(tasks, m_tasks);
         }
 
         try {

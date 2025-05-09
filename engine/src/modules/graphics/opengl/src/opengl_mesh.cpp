@@ -207,7 +207,7 @@ bool OpenGLMesh::loadToGPU()
     return true;
 }
 
-void swap(OpenGLMesh& a, OpenGLMesh& b)
+void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept
 {
     using std::swap;
 

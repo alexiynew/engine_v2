@@ -24,7 +24,7 @@ std::string_view getErrorName(unsigned int error)
 bool hasOpenGLErrors()
 {
     bool hasErrors = false;
-    while (GLuint error = glGetError()) {
+    while (const GLuint error = glGetError()) {
         if (error == GL_NO_ERROR) {
             break;
         }

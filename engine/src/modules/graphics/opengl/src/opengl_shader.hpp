@@ -37,7 +37,7 @@ public:
     int getAttributeLocation(const std::string& name) const;
 
 private:
-    friend void swap(OpenGLShader& a, OpenGLShader& b);
+    friend void swap(OpenGLShader& a, OpenGLShader& b) noexcept;
 
     int getUniformLocation(const std::string& name) const;
 

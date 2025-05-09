@@ -28,13 +28,13 @@ std::string shaderInfoLog(GLuint shaderId)
     glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
 
     if (length <= 0) {
-        return std::string();
+        return {};
     }
 
     std::unique_ptr<char[]> buffer(new char[static_cast<std::size_t>(length)]);
     glGetShaderInfoLog(shaderId, length, nullptr, buffer.get());
 
-    return std::string(buffer.get());
+    return {buffer.get()};
 }
 
 std::string shaderProgramInfoLog(GLuint programId)
@@ -43,13 +43,13 @@ std::string shaderProgramInfoLog(GLuint programId)
     glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
 
     if (length <= 0) {
-        return std::string();
+        return {};
     }
 
     std::unique_ptr<char[]> buffer(new char[static_cast<std::size_t>(length)]);
     glGetProgramInfoLog(programId, length, nullptr, buffer.get());
 
-    return std::string(buffer.get());
+    return {buffer.get()};
 }
 
 bool loadShader(GLuint shaderId, int shaderType, const std::string& source)
@@ -289,7 +289,7 @@ bool OpenGLShader::linkImpl()
     return true;
 }
 
-void swap(OpenGLShader& a, OpenGLShader& b)
+void swap(OpenGLShader& a, OpenGLShader& b) noexcept
 {
     using std::swap;
 
