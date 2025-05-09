@@ -22,8 +22,8 @@
 // public:
 //     MOCK_METHOD(bool, initialize, (), (noexcept, override));
 //     MOCK_METHOD(void, shutdown, (), (noexcept, override));
-//     MOCK_METHOD(std::shared_ptr<core::Shader>, createShader, (), (noexcept, override));
-//     MOCK_METHOD(std::shared_ptr<core::Mesh>, createMesh, (), (noexcept, override));
+//     MOCK_METHOD(std::shared_ptr<graphics::Shader>, createShader, (), (noexcept, override));
+//     MOCK_METHOD(std::shared_ptr<graphics::Mesh>, createMesh, (), (noexcept, override));
 //     MOCK_METHOD(void, addRenderCommand, (const renderer::RenderCommand&), (override));
 //     MOCK_METHOD(void, clearRenderCommands, (), (noexcept, override));
 //     MOCK_METHOD(void, executeRenderCommands, (), (noexcept, override));
@@ -45,7 +45,7 @@
 // {
 //     auto backend  = std::make_shared<BackendMock>();
 //     auto renderer = std::make_shared<RendererMock>();
-//     auto engine   = std::make_shared<game_engine::core::EngineImpl>(backend, renderer);
+//     auto engine   = std::make_shared<game_engine::graphics::EngineImpl>(backend, renderer);
 //
 //     {
 //         InSequence seq;

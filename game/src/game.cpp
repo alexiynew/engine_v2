@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include <game_engine/core/mesh.hpp>
-#include <game_engine/core/shader.hpp>
+#include <engine/graphics/mesh.hpp>
+#include <engine/graphics/shader.hpp>
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -108,22 +108,22 @@ const char* FragmentShaderSource = R"(
         }
     )";
 
-inline game_engine::core::VertexLayout getVertexLayout()
+inline game_engine::graphics::VertexLayout getVertexLayout()
 {
     return {
         .vertexSize = sizeof(Vertex),
         .attributes = {
-                       game_engine::core::generateAttribute(0, "position", &Vertex::position),
-                       game_engine::core::generateAttribute(1, "normal", &Vertex::normal),
-                       game_engine::core::generateAttribute(2, "uv", &Vertex::uv),
-                       game_engine::core::generateAttribute(3, "color", &Vertex::color),
+                       game_engine::graphics::generateAttribute(0, "position", &Vertex::position),
+                       game_engine::graphics::generateAttribute(1, "normal", &Vertex::normal),
+                       game_engine::graphics::generateAttribute(2, "uv", &Vertex::uv),
+                       game_engine::graphics::generateAttribute(3, "color", &Vertex::color),
                        }
     };
 }
 
 } // namespace
 
-Game::Game(game_engine::core::Engine& engine)
+Game::Game(game_engine::Engine& engine)
     : m_engine(engine)
 {
     std::cout << "Game::Game" << std::endl;
@@ -136,7 +136,7 @@ Game::~Game()
 
 void Game::onInitialize()
 {
-    using namespace game_engine::core;
+    using namespace game_engine::graphics;
 
     std::cout << "Game::onInitialize" << std::endl;
 
@@ -168,7 +168,7 @@ void Game::onDraw()
 
     using game_engine::Matrix4;
     using game_engine::Vector3;
-    using game_engine::core::Uniform;
+    using game_engine::graphics::Uniform;
 
     const auto model      = glm::rotate(Matrix4(1.0f), time, Vector3(0.5f, 1.0f, 0.0f));
     const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));

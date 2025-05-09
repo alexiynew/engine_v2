@@ -72,7 +72,7 @@ enum Directions;
 Use `snake_case` for namespace names.
 
 ```cpp
-namespace game_engine::core;
+namespace game_engine::graphics;
 using namespace game_engine;
 ```
 

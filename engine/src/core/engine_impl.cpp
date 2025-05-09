@@ -14,16 +14,16 @@ inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
 
 } // namespace
 
-namespace game_engine::core
+namespace game_engine
 {
 
 EngineImpl::EngineImpl()
 {
-    ModuleFactory<Backend>::RegisterModule();
-    ModuleFactory<Renderer>::RegisterModule();
+    ModuleFactory<backend::Backend>::RegisterModule();
+    ModuleFactory<graphics::Renderer>::RegisterModule();
 
-    m_backend  = ModuleFactory<Backend>::Create();
-    m_renderer = ModuleFactory<Renderer>::Create(m_backend->getRenderContext());
+    m_backend  = ModuleFactory<backend::Backend>::Create();
+    m_renderer = ModuleFactory<graphics::Renderer>::Create(m_backend->getRenderContext());
 
     m_game = createGameInstance(*this);
 }
@@ -100,21 +100,21 @@ void EngineImpl::setShouldStopFlag() noexcept
     m_shouldStop = true;
 }
 
-std::shared_ptr<Mesh> EngineImpl::createMesh()
+std::shared_ptr<graphics::Mesh> EngineImpl::createMesh()
 {
     return m_renderer->createMesh();
 }
 
-std::shared_ptr<Shader> EngineImpl::createShader()
+std::shared_ptr<graphics::Shader> EngineImpl::createShader()
 {
     return m_renderer->createShader();
 }
 
-void EngineImpl::render(const std::shared_ptr<Mesh>& mesh,
-                        const std::shared_ptr<Shader>& shader,
-                        const std::vector<Uniform>& uniforms)
+void EngineImpl::render(const std::shared_ptr<graphics::Mesh>& mesh,
+                        const std::shared_ptr<graphics::Shader>& shader,
+                        const std::vector<graphics::Uniform>& uniforms)
 {
-    RenderCommand cmd;
+    graphics::RenderCommand cmd;
     cmd.mesh          = mesh;
     cmd.shader        = shader;
     cmd.uniforms      = uniforms;
@@ -217,4 +217,4 @@ void EngineImpl::render()
     m_renderer->clearRenderCommands();
 }
 
-} // namespace game_engine::core
+} // namespace game_engine

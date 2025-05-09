@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include <game_engine/game_settings.hpp>
-#include <game_engine/system_events.hpp>
+#include <engine/game_settings.hpp>
+#include <engine/system_events.hpp>
 
 #include <modules/render_context.hpp>
 

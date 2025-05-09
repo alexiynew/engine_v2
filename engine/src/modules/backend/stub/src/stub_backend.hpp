@@ -1,6 +1,6 @@
 #pragma once
 
-#include <modules/backend.hpp>
+#include <modules/backend/backend.hpp>
 #include <modules/render_context.hpp>
 
 namespace game_engine::backend

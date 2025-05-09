@@ -23,3 +23,4 @@ target_link_libraries(game
 )
 
 set_target_properties(game PROPERTIES FOLDER "game")
+set_target_properties(game PROPERTIES WIN32_EXECUTABLE $<TARGET_PROPERTY:entry_point,WIN32_EXECUTABLE>)

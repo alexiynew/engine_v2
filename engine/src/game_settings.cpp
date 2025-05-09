@@ -1,4 +1,4 @@
-#include <game_engine/game_settings.hpp>
+#include <engine/game_settings.hpp>
 
 namespace game_engine
 {
