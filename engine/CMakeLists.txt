@@ -93,11 +93,10 @@ add_subdirectory(src/modules)
 
 target_link_libraries(engine 
     PUBLIC 
-        engine::compile_options
-        engine::entry_point
         third_party::glm
 
     PRIVATE
+        engine::compile_options
         engine::modules
 )
 

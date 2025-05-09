@@ -16,10 +16,16 @@ target_include_directories(game
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+target_compile_features(game 
+    PRIVATE 
+        cxx_std_23
+)
+
 # Link libraries
 target_link_libraries(game
     PRIVATE 
         engine
+        entry_point
 )
 
 set_target_properties(game PROPERTIES FOLDER "game")
