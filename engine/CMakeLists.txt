@@ -62,6 +62,7 @@ target_sources(engine
         include/engine/game.hpp
         include/engine/keyboard.hpp
         include/engine/event_system.hpp
+        include/engine/window_events.hpp
         include/engine/graphics/mesh_data.hpp
         include/engine/graphics/mesh.hpp
         include/engine/graphics/model_loader.hpp

@@ -5,7 +5,7 @@
 #include <engine/event_system.hpp>
 #include <engine/graphics/mesh.hpp>
 #include <engine/graphics/shader.hpp>
-#include <engine/system_events.hpp>
+#include <engine/window_events.hpp>
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>

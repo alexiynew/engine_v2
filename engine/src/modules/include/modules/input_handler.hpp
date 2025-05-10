@@ -5,7 +5,7 @@
 #include <string>
 
 #include <engine/game_settings.hpp>
-#include <engine/system_events.hpp>
+#include <engine/window_events.hpp>
 
 #include <modules/render_context.hpp>
 
