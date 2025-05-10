@@ -233,9 +233,6 @@ void Game::subscribeForEvents()
 
 void Game::unsubscribeFromEvents()
 {
-    for (auto& s : m_subscriptions) {
-        s->unsubscribe();
-    }
     m_subscriptions.clear();
 }
 
