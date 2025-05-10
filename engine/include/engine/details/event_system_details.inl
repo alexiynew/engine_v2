@@ -1,3 +1,7 @@
+#pragma once
+
+#include <engine/event_system.hpp>
+
 namespace game_engine
 {
 template <typename Event>
@@ -24,10 +28,16 @@ public:
             , m_id(id)
         {}
 
-        ~SubscriptionImpl()
+        ~SubscriptionImpl() override
         {
             unsubscribe();
         }
+
+        SubscriptionImpl(const SubscriptionImpl&) = delete;
+        SubscriptionImpl(SubscriptionImpl&&)      = default;
+
+        SubscriptionImpl& operator=(const SubscriptionImpl&) = delete;
+        SubscriptionImpl& operator=(SubscriptionImpl&&)      = default;
 
         void unsubscribe() const override
         {
@@ -85,6 +95,7 @@ public:
                 }
             } catch (...) {
                 // TODO: Error handling
+                throw std::current_exception();
             }
         }
     }
@@ -121,4 +132,5 @@ private:
     std::unordered_map<HandlerId, typename std::list<HandlerNode>::iterator> m_handlersMap;
     HandlerId m_nextId{1};
 };
+
 } // namespace game_engine

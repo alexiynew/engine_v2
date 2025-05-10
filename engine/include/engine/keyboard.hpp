@@ -1,12 +1,14 @@
 #pragma once
 
+#include <cstdint>
+
 namespace game_engine
 {
 
 /// @brief Enumeration of key codes.
-enum class KeyCode
+enum class KeyCode : std::uint32_t
 {
-    Unknown = -1,
+    Unknown = 0,
 
     /// Printable keys
     Space        = 32,
@@ -138,7 +140,7 @@ enum class KeyCode
 };
 
 /// @brief Enumeration of key actions.
-enum class KeyAction
+enum class KeyAction : std::uint32_t
 {
     None,
     Press,
@@ -147,7 +149,7 @@ enum class KeyAction
 };
 
 /// @brief Enumeration of key modifiers.
-enum class KeyModifier
+enum class KeyModifier : std::uint32_t
 {
     None    = 0,
     Shift   = 1,
