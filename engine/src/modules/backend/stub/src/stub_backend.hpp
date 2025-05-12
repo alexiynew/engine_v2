@@ -20,15 +20,15 @@ public:
     void shutdown() override;
     void pollEvents() override;
 
-    std::shared_ptr<RenderContext> getRenderContext() override;
+    std::shared_ptr<const RenderContext> getRenderContext() const override;
 
     void attachBackendObserver(BackendObserver& observer) override;
     void detachBackendObserver(const BackendObserver& observer) override;
 
     // renderer::RenderContext
-    void makeCurrent() override;
-    void dropCurrent() override;
-    void swapBuffers() override;
+    void makeCurrent() const override;
+    void dropCurrent() const override;
+    void swapBuffers() const override;
 
 private:
     int m_framesCount       = 0;

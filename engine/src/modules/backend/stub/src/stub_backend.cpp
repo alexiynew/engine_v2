@@ -30,7 +30,7 @@ void StubBackend::pollEvents()
     }
 }
 
-std::shared_ptr<RenderContext> StubBackend::getRenderContext()
+std::shared_ptr<const RenderContext> StubBackend::getRenderContext() const
 {
     return shared_from_this();
 }
@@ -45,13 +45,13 @@ void StubBackend::detachBackendObserver(const BackendObserver& observer)
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }
 
-void StubBackend::makeCurrent()
+void StubBackend::makeCurrent() const
 {}
 
-void StubBackend::dropCurrent()
+void StubBackend::dropCurrent() const
 {}
 
-void StubBackend::swapBuffers()
+void StubBackend::swapBuffers() const
 {}
 
 } // namespace game_engine::backend

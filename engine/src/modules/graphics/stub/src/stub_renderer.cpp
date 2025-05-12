@@ -6,12 +6,12 @@
 namespace game_engine::graphics
 {
 
-std::shared_ptr<Renderer> createRendererInstance(std::shared_ptr<RenderContext> context)
+std::shared_ptr<Renderer> createRendererInstance(std::shared_ptr<const RenderContext> context)
 {
     return std::make_shared<StubRenderer>(std::move(context));
 }
 
-StubRenderer::StubRenderer(std::shared_ptr<RenderContext>)
+StubRenderer::StubRenderer(std::shared_ptr<const RenderContext>)
 {}
 
 StubRenderer::~StubRenderer() = default;
