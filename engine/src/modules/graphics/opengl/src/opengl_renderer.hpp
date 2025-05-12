@@ -23,7 +23,7 @@ class OpenGLRenderer final
 public:
     using Task = std::function<void()>;
 
-    explicit OpenGLRenderer(std::shared_ptr<RenderContext> context);
+    explicit OpenGLRenderer(std::shared_ptr<const RenderContext> context);
     ~OpenGLRenderer() override;
 
     OpenGLRenderer(const OpenGLRenderer&)  = delete;
@@ -50,7 +50,7 @@ private:
 
     void renderLoop();
 
-    std::shared_ptr<RenderContext> m_context;
+    std::shared_ptr<const RenderContext> m_context;
 
     std::atomic<bool> m_running{false};
     std::thread m_thread;

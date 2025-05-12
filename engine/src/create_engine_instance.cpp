@@ -1,6 +1,6 @@
 #include <engine/engine.hpp>
 
-#include <core/engine_impl.hpp>
+#include <engine_impl.hpp>
 
 namespace game_engine
 {

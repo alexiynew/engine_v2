@@ -24,15 +24,15 @@ public:
     void shutdown() override;
     void pollEvents() override;
 
-    std::shared_ptr<RenderContext> getRenderContext() override;
+    std::shared_ptr<const RenderContext> getRenderContext() const override;
 
     void attachBackendObserver(BackendObserver& observer) override;
     void detachBackendObserver(const BackendObserver& observer) override;
 
     // RenderContext
-    void makeCurrent() override;
-    void dropCurrent() override;
-    void swapBuffers() override;
+    void makeCurrent() const override;
+    void dropCurrent() const override;
+    void swapBuffers() const override;
 
     // Event handling
     void handleKeyEvent(int key, int scancode, int action, int mods);
@@ -52,7 +52,7 @@ private:
     template <typename EventType>
     void notify(const EventType& event);
 
-    std::mutex m_windowMutex;
+    mutable std::mutex m_windowMutex;
     GLFWwindow* m_window = nullptr;
 
     std::list<RefObserver> m_observers;

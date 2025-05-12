@@ -10,7 +10,7 @@
 namespace game_engine::graphics
 {
 
-OpenGLRenderer::OpenGLRenderer(std::shared_ptr<RenderContext> context)
+OpenGLRenderer::OpenGLRenderer(std::shared_ptr<const RenderContext> context)
     : m_context(std::move(context))
 {}
 

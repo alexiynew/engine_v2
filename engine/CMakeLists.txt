@@ -70,11 +70,11 @@ target_sources(engine
         include/engine/graphics/vertex_traits.hpp
         include/engine/details/event_system_details.inl
     PRIVATE
+        src/create_engine_instance.cpp
         src/game_settings.cpp
         src/event_system.cpp
-        src/core/create_engine_instance.cpp
-        src/core/engine_impl.cpp
-        src/core/engine_impl.hpp
+        src/engine_impl.cpp
+        src/engine_impl.hpp
         src/modules/include/modules/module_factory.hpp
         src/modules/include/modules/backend/backend.hpp
         src/modules/include/modules/graphics/renderer.hpp
