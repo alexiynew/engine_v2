@@ -174,7 +174,7 @@ void GLFWBackend::detachBackendObserver(const BackendObserver& observer)
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }
 
-std::shared_ptr<RenderContext> GLFWBackend::getRenderContext()
+std::shared_ptr<const RenderContext> GLFWBackend::getRenderContext() const
 {
     return shared_from_this();
 }
@@ -183,19 +183,19 @@ std::shared_ptr<RenderContext> GLFWBackend::getRenderContext()
 
 #pragma region RenderContext
 
-void GLFWBackend::makeCurrent()
+void GLFWBackend::makeCurrent() const
 {
     std::lock_guard lock(m_windowMutex);
     glfwMakeContextCurrent(m_window);
 }
 
-void GLFWBackend::dropCurrent()
+void GLFWBackend::dropCurrent() const
 {
     std::lock_guard lock(m_windowMutex);
     glfwMakeContextCurrent(nullptr);
 }
 
-void GLFWBackend::swapBuffers()
+void GLFWBackend::swapBuffers() const
 {
     std::lock_guard lock(m_windowMutex);
     glfwSwapBuffers(m_window);

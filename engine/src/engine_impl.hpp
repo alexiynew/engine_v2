@@ -23,38 +23,20 @@ public:
     // Engine
     TimePoint getTime() const noexcept override;
     bool shouldStop() const noexcept override;
-
     void setShouldStopFlag() noexcept override;
-
     std::shared_ptr<graphics::Mesh> createMesh() override;
     std::shared_ptr<graphics::Shader> createShader() override;
-
     void render(const std::shared_ptr<graphics::Mesh>& mesh,
                 const std::shared_ptr<graphics::Shader>& shader,
                 const std::vector<graphics::Uniform>& uniforms) override;
-
     ReturnCode run() noexcept override;
 
+    [[nodiscard]]
+    EventSystem& getEventSystem() const override;
+
 private:
-    std::shared_ptr<backend::Backend> m_backend;
-    std::shared_ptr<graphics::Renderer> m_renderer;
-    std::shared_ptr<Game> m_game;
-
-    TimePoint m_engineStartTime;
-    bool m_shouldStop = false;
-
-    std::chrono::nanoseconds m_targetUpdateTime;
-    std::chrono::nanoseconds m_targetFrameTime;
-
-    std::size_t m_updates          = 0;
-    std::size_t m_frames           = 0;
-    std::size_t m_updatesPerSecond = 0;
-    std::size_t m_framesPerSecond  = 0;
-    std::size_t m_totalFrames      = 0;
-
     // BackendEventHandler
     void onEvent(const KeyboardInputEvent& event) override;
-
     void onEvent(const WindowResizeEvent& event) override;
     void onEvent(const WindowMoveEvent& event) override;
     void onEvent(const WindowCloseEvent& event) override;
@@ -67,6 +49,25 @@ private:
 
     void update(std::chrono::nanoseconds elapsedTime);
     void render();
+
+    std::shared_ptr<backend::Backend> m_backend;
+    std::shared_ptr<graphics::Renderer> m_renderer;
+
+    std::shared_ptr<EventSystem> m_eventSystem;
+
+    std::shared_ptr<Game> m_game;
+
+    TimePoint m_engineStartTime;
+    bool m_shouldStop = false;
+
+    std::chrono::nanoseconds m_targetUpdateTime{};
+    std::chrono::nanoseconds m_targetFrameTime{};
+
+    std::size_t m_updates          = 0;
+    std::size_t m_frames           = 0;
+    std::size_t m_updatesPerSecond = 0;
+    std::size_t m_framesPerSecond  = 0;
+    std::size_t m_totalFrames      = 0;
 };
 
 } // namespace game_engine

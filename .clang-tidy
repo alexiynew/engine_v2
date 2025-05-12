@@ -1,0 +1,31 @@
+---
+Checks: '-*,
+clang-diagnostic-*,
+clang-analyzer-*,
+modernize-*,
+bugprone-*,
+concurrency-*,
+misc-const-correctness,
+performance-*,
+cppcoreguidelines-*,
+-modernize-use-trailing-return-type'
+
+WarningsAsErrors: ''
+HeaderFileExtensions:
+  - ''
+  - h
+  - hh
+  - hpp
+  - hxx
+  - inl
+ImplementationFileExtensions:
+  - c
+  - cc
+  - cpp
+  - cxx
+HeaderFilterRegex: '\"^.*(include|src|tests).*\"'
+FormatStyle:     none
+
+UseColor: true
+
+SystemHeaders:   false

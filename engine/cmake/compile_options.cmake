@@ -21,6 +21,7 @@ set(GCC_OPTIONS
     -Wno-unused-parameter
     -Wno-sign-conversion
     -Wno-unused-variable
+    -Wno-unknown-pragmas
     -Werror
 )
 

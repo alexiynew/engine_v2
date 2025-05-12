@@ -61,16 +61,20 @@ target_sources(engine
         include/engine/game_settings.hpp
         include/engine/game.hpp
         include/engine/keyboard.hpp
+        include/engine/event_system.hpp
+        include/engine/window_events.hpp
         include/engine/graphics/mesh_data.hpp
         include/engine/graphics/mesh.hpp
         include/engine/graphics/model_loader.hpp
         include/engine/graphics/shader.hpp
         include/engine/graphics/vertex_traits.hpp
+        include/engine/details/event_system_details.inl
     PRIVATE
+        src/create_engine_instance.cpp
         src/game_settings.cpp
-        src/core/create_engine_instance.cpp
-        src/core/engine_impl.cpp
-        src/core/engine_impl.hpp
+        src/event_system.cpp
+        src/engine_impl.cpp
+        src/engine_impl.hpp
         src/modules/include/modules/module_factory.hpp
         src/modules/include/modules/backend/backend.hpp
         src/modules/include/modules/graphics/renderer.hpp

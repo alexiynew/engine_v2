@@ -8,9 +8,9 @@ class RenderContext
 public:
     virtual ~RenderContext() = default;
 
-    virtual void makeCurrent() = 0;
-    virtual void dropCurrent() = 0;
-    virtual void swapBuffers() = 0;
+    virtual void makeCurrent() const = 0;
+    virtual void dropCurrent() const = 0;
+    virtual void swapBuffers() const = 0;
 };
 
 } // namespace game_engine

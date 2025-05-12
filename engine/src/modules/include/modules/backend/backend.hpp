@@ -5,7 +5,7 @@
 #include <string>
 
 #include <engine/game_settings.hpp>
-#include <engine/system_events.hpp>
+#include <engine/window_events.hpp>
 
 #include <modules/input_handler.hpp>
 #include <modules/render_context.hpp>
@@ -31,7 +31,7 @@ public:
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;
 
-    virtual std::shared_ptr<RenderContext> getRenderContext() = 0;
+    virtual std::shared_ptr<const RenderContext> getRenderContext() const = 0;
 
     virtual void attachBackendObserver(BackendObserver& observer)       = 0;
     virtual void detachBackendObserver(const BackendObserver& observer) = 0;

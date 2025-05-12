@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include <engine/event_system.hpp>
 #include <engine/graphics/mesh.hpp>
-#include <engine/graphics/model_loader.hpp>
 #include <engine/graphics/shader.hpp>
 
 namespace game_engine
@@ -43,13 +43,16 @@ public:
     /// @brief Renders a mesh with shader.
     /// @param mesh Mesh to render.
     /// @param shader Shader ot use to render mesh.
-    /// @param unifors Unifors to use in shader.
+    /// @param uniforms Uniforms to use in shader.
     virtual void render(const std::shared_ptr<graphics::Mesh>& mesh,
                         const std::shared_ptr<graphics::Shader>& shader,
                         const std::vector<graphics::Uniform>& uniforms) = 0;
 
     /// @brief Sets the flag to stop the engine.
     virtual void setShouldStopFlag() noexcept = 0;
+
+    [[nodiscard]]
+    virtual EventSystem& getEventSystem() const = 0;
 
     virtual ReturnCode run() noexcept = 0;
 };

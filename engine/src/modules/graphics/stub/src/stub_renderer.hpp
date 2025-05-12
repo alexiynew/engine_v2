@@ -9,7 +9,7 @@ namespace game_engine::graphics
 class StubRenderer final : public Renderer
 {
 public:
-    explicit StubRenderer(std::shared_ptr<RenderContext> context);
+    explicit StubRenderer(std::shared_ptr<const RenderContext> context);
     ~StubRenderer() override;
 
     // Renderer
