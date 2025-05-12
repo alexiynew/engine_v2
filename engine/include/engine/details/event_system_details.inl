@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 #include <engine/event_system.hpp>
 
 namespace game_engine
@@ -67,7 +69,7 @@ public:
         std::lock_guard lock(m_mutex);
         HandlerId id = m_nextId++;
 
-        auto it = addHandler({id, std::move(handler), priority});
+        std::ignore = addHandler({id, std::move(handler), priority});
         return std::make_unique<SubscriptionImpl>(this->weak_from_this(), id);
     }
 
