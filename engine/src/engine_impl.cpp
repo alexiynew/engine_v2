@@ -18,6 +18,8 @@ EngineImpl::EngineImpl(const ServiceLocator& locator)
     m_backend  = locator.resolve<backend::Backend>();
     m_renderer = locator.resolve<graphics::Renderer>(m_backend->getRenderContext());
 
+    m_game = locator.resolve<Game>(*this);
+
     m_eventSystem = std::make_shared<EventSystem>();
 }
 
@@ -72,11 +74,6 @@ EventSystem& EngineImpl::getEventSystem() const
 #pragma endregion
 
 #pragma region EngineImpl public
-
-void EngineImpl::setGameInstance(std::shared_ptr<Game>&& game) noexcept
-{
-    m_game = std::move(game);
-}
 
 int EngineImpl::run() noexcept
 {

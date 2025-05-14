@@ -11,13 +11,19 @@
 
 namespace game_engine
 {
-class ServiceLocator;
 
 template <typename T, typename... Args>
-concept ModuleInterface = requires(Args&&... args) {
+concept ModuleInterfaceWithArgs = requires(Args&&... args) {
     {
         T::Create(std::forward<Args>(args)...)
     } -> std::same_as<std::shared_ptr<T>>;
+};
+
+template <typename T>
+concept ModuleInterface = requires {
+    {
+        T::Create
+    } -> std::convertible_to<decltype(&T::Create)>;
 };
 
 class ServiceLocator final
@@ -32,8 +38,8 @@ public:
     ServiceLocator& operator=(const ServiceLocator&) = delete;
     ServiceLocator& operator=(ServiceLocator&&)      = default;
 
-    template <typename Interface>
-    void registerFactory()
+    template <ModuleInterface Interface>
+    void registerModule()
     {
         const std::type_index key{typeid(Interface)};
         if (m_creators.contains(key)) {
@@ -50,8 +56,8 @@ public:
         m_creators[key] = std::move(wrapper);
     }
 
-    template <typename Interface, typename... Args>
-    requires ModuleInterface<Interface, Args...>
+    template <ModuleInterface Interface, typename... Args>
+    requires ModuleInterfaceWithArgs<Interface, Args...>
     std::shared_ptr<Interface> resolve(Args&&... args) const
     {
         const std::type_index key{typeid(Interface)};

@@ -12,6 +12,8 @@ namespace game_engine
 class Game
 {
 public:
+    static std::shared_ptr<Game> Create(Engine& engine);
+
     virtual ~Game() = default;
 
     /// @brief Called when the game is initialized.
@@ -35,7 +37,5 @@ public:
     /// @return Current game settings.
     virtual GameSettings getSettings() = 0;
 };
-
-std::shared_ptr<Game> CreateGameInstance(Engine& engine);
 
 } // namespace game_engine

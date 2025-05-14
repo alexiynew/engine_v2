@@ -5,7 +5,7 @@ add_executable(game)
 
 target_sources(game
     PRIVATE
-        src/create_game_instance.cpp
+        src/game_create.cpp
         src/game.cpp
         src/game.hpp
 )

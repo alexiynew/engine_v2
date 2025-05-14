@@ -25,19 +25,15 @@ int main(int argc, char* argv[])
         const ServiceLocator locator = []() {
             ServiceLocator sl;
 
-            sl.registerFactory<backend::Backend>();
-            sl.registerFactory<graphics::Renderer>();
+            sl.registerModule<backend::Backend>();
+            sl.registerModule<graphics::Renderer>();
+            sl.registerModule<Game>();
 
             return sl;
         }();
 
         EngineImpl engine(locator);
-
-        auto game = CreateGameInstance(engine);
-        engine.setGameInstance(std::move(game));
-        auto returnCode = engine.run();
-
-        return returnCode;
+        return engine.run();
 
     } catch (std::exception& e) {
         LOG_ERROR << e.what() << std::endl;

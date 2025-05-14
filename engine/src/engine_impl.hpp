@@ -34,7 +34,6 @@ public:
     [[nodiscard]]
     EventSystem& getEventSystem() const override;
 
-    void setGameInstance(std::shared_ptr<Game>&& game) noexcept;
     ReturnCode run() noexcept;
 
 private:
