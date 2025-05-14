@@ -12,12 +12,12 @@ StubBackend::StubBackend() = default;
 
 StubBackend::~StubBackend() = default;
 
-bool StubBackend::initialize(const GameSettings&)
+bool StubBackend::init(const GameSettings&) noexcept
 {
     return true;
 }
 
-void StubBackend::shutdown()
+void StubBackend::shutdown() noexcept
 {}
 
 void StubBackend::pollEvents()

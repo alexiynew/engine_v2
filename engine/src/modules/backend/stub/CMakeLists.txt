@@ -5,7 +5,7 @@ add_library(stub_backend STATIC)
 
 target_sources(stub_backend
     PRIVATE
-        src/backend_module_registrar.cpp
+        src/backend_create.cpp
         src/stub_backend.hpp
         src/stub_backend.cpp
 )

@@ -9,11 +9,11 @@ namespace game_engine::graphics
 class StubRenderer final : public Renderer
 {
 public:
-    explicit StubRenderer(std::shared_ptr<const RenderContext> context);
+    StubRenderer();
     ~StubRenderer() override;
 
     // Renderer
-    bool initialize() noexcept override;
+    bool init(std::shared_ptr<const RenderContext>) noexcept override;
     void shutdown() noexcept override;
 
     std::shared_ptr<graphics::Shader> createShader() override;
