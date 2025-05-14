@@ -55,7 +55,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 add_library(engine STATIC)
 
 target_sources(engine
-    PUBLIC
+    PRIVATE
         include/engine/common_types.hpp
         include/engine/engine.hpp
         include/engine/game_settings.hpp
@@ -69,15 +69,10 @@ target_sources(engine
         include/engine/graphics/shader.hpp
         include/engine/graphics/vertex_traits.hpp
         include/engine/details/event_system_details.inl
-    PRIVATE
-        src/create_engine_instance.cpp
         src/game_settings.cpp
         src/event_system.cpp
         src/engine_impl.cpp
         src/engine_impl.hpp
-        src/modules/include/modules/module_factory.hpp
-        src/modules/include/modules/backend/backend.hpp
-        src/modules/include/modules/graphics/renderer.hpp
 )
 
 target_include_directories(engine 
@@ -85,7 +80,6 @@ target_include_directories(engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/include
 )
 
 # Include engine parts
@@ -96,6 +90,9 @@ add_subdirectory(entry_point)
 add_subdirectory(src/modules)
 
 target_link_libraries(engine 
+    INTERFACE 
+        engine::entry_point
+
     PUBLIC 
         third_party::glm
 
@@ -117,6 +114,9 @@ include(cmake/clang_tidy)
 
 set_target_properties(engine PROPERTIES FOLDER "engine")
 set_target_properties(engine PROPERTIES EXPORT_COMPILE_COMMANDS ON)
+if(USE_WINMAIN)
+    set_target_properties(engine PROPERTIES WIN32_EXECUTABLE ON)
+endif()
 
 # Status
 message(STATUS "#########################################")

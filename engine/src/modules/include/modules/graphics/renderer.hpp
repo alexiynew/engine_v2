@@ -5,6 +5,8 @@
 #include <engine/graphics/mesh.hpp>
 #include <engine/graphics/shader.hpp>
 
+#include <modules/render_context.hpp>
+
 namespace game_engine::graphics
 {
 
@@ -21,8 +23,10 @@ class Renderer
 public:
     virtual ~Renderer() = default;
 
-    virtual bool initialize() noexcept = 0;
-    virtual void shutdown() noexcept   = 0;
+    static std::shared_ptr<Renderer> Create();
+
+    virtual bool init(std::shared_ptr<const RenderContext> context) noexcept = 0;
+    virtual void shutdown() noexcept                                         = 0;
 
     virtual std::shared_ptr<Shader> createShader() = 0;
     virtual std::shared_ptr<Mesh> createMesh()     = 0;

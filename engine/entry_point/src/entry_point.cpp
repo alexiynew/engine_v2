@@ -2,7 +2,15 @@
     #include <windows.h>
 #endif
 
-#include <engine/engine.hpp>
+#include <engine/game.hpp>
+
+#include <modules/backend/backend.hpp>
+#include <modules/graphics/renderer.hpp>
+
+#include <engine_impl.hpp>
+
+#define LOG_ERROR std::cerr
+#include <iostream>
 
 #ifdef USE_WINMAIN_ENTRY
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -11,5 +19,27 @@ int main(int argc, char* argv[])
 #endif
 
 {
-    return game_engine::createEngineInstance()->run();
+    using namespace game_engine;
+
+    try {
+        auto createModuleLocator = []() {
+            ModuleLocator ml;
+
+            ml.setImplementation(backend::Backend::Create());
+            ml.setImplementation(graphics::Renderer::Create());
+            ml.setImplementation(Game::Create());
+
+            return ml;
+        };
+
+        auto engine = std::make_shared<EngineImpl>(createModuleLocator());
+        return engine->run();
+
+    } catch (std::exception& e) {
+        LOG_ERROR << e.what() << std::endl;
+        return -1;
+    } catch (...) {
+        LOG_ERROR << "Unknown exception" << std::endl;
+        return -1;
+    }
 }

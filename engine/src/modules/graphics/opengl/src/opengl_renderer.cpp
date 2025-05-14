@@ -10,8 +10,7 @@
 namespace game_engine::graphics
 {
 
-OpenGLRenderer::OpenGLRenderer(std::shared_ptr<const RenderContext> context)
-    : m_context(std::move(context))
+OpenGLRenderer::OpenGLRenderer()
 {}
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -21,9 +20,11 @@ OpenGLRenderer::~OpenGLRenderer()
 
 #pragma region Renderer
 
-bool OpenGLRenderer::initialize() noexcept
+bool OpenGLRenderer::init(std::shared_ptr<const RenderContext> context) noexcept
 {
     try {
+        m_context = std::move(context);
+
         m_running.store(true, std::memory_order_release);
         m_thread = std::thread(&OpenGLRenderer::renderLoop, this);
 

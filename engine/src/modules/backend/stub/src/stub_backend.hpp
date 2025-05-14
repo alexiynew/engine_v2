@@ -16,10 +16,10 @@ public:
     ~StubBackend() override;
 
     // Backend
-    bool initialize(const GameSettings&) override;
-    void shutdown() override;
-    void pollEvents() override;
+    bool init(const GameSettings&) noexcept override;
+    void shutdown() noexcept override;
 
+    void pollEvents() override;
     std::shared_ptr<const RenderContext> getRenderContext() const override;
 
     void attachBackendObserver(BackendObserver& observer) override;

@@ -23,7 +23,7 @@ class OpenGLRenderer final
 public:
     using Task = std::function<void()>;
 
-    explicit OpenGLRenderer(std::shared_ptr<const RenderContext> context);
+    OpenGLRenderer();
     ~OpenGLRenderer() override;
 
     OpenGLRenderer(const OpenGLRenderer&)  = delete;
@@ -33,7 +33,7 @@ public:
     OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete;
 
     // Renderer
-    bool initialize() noexcept override;
+    bool init(std::shared_ptr<const RenderContext> context) noexcept override;
     void shutdown() noexcept override;
 
     std::shared_ptr<graphics::Shader> createShader() override;

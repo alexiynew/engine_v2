@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(entry_point VERSION 1.0.0 LANGUAGES CXX)
 
-
 add_library(entry_point OBJECT)
 
 target_sources(entry_point
@@ -11,8 +10,16 @@ target_sources(entry_point
 
 target_include_directories(entry_point
     PRIVATE
-        $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/engine/src
 )
+
+target_link_libraries(entry_point
+    PRIVATE
+        engine
+        engine::compile_options
+        engine::modules
+)   
 
 # Setup entry point on windows
 if(USE_WINMAIN)

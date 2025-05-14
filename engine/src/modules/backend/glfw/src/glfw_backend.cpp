@@ -102,7 +102,7 @@ GLFWBackend::~GLFWBackend()
 
 #pragma region Backend
 
-bool GLFWBackend::initialize(const GameSettings& settings)
+bool GLFWBackend::init(const GameSettings& settings) noexcept
 {
     std::lock_guard lock(m_windowMutex);
 
@@ -147,7 +147,7 @@ bool GLFWBackend::initialize(const GameSettings& settings)
     return true;
 }
 
-void GLFWBackend::shutdown()
+void GLFWBackend::shutdown() noexcept
 {
     std::lock_guard lock(m_windowMutex);
     if (m_window) {

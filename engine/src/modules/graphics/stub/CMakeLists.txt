@@ -5,7 +5,7 @@ add_library(stub_graphics STATIC)
 
 target_sources(stub_graphics
     PRIVATE
-        src/graphics_module_factory.cpp
+        src/graphics_create.cpp
         src/stub_mesh.cpp
         src/stub_mesh.hpp
         src/stub_shader.cpp

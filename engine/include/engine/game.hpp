@@ -12,10 +12,12 @@ namespace game_engine
 class Game
 {
 public:
+    static std::shared_ptr<Game> Create();
+
     virtual ~Game() = default;
 
-    /// @brief Called when the game is initialized.
-    virtual void onInitialize() = 0;
+    virtual bool init(std::shared_ptr<game_engine::Engine> engine) noexcept = 0;
+    virtual void shutdown() noexcept                                        = 0;
 
     /// @brief Called every frame to update the game state.
     /// @param elapsedTime The time elapsed since the last update.
@@ -23,9 +25,6 @@ public:
 
     /// @brief Called every frame to render the game.
     virtual void onDraw() = 0;
-
-    /// @brief Called when the game is shutting down.
-    virtual void onShutdown() = 0;
 
     /// @brief Checks if the game should close.
     /// @return True if the game should close, false otherwise.
@@ -35,10 +34,5 @@ public:
     /// @return Current game settings.
     virtual GameSettings getSettings() = 0;
 };
-
-/// @brief Creates a new instance of the game.
-/// @param engine The engine instance to associate with the game.
-/// @return A shared pointer to the created game instance.
-std::shared_ptr<Game> createGameInstance(Engine& engine);
 
 } // namespace game_engine

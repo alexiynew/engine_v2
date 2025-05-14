@@ -6,18 +6,20 @@
 
 #include <modules/backend/backend.hpp>
 #include <modules/graphics/renderer.hpp>
+#include <modules/module_locator.hpp>
 
 namespace game_engine
 {
 
 class EngineImpl final
     : public Engine
+    , public std::enable_shared_from_this<EngineImpl>
     , private BackendObserver
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    EngineImpl();
+    explicit EngineImpl(const ModuleLocator& locator);
     ~EngineImpl() override;
 
     // Engine
@@ -29,10 +31,11 @@ public:
     void render(const std::shared_ptr<graphics::Mesh>& mesh,
                 const std::shared_ptr<graphics::Shader>& shader,
                 const std::vector<graphics::Uniform>& uniforms) override;
-    ReturnCode run() noexcept override;
 
     [[nodiscard]]
     EventSystem& getEventSystem() const override;
+
+    ReturnCode run() noexcept;
 
 private:
     // BackendEventHandler
