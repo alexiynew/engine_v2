@@ -53,10 +53,6 @@ public:
 
     [[nodiscard]]
     virtual EventSystem& getEventSystem() const = 0;
-
-    virtual ReturnCode run() noexcept = 0;
 };
-
-std::shared_ptr<Engine> createEngineInstance();
 
 } // namespace game_engine

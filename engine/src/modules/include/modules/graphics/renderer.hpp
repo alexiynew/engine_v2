@@ -5,6 +5,9 @@
 #include <engine/graphics/mesh.hpp>
 #include <engine/graphics/shader.hpp>
 
+#include <modules/module_registrar.hpp>
+#include <modules/render_context.hpp>
+
 namespace game_engine::graphics
 {
 
@@ -33,3 +36,14 @@ public:
 };
 
 } // namespace game_engine::graphics
+
+namespace game_engine
+{
+
+template <>
+struct ModuleRegistrar<graphics::Renderer>
+{
+    static std::shared_ptr<graphics::Renderer> Create(std::shared_ptr<const RenderContext> context);
+};
+
+} // namespace game_engine

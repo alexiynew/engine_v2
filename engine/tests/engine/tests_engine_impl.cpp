@@ -1,9 +1,9 @@
 #include <engine/engine.hpp>
 #include <engine/game.hpp>
+#include <engine/module_registrar.hpp>
 
 #include <modules/backend/backend.hpp>
 #include <modules/graphics/renderer.hpp>
-#include <modules/module_factory.hpp>
 #include <modules/render_context.hpp>
 
 #include <gmock/gmock.h>
@@ -67,9 +67,9 @@ protected:
 namespace game_engine
 {
 
-std::shared_ptr<game_engine::Game> createGameInstance(game_engine::Engine&)
+void ModuleRegistrar::RegisterModule<Engine>(ModuleFactory& factory)
 {
-    return std::make_shared<MockGame>();
+    factory.registerCreator<Engine>([](const ModuleFactory& mf) { return std::make_shared<EngineImpl>(mf); });
 }
 
 template <>

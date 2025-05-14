@@ -5,8 +5,6 @@
 #define LOG_ERROR std::cerr
 #include <iostream>
 
-#include <modules/module_factory.hpp>
-
 namespace
 {
 inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
@@ -15,17 +13,12 @@ inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
 namespace game_engine
 {
 
-EngineImpl::EngineImpl()
+EngineImpl::EngineImpl(const ModuleFactory& factory)
 {
-    ModuleFactory<backend::Backend>::RegisterModule();
-    ModuleFactory<graphics::Renderer>::RegisterModule();
-
-    m_backend  = ModuleFactory<backend::Backend>::Create();
-    m_renderer = ModuleFactory<graphics::Renderer>::Create(m_backend->getRenderContext());
+    m_backend  = factory.get<backend::Backend>();
+    m_renderer = factory.get<graphics::Renderer>();
 
     m_eventSystem = std::make_shared<EventSystem>();
-
-    m_game = createGameInstance(*this);
 }
 
 EngineImpl::~EngineImpl() = default;
@@ -68,6 +61,21 @@ void EngineImpl::render(const std::shared_ptr<graphics::Mesh>& mesh,
     cmd.instanceCount = 1;
 
     m_renderer->addRenderCommand(cmd);
+}
+
+[[nodiscard]]
+EventSystem& EngineImpl::getEventSystem() const
+{
+    return *m_eventSystem;
+}
+
+#pragma endregion
+
+#pragma region EngineImpl public
+
+void EngineImpl::setGameInstance(std::shared_ptr<Game>&& game) noexcept
+{
+    m_game = std::move(game);
 }
 
 int EngineImpl::run() noexcept
@@ -122,12 +130,6 @@ int EngineImpl::run() noexcept
     }
 
     return 0;
-}
-
-[[nodiscard]]
-EventSystem& EngineImpl::getEventSystem() const
-{
-    return *m_eventSystem;
 }
 
 #pragma endregion

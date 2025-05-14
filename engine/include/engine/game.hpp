@@ -36,9 +36,6 @@ public:
     virtual GameSettings getSettings() = 0;
 };
 
-/// @brief Creates a new instance of the game.
-/// @param engine The engine instance to associate with the game.
-/// @return A shared pointer to the created game instance.
-std::shared_ptr<Game> createGameInstance(Engine& engine);
+std::shared_ptr<Game> CreateGameInstance(Engine& engine);
 
 } // namespace game_engine

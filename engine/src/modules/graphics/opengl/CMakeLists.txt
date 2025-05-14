@@ -5,7 +5,7 @@ add_library(opengl_graphics STATIC)
 
 target_sources(opengl_graphics
     PRIVATE
-        src/graphics_module_factory.cpp
+        src/graphics_module_registrar.cpp
         src/opengl_mesh.cpp
         src/opengl_mesh.hpp
         src/opengl_shader.cpp

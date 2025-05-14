@@ -1,4 +1,5 @@
-#include <modules/module_factory.hpp>
+#include <engine/module_registrar.hpp>
+
 #include <modules/render_context.hpp>
 
 #include <stub_renderer.hpp>
@@ -7,9 +8,9 @@ namespace game_engine
 {
 
 template <>
-void ModuleFactory<graphics::Renderer>::RegisterModule()
+void ModuleRegistrar::RegisterModule<graphics::Renderer>(ModuleFactory& factory)
 {
-    RegisterCreator([](std::shared_ptr<const RenderContext> context) {
+    factory.registerCreator<graphics::Renderer>([](std::shared_ptr<const RenderContext> context) {
         return std::make_shared<graphics::StubRenderer>(std::move(context));
     });
 }

@@ -1,77 +1,54 @@
 #pragma once
 
+#include <any>
 #include <functional>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
+#include <typeindex>
+#include <unordered_map>
 
 namespace game_engine
 {
 
-template <typename Interface>
-class ModuleFactory
+class ModuleFactory final
 {
 public:
-    using PtrType = std::shared_ptr<Interface>;
+    ModuleFactory() = default;
 
-    // Must be defined in module
-    static void RegisterModule();
+    ModuleFactory(const ModuleFactory&) = delete;
+    ModuleFactory(ModuleFactory&&)      = default;
 
-    template <typename... Args>
-    static PtrType Create(Args&&... args)
+    ModuleFactory& operator=(const ModuleFactory&) = delete;
+    ModuleFactory& operator=(ModuleFactory&&)      = default;
+
+    template <typename Interface>
+    void set(std::shared_ptr<Interface>&& instance)
     {
-        auto& creator = CreatorStorage<Args...>();
-        if (!creator) {
-            throw std::runtime_error("Module not registered");
+        const auto key = std::type_index(typeid(Interface));
+
+        if (m_instances.count(key) > 0) {
+            throw std::runtime_error("Instance for " + std::string(typeid(Interface).name()) + " already registered");
         }
-        return creator(std::forward<Args>(args)...);
+
+        m_instances[key] = std::move(instance);
+    }
+
+    template <typename Interface>
+    std::shared_ptr<Interface> get() const
+    {
+        const auto key = std::type_index(typeid(Interface));
+
+        auto it = m_instances.find(key);
+        if (it == m_instances.end()) {
+            throw std::runtime_error("Instance not registered: " + std::string(typeid(Interface).name()));
+        }
+
+        return std::static_pointer_cast<Interface>(it->second);
     }
 
 private:
-    template <typename T>
-    struct FunctionTraits;
-
-    template <typename ClassType, typename ReturnType, typename... Args>
-    struct FunctionTraits<ReturnType (ClassType::*)(Args...) const>
-    {
-        using Return    = ReturnType;
-        using ArgsTuple = std::tuple<Args...>;
-    };
-
-    template <typename ReturnType, typename... Args>
-    struct FunctionTraits<ReturnType (*)(Args...)>
-    {
-        using Return    = ReturnType;
-        using ArgsTuple = std::tuple<Args...>;
-    };
-
-    template <typename Function>
-    static void RegisterCreator(Function&& creator)
-    {
-        using Traits     = FunctionTraits<decltype(&std::decay_t<Function>::operator())>;
-        using ReturnType = typename Traits::Return;
-        using ArgsTuple  = typename Traits::ArgsTuple;
-
-        static_assert(std::is_convertible_v<ReturnType, PtrType>, "Creator must return std::shared_ptr<Interface>.");
-
-        RegisterImpl(std::forward<Function>(creator), ArgsTuple{});
-    }
-
-    template <typename... Args>
-    using Creator = std::function<PtrType(Args...)>;
-
-    template <typename Function, typename... Args>
-    static void RegisterImpl(Function&& creator, std::tuple<Args...>)
-    {
-        Creator<Args...> wrapper  = creator;
-        CreatorStorage<Args...>() = wrapper;
-    }
-
-    template <typename... Args>
-    static auto& CreatorStorage()
-    {
-        static Creator<Args...> s_creator;
-        return s_creator;
-    }
+    std::unordered_map<std::type_index, std::shared_ptr<void>> m_instances;
 };
 
-}; // namespace game_engine
+} // namespace game_engine

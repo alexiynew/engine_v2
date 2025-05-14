@@ -6,6 +6,7 @@
 
 #include <modules/backend/backend.hpp>
 #include <modules/graphics/renderer.hpp>
+#include <modules/module_factory.hpp>
 
 namespace game_engine
 {
@@ -17,7 +18,7 @@ class EngineImpl final
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    EngineImpl();
+    explicit EngineImpl(const ModuleFactory& factory);
     ~EngineImpl() override;
 
     // Engine
@@ -29,10 +30,12 @@ public:
     void render(const std::shared_ptr<graphics::Mesh>& mesh,
                 const std::shared_ptr<graphics::Shader>& shader,
                 const std::vector<graphics::Uniform>& uniforms) override;
-    ReturnCode run() noexcept override;
 
     [[nodiscard]]
     EventSystem& getEventSystem() const override;
+
+    void setGameInstance(std::shared_ptr<Game>&& game) noexcept;
+    ReturnCode run() noexcept;
 
 private:
     // BackendEventHandler
