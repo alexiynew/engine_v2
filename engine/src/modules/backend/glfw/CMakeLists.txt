@@ -5,7 +5,7 @@ add_library(glfw_backend STATIC)
 
 target_sources(glfw_backend
     PRIVATE
-        src/backend_module_registrar.cpp
+        src/backend_create.cpp
         src/glfw_backend.cpp
         src/glfw_backend.hpp
         src/glfw_keyboard.cpp

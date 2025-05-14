@@ -13,10 +13,10 @@ inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
 namespace game_engine
 {
 
-EngineImpl::EngineImpl(const ModuleFactory& factory)
+EngineImpl::EngineImpl(const ServiceLocator& locator)
 {
-    m_backend  = factory.get<backend::Backend>();
-    m_renderer = factory.get<graphics::Renderer>();
+    m_backend  = locator.resolve<backend::Backend>();
+    m_renderer = locator.resolve<graphics::Renderer>(m_backend->getRenderContext());
 
     m_eventSystem = std::make_shared<EventSystem>();
 }

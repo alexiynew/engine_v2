@@ -6,7 +6,7 @@
 
 #include <modules/backend/backend.hpp>
 #include <modules/graphics/renderer.hpp>
-#include <modules/module_factory.hpp>
+#include <modules/service_locator.hpp>
 
 namespace game_engine
 {
@@ -18,7 +18,7 @@ class EngineImpl final
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    explicit EngineImpl(const ModuleFactory& factory);
+    explicit EngineImpl(const ServiceLocator& locator);
     ~EngineImpl() override;
 
     // Engine

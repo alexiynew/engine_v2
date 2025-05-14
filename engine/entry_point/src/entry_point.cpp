@@ -22,23 +22,19 @@ int main(int argc, char* argv[])
     using namespace game_engine;
 
     try {
-        const ModuleFactory factory = []() {
-            ModuleFactory mf;
+        const ServiceLocator locator = []() {
+            ServiceLocator sl;
 
-            mf.set<backend::Backend>(ModuleRegistrar<backend::Backend>::Create());
+            sl.registerFactory<backend::Backend>();
+            sl.registerFactory<graphics::Renderer>();
 
-            auto backend = mf.get<backend::Backend>();
-            mf.set<graphics::Renderer>(ModuleRegistrar<graphics::Renderer>::Create(backend->getRenderContext()));
-
-            return mf;
+            return sl;
         }();
 
-        EngineImpl engine(factory);
+        EngineImpl engine(locator);
 
         auto game = CreateGameInstance(engine);
-
         engine.setGameInstance(std::move(game));
-
         auto returnCode = engine.run();
 
         return returnCode;

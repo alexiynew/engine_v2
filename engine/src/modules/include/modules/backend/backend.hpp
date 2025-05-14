@@ -8,7 +8,6 @@
 #include <engine/window_events.hpp>
 
 #include <modules/input_handler.hpp>
-#include <modules/module_registrar.hpp>
 #include <modules/render_context.hpp>
 
 namespace game_engine::backend
@@ -18,6 +17,8 @@ class Backend
 {
 public:
     using RefObserver = std::reference_wrapper<BackendObserver>;
+
+    static std::shared_ptr<Backend> Create();
 
     virtual ~Backend() = default;
 
@@ -39,14 +40,3 @@ public:
 };
 
 } // namespace game_engine::backend
-
-namespace game_engine
-{
-
-template <>
-struct ModuleRegistrar<backend::Backend>
-{
-    static std::shared_ptr<backend::Backend> Create();
-};
-
-} // namespace game_engine
