@@ -6,14 +6,15 @@
 class Game final : public game_engine::Game
 {
 public:
-    explicit Game(game_engine::Engine& engine);
+    Game();
     ~Game() override;
 
     // game_engine::Game
-    void onInitialize() override;
+    bool init(std::shared_ptr<game_engine::Engine> engine) noexcept override;
+    void shutdown() noexcept override;
+
     void onUpdate(std::chrono::nanoseconds elapsedTime) override;
     void onDraw() override;
-    void onShutdown() override;
     bool onShouldClose() override;
     game_engine::GameSettings getSettings() override;
 
@@ -21,7 +22,7 @@ private:
     void subscribeForEvents();
     void unsubscribeFromEvents();
 
-    game_engine::Engine& m_engine;
+    std::shared_ptr<game_engine::Engine> m_engine;
 
     std::vector<game_engine::EventSystem::SubscriptionPtr> m_subscriptions;
 

@@ -5,9 +5,9 @@
 namespace game_engine::graphics
 {
 
-std::shared_ptr<Renderer> Renderer::Create(std::shared_ptr<const RenderContext> context)
+std::shared_ptr<Renderer> Renderer::Create()
 {
-    return std::make_shared<graphics::OpenGLRenderer>(std::move(context));
+    return std::make_shared<graphics::OpenGLRenderer>();
 }
 
 } // namespace game_engine::graphics

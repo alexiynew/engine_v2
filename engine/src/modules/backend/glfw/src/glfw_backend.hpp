@@ -20,8 +20,9 @@ public:
     ~GLFWBackend() override;
 
     // Backend
-    bool initialize(const GameSettings& settings) override;
-    void shutdown() override;
+    bool init(const GameSettings& settings) noexcept override;
+    void shutdown() noexcept override;
+
     void pollEvents() override;
 
     std::shared_ptr<const RenderContext> getRenderContext() const override;

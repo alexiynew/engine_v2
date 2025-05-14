@@ -22,13 +22,8 @@ public:
 
     virtual ~Backend() = default;
 
-    static void RegisterModule();
-
-    /// @brief Initialize the backend
-    virtual bool initialize(const GameSettings& settings) = 0;
-
-    /// @brief Shut down the backend
-    virtual void shutdown() = 0;
+    virtual bool init(const GameSettings& settings) noexcept = 0;
+    virtual void shutdown() noexcept                         = 0;
 
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;

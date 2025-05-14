@@ -8,7 +8,7 @@ target_include_directories(modules
 
 target_sources(modules 
     INTERFACE
-        include/modules/service_locator.hpp
+        include/modules/module_locator.hpp
         include/modules/input_handler.hpp
         include/modules/render_context.hpp
         include/modules/backend/backend.hpp

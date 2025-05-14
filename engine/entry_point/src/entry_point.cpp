@@ -22,18 +22,18 @@ int main(int argc, char* argv[])
     using namespace game_engine;
 
     try {
-        const ServiceLocator locator = []() {
-            ServiceLocator sl;
+        auto createModuleLocator = []() {
+            ModuleLocator ml;
 
-            sl.registerModule<backend::Backend>();
-            sl.registerModule<graphics::Renderer>();
-            sl.registerModule<Game>();
+            ml.setImplementation(backend::Backend::Create());
+            ml.setImplementation(graphics::Renderer::Create());
+            ml.setImplementation(Game::Create());
 
-            return sl;
-        }();
+            return ml;
+        };
 
-        EngineImpl engine(locator);
-        return engine.run();
+        auto engine = std::make_shared<EngineImpl>(createModuleLocator());
+        return engine->run();
 
     } catch (std::exception& e) {
         LOG_ERROR << e.what() << std::endl;

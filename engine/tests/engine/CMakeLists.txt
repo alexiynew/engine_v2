@@ -3,15 +3,17 @@ add_executable(engine_test)
 target_sources(engine_test
     PRIVATE
         main.cpp
-        #tests_engine_impl.cpp TODO: implement this
+        tests_engine_impl.cpp
         tests_event_system.cpp
         ../../src/event_system.cpp
+        ../../src/engine_impl.cpp
 )
 
 target_include_directories(engine_test
     PRIVATE 
         $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
         ../../src/modules/include
+        ../../src
 )
 
 target_link_libraries(engine_test

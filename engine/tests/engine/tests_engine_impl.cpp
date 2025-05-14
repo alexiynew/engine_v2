@@ -1,20 +1,17 @@
-#include <engine/engine.hpp>
 #include <engine/game.hpp>
-#include <engine/module_registrar.hpp>
 
 #include <modules/backend/backend.hpp>
 #include <modules/graphics/renderer.hpp>
-#include <modules/render_context.hpp>
+#include <modules/module_locator.hpp>
 
+#include <engine_impl.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-// TODO: MAke tests work, redo module factory to use dependency injection
 
 class MockRenderer : public game_engine::graphics::Renderer
 {
 public:
-    MOCK_METHOD(bool, initialize, (), (noexcept, override));
+    MOCK_METHOD(bool, init, (std::shared_ptr<const game_engine::RenderContext>), (noexcept, override));
     MOCK_METHOD(void, shutdown, (), (noexcept, override));
 
     MOCK_METHOD(std::shared_ptr<game_engine::graphics::Mesh>, createMesh, (), (override));
@@ -28,7 +25,7 @@ public:
 class MockBackend : public game_engine::backend::Backend
 {
 public:
-    MOCK_METHOD(bool, initialize, (const game_engine::GameSettings&), (noexcept, override));
+    MOCK_METHOD(bool, init, (const game_engine::GameSettings&), (noexcept, override));
     MOCK_METHOD(void, shutdown, (), (noexcept, override));
 
     MOCK_METHOD(void, pollEvents, (), (override));
@@ -40,10 +37,12 @@ public:
 
 class MockGame : public game_engine::Game
 {
-    MOCK_METHOD(void, onInitialize, (), (override));
+public:
+    MOCK_METHOD(bool, init, (std::shared_ptr<game_engine::Engine>), (noexcept, override));
+    MOCK_METHOD(void, shutdown, (), (noexcept, override));
+
     MOCK_METHOD(void, onUpdate, (std::chrono::nanoseconds elapsedTime), (override));
     MOCK_METHOD(void, onDraw, (), (override));
-    MOCK_METHOD(void, onShutdown, (), (override));
     MOCK_METHOD(bool, onShouldClose, (), (override));
     MOCK_METHOD(game_engine::GameSettings, getSettings, (), (override));
 };
@@ -53,108 +52,112 @@ class EngineFixture : public ::testing::Test
 protected:
     void SetUp() override
     {
-        engine       = game_engine::createEngineInstance();
-        mockRenderer = std::make_shared<MockRenderer>();
-        mockBackend  = std::make_shared<MockBackend>();
+        auto createModuleLocator = [&]() {
+            game_engine::ModuleLocator ml;
+
+            ml.setImplementation<game_engine::backend::Backend>(m_mockBackend);
+            ml.setImplementation<game_engine::graphics::Renderer>(m_mockRenderer);
+            ml.setImplementation<game_engine::Game>(m_mockGame);
+
+            return ml;
+        };
+
+        m_mockBackend  = std::make_shared<::testing::NiceMock<MockBackend>>();
+        m_mockRenderer = std::make_shared<::testing::NiceMock<MockRenderer>>();
+        m_mockGame     = std::make_shared<::testing::NiceMock<MockGame>>();
+
+        m_engine = std::make_shared<game_engine::EngineImpl>(createModuleLocator());
     }
 
-    std::shared_ptr<game_engine::Engine> engine;
-    std::shared_ptr<MockRenderer> mockRenderer;
-    std::shared_ptr<MockBackend> mockBackend;
+    std::shared_ptr<MockBackend> m_mockBackend;
+    std::shared_ptr<MockRenderer> m_mockRenderer;
+    std::shared_ptr<MockGame> m_mockGame;
+
+    game_engine::ModuleLocator m_locator;
+
+    std::shared_ptr<game_engine::EngineImpl> m_engine;
 };
 
-// Mock factories
-namespace game_engine
+TEST_F(EngineFixture, CreateEngine)
 {
-
-void ModuleRegistrar::RegisterModule<Engine>(ModuleFactory& factory)
-{
-    factory.registerCreator<Engine>([](const ModuleFactory& mf) { return std::make_shared<EngineImpl>(mf); });
-}
-
-template <>
-void ModuleFactory<backend::Backend>::RegisterModule()
-{
-    RegisterCreator([]() { return std::make_shared<MockBackend>(); });
-}
-
-template <>
-void ModuleFactory<graphics::Renderer>::RegisterModule()
-{
-    RegisterCreator(
-    [](std::shared_ptr<const RenderContext> context) { return std::make_shared<MockRenderer>(std::move(context)); });
-}
-
-} // namespace game_engine
-
-TEST_F(EngineFixture, CreateEngineInstance)
-{
-    EXPECT_NE(engine, nullptr);
+    EXPECT_NE(m_engine, nullptr);
 }
 
 TEST_F(EngineFixture, TimeManagement)
 {
-    auto t1 = engine->getTime();
+    auto t1 = m_engine->getTime();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    auto t2 = engine->getTime();
+    auto t2 = m_engine->getTime();
     EXPECT_GT(t2 - t1, std::chrono::milliseconds(9));
 }
 
 TEST_F(EngineFixture, MeshAndShaderCreation)
 {
-    EXPECT_CALL(*mockRenderer, createMesh()).WillOnce(testing::Return(nullptr));
-    EXPECT_CALL(*mockRenderer, createShader()).WillOnce(testing::Return(nullptr));
+    using namespace testing;
 
-    auto mesh   = engine->createMesh();
-    auto shader = engine->createShader();
+    EXPECT_CALL(*m_mockRenderer, createMesh()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mockRenderer, createShader()).WillOnce(Return(nullptr));
+
+    auto mesh   = m_engine->createMesh();
+    auto shader = m_engine->createShader();
     EXPECT_EQ(mesh, nullptr);
     EXPECT_EQ(shader, nullptr);
 }
 
 TEST_F(EngineFixture, EventSystemAccess)
 {
-    auto& eventSystem = engine->getEventSystem();
+    auto& eventSystem = m_engine->getEventSystem();
     EXPECT_NE(&eventSystem, nullptr);
 }
 
 TEST_F(EngineFixture, RenderCommandSubmission)
 {
-    EXPECT_CALL(*mockRenderer, addRenderCommand(testing::_)).Times(1);
+    using namespace testing;
 
-    auto mesh   = engine->createMesh();
-    auto shader = engine->createShader();
-    engine->render(mesh, shader, {});
+    EXPECT_CALL(*m_mockRenderer, createMesh()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mockRenderer, createShader()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mockRenderer, addRenderCommand(_)).Times(1);
+
+    auto mesh   = m_engine->createMesh();
+    auto shader = m_engine->createShader();
+    m_engine->render(mesh, shader, {});
 }
 
 TEST_F(EngineFixture, MainLoopExecution)
 {
-    EXPECT_CALL(*mockBackend, initialize(testing::_)).WillOnce(testing::Return(true));
-    EXPECT_CALL(*mockRenderer, initialize()).WillOnce(testing::Return(true));
-    EXPECT_CALL(*mockBackend, pollEvents()).Times(testing::AtLeast(1));
+    using namespace testing;
+
+    {
+        Sequence seq1;
+        EXPECT_CALL(*m_mockBackend, init(_)).WillOnce(Return(true));
+        EXPECT_CALL(*m_mockRenderer, init(_)).WillOnce(Return(true));
+        EXPECT_CALL(*m_mockGame, init(_)).WillOnce(Return(true));
+    }
+
+    EXPECT_CALL(*m_mockBackend, pollEvents()).Times(testing::AtLeast(1));
+
+    {
+        Sequence seq2;
+        EXPECT_CALL(*m_mockGame, shutdown()).Times(1);
+        EXPECT_CALL(*m_mockRenderer, shutdown()).Times(1);
+        EXPECT_CALL(*m_mockBackend, shutdown()).Times(1);
+    }
+
+    // Free modules in fixture to prevent resource leak errors
+    m_mockBackend.reset();
+    m_mockRenderer.reset();
+    m_mockGame.reset();
 
     std::atomic<bool> stopFlag{false};
     std::thread runner([&] {
-        engine->run();
+        m_engine->run();
         stopFlag.store(true);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    engine->setShouldStopFlag();
+
+    m_engine->setShouldStopFlag();
     runner.join();
+
     EXPECT_TRUE(stopFlag.load());
-}
-
-TEST_F(EngineFixture, WindowCloseEventHandling)
-{
-    game_engine::WindowCloseEvent event;
-    EXPECT_CALL(*mockBackend, detachBackendObserver(testing::_)).Times(1);
-    engine->getEventSystem().processEvent(event);
-}
-
-TEST_F(EngineFixture, ResourceLeakCheck)
-{
-    EXPECT_CALL(*mockRenderer, shutdown()).Times(1);
-    EXPECT_CALL(*mockBackend, shutdown()).Times(1);
-
-    engine->run();
 }

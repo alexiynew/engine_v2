@@ -6,19 +6,20 @@
 
 #include <modules/backend/backend.hpp>
 #include <modules/graphics/renderer.hpp>
-#include <modules/service_locator.hpp>
+#include <modules/module_locator.hpp>
 
 namespace game_engine
 {
 
 class EngineImpl final
     : public Engine
+    , public std::enable_shared_from_this<EngineImpl>
     , private BackendObserver
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
-    explicit EngineImpl(const ServiceLocator& locator);
+    explicit EngineImpl(const ModuleLocator& locator);
     ~EngineImpl() override;
 
     // Engine

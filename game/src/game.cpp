@@ -125,8 +125,7 @@ inline game_engine::graphics::VertexLayout getVertexLayout()
 
 } // namespace
 
-Game::Game(game_engine::Engine& engine)
-    : m_engine(engine)
+Game::Game()
 {
     std::cout << "Game::Game" << std::endl;
 }
@@ -136,8 +135,10 @@ Game::~Game()
     std::cout << "Game::~Game" << std::endl;
 }
 
-void Game::onInitialize()
+bool Game::init(std::shared_ptr<game_engine::Engine> engine) noexcept
 {
+    m_engine = std::move(engine);
+
     using namespace game_engine::graphics;
 
     std::cout << "Game::onInitialize" << std::endl;
@@ -146,17 +147,33 @@ void Game::onInitialize()
         {cube_mesh::submesh_indices, {}}
     };
 
-    m_mesh = m_engine.createMesh();
+    m_mesh = m_engine->createMesh();
     m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
     m_mesh->flush();
 
-    m_shader = m_engine.createShader();
+    m_shader = m_engine->createShader();
     m_shader->setSource(VertexShaderSource, FragmentShaderSource);
     if (!m_shader->link()) {
         std::cout << "Failed to load shader" << std::endl;
     }
 
     subscribeForEvents();
+
+    return true;
+}
+
+void Game::shutdown() noexcept
+{
+    std::cout << "Game::onShutdown" << std::endl;
+    std::cout << " -- updates count: " << m_updatesCount << std::endl;
+    std::cout << " -- frames count: " << m_framesCount << std::endl;
+
+    unsubscribeFromEvents();
+
+    m_shader.reset();
+    m_mesh.reset();
+
+    m_engine.reset();
 }
 
 void Game::onUpdate(std::chrono::nanoseconds)
@@ -178,25 +195,13 @@ void Game::onDraw()
     const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_engine.render(m_mesh,
-                    m_shader,
-                    {
-                        Uniform{     "model",      model},
-                        Uniform{      "view",       view},
-                        Uniform{"projection", projection},
+    m_engine->render(m_mesh,
+                     m_shader,
+                     {
+                         Uniform{     "model",      model},
+                         Uniform{      "view",       view},
+                         Uniform{"projection", projection},
     });
-}
-
-void Game::onShutdown()
-{
-    std::cout << "Game::onShutdown" << std::endl;
-    std::cout << " -- updates count: " << m_updatesCount << std::endl;
-    std::cout << " -- frames count: " << m_framesCount << std::endl;
-
-    unsubscribeFromEvents();
-
-    m_shader.reset();
-    m_mesh.reset();
 }
 
 bool Game::onShouldClose()
@@ -224,9 +229,9 @@ void Game::subscribeForEvents()
 {
     using namespace game_engine;
 
-    m_subscriptions.push_back(m_engine.getEventSystem().subscribe<KeyboardInputEvent>([this](const auto& event) {
+    m_subscriptions.push_back(m_engine->getEventSystem().subscribe<KeyboardInputEvent>([this](const auto& event) {
         if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
-            m_engine.setShouldStopFlag();
+            m_engine->setShouldStopFlag();
         }
     }));
 }

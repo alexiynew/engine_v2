@@ -23,10 +23,10 @@ class Renderer
 public:
     virtual ~Renderer() = default;
 
-    static std::shared_ptr<Renderer> Create(std::shared_ptr<const RenderContext> context);
+    static std::shared_ptr<Renderer> Create();
 
-    virtual bool initialize() noexcept = 0;
-    virtual void shutdown() noexcept   = 0;
+    virtual bool init(std::shared_ptr<const RenderContext> context) noexcept = 0;
+    virtual void shutdown() noexcept                                         = 0;
 
     virtual std::shared_ptr<Shader> createShader() = 0;
     virtual std::shared_ptr<Mesh> createMesh()     = 0;

@@ -13,15 +13,12 @@ inline constexpr std::chrono::nanoseconds Second = std::chrono::seconds(1);
 namespace game_engine
 {
 
-EngineImpl::EngineImpl(const ServiceLocator& locator)
-{
-    m_backend  = locator.resolve<backend::Backend>();
-    m_renderer = locator.resolve<graphics::Renderer>(m_backend->getRenderContext());
-
-    m_game = locator.resolve<Game>(*this);
-
-    m_eventSystem = std::make_shared<EventSystem>();
-}
+EngineImpl::EngineImpl(const ModuleLocator& locator)
+    : m_backend(locator.get<backend::Backend>())
+    , m_renderer(locator.get<graphics::Renderer>())
+    , m_eventSystem(std::make_shared<EventSystem>())
+    , m_game(locator.get<Game>())
+{}
 
 EngineImpl::~EngineImpl() = default;
 
@@ -82,11 +79,15 @@ int EngineImpl::run() noexcept
 
     try {
         const GameSettings& settings = m_game->getSettings();
-        if (!m_backend->initialize(settings)) {
+        if (!m_backend->init(settings)) {
             return -1;
         }
 
-        if (!m_renderer->initialize()) {
+        if (!m_renderer->init(m_backend->getRenderContext())) {
+            return -1;
+        }
+
+        if (!m_game->init(shared_from_this())) {
             return -1;
         }
 
@@ -94,16 +95,12 @@ int EngineImpl::run() noexcept
 
         m_backend->attachBackendObserver(*this);
 
-        m_game->onInitialize();
-
         mainLoop();
 
         m_backend->detachBackendObserver(*this);
 
-        m_game->onShutdown();
-
+        m_game->shutdown();
         m_renderer->shutdown();
-
         m_backend->shutdown();
 
         if (m_game.use_count() != 1) {
