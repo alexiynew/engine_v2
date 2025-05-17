@@ -15,11 +15,11 @@ option(BUILD_DOCUMENTATION "Build documentation" OFF)
 option(USE_STUB_BACKEND "Use backend stub for testing" OFF)
 option(USE_STUB_RENDERER "Use renderer stub for testing" OFF)
 
-if(WIN32)
+if (WIN32)
     set(USE_WINMAIN_DEFAULT ON)
-else()
+else ()
     set(USE_WINMAIN_DEFAULT OFF)
-endif()
+endif ()
 option(USE_WINMAIN "Use WinMain entry point" ${USE_WINMAIN_DEFAULT})
 
 set(CMAKE_CXX_STANDARD 23)
@@ -33,20 +33,20 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Choose backend type
 set(ENGINE_BACKEND_TYPE glfw CACHE STRING "" FORCE)
-if(USE_STUB_BACKEND)
+if (USE_STUB_BACKEND)
     set(ENGINE_BACKEND_TYPE stub CACHE STRING "" FORCE)
-endif()
+endif ()
 
 # Choose renderer type
 set(ENGINE_RENDERER_TYPE opengl CACHE STRING "" FORCE)
-if(USE_STUB_RENDERER)
+if (USE_STUB_RENDERER)
     set(ENGINE_RENDERER_TYPE stub CACHE STRING "" FORCE)
-endif()
+endif ()
 
 # Check backend and renderer
-if(USE_STUB_BACKEND AND NOT USE_STUB_RENDERER)
+if (USE_STUB_BACKEND AND NOT USE_STUB_RENDERER)
     message(FATAL_ERROR "Can't use any renderer with stub backend")
-endif()
+endif ()
 
 # Add modules path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -63,22 +63,25 @@ target_sources(engine
         include/engine/keyboard.hpp
         include/engine/event_system.hpp
         include/engine/window_events.hpp
+        include/engine/resource_id.hpp
+        include/engine/resource_handler.hpp
         include/engine/graphics/mesh_data.hpp
         include/engine/graphics/mesh.hpp
-        include/engine/graphics/model_loader.hpp
         include/engine/graphics/shader.hpp
         include/engine/graphics/vertex_traits.hpp
         include/engine/details/event_system_details.inl
-        src/game_settings.cpp
-        src/event_system.cpp
+        include/engine/details/hash_helpers.hpp
         src/engine_impl.cpp
         src/engine_impl.hpp
+        src/game_settings.cpp
+        src/event_system.cpp
+        src/resource_handler.cpp
 )
 
-target_include_directories(engine 
-    PUBLIC 
+target_include_directories(engine
+    PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    PRIVATE 
+    PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
@@ -89,11 +92,11 @@ include(third_party/glm)
 add_subdirectory(entry_point)
 add_subdirectory(src/modules)
 
-target_link_libraries(engine 
-    INTERFACE 
+target_link_libraries(engine
+    INTERFACE
         engine::entry_point
 
-    PUBLIC 
+    PUBLIC
         third_party::glm
 
     PRIVATE
@@ -102,10 +105,10 @@ target_link_libraries(engine
 )
 
 # Tests
-if(ENABLE_TESTING)
+if (ENABLE_TESTING)
     enable_testing()
     include(tests/tests)
-endif()
+endif ()
 
 # Custom tool targets
 include(cmake/format_all)
@@ -114,9 +117,9 @@ include(cmake/clang_tidy)
 
 set_target_properties(engine PROPERTIES FOLDER "engine")
 set_target_properties(engine PROPERTIES EXPORT_COMPILE_COMMANDS ON)
-if(USE_WINMAIN)
+if (USE_WINMAIN)
     set_target_properties(engine PROPERTIES WIN32_EXECUTABLE ON)
-endif()
+endif ()
 
 # Status
 message(STATUS "#########################################")

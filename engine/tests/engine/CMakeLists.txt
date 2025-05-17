@@ -5,21 +5,22 @@ target_sources(engine_test
         main.cpp
         tests_engine_impl.cpp
         tests_event_system.cpp
+        tests_resource_id.cpp
         ../../src/event_system.cpp
         ../../src/engine_impl.cpp
 )
 
 target_include_directories(engine_test
-    PRIVATE 
+    PRIVATE
         $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
         ../../src/modules/include
         ../../src
 )
 
 target_link_libraries(engine_test
-    PRIVATE 
+    PRIVATE
         engine::compile_options
-        third_party::gtest 
+        third_party::gtest
         third_party::gmock
 )
 
