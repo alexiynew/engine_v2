@@ -25,24 +25,24 @@ class EventSystem final
 public:
 
     /// @brief Base class for event subscription. Unsubscribes automatically on destruction.
-    class Subscription
+    class ISubscription
     {
     public:
 
-        Subscription()          = default;
-        virtual ~Subscription() = default;
+        ISubscription()          = default;
+        virtual ~ISubscription() = default;
 
-        Subscription(const Subscription&) = delete;
-        Subscription(Subscription&&)      = default;
+        ISubscription(const ISubscription&) = delete;
+        ISubscription(ISubscription&&)      = default;
 
-        Subscription& operator=(const Subscription&) = delete;
-        Subscription& operator=(Subscription&&)      = default;
+        ISubscription& operator=(const ISubscription&) = delete;
+        ISubscription& operator=(ISubscription&&)      = default;
 
         /// @brief Unsubscribes the associated handler. Called automatically when the handle is destroyed.
-        virtual void unsubscribe() const = 0;
+        virtual void Unsubscribe() const = 0;
     };
 
-    using SubscriptionPtr = std::unique_ptr<Subscription>;
+    using SubscriptionPtr = std::unique_ptr<ISubscription>;
 
     EventSystem() = default;
     ~EventSystem();
@@ -52,52 +52,52 @@ public:
     /// @param handler     Callback function to invoke when the event is dispatched.
     /// @param priority    Priority of the handler (default: HandlerPriority::Whenever).
     /// @returns           A subscription handle for unsubscribing.
-    template <typename Event>
+    template <typename TEvent>
     [[nodiscard]]
-    SubscriptionPtr subscribe(std::function<void(const Event&)> handler,
+    SubscriptionPtr Subscribe(std::function<void(const TEvent&)> handler,
                               HandlerPriority priority = HandlerPriority::Whenever)
     {
-        return getDispatcher<Event>()->subscribe(std::move(handler), priority);
+        return GetDispatcher<TEvent>()->Subscribe(std::move(handler), priority);
     }
 
     /// @brief Dispatches an event to all subscribed handlers of type `Event`.
     /// @tparam Event      The event type to process.
     /// @param event       The event object to dispatch.
-    template <typename Event>
-    void processEvent(const Event& event)
+    template <typename TEvent>
+    void ProcessEvent(const TEvent& event)
     {
-        getDispatcher<Event>()->processEvent(event);
+        GetDispatcher<TEvent>()->ProcessEvent(event);
     }
 
 private:
-    class DispatcherBase
+    class IDispatcherBase
     {
     public:
-        virtual ~DispatcherBase()                    = default;
-        virtual bool hasHandlers() const             = 0;
-        virtual std::string getEventTypeName() const = 0;
+        virtual ~IDispatcherBase()                   = default;
+        virtual bool HasHandlers() const             = 0;
+        virtual std::string GetEventTypeName() const = 0;
     };
 
-    template <typename Event>
+    template <typename TEvent>
     class Dispatcher;
 
-    template <typename Event>
-    std::shared_ptr<Dispatcher<Event>> getDispatcher()
+    template <typename TEvent>
+    std::shared_ptr<Dispatcher<TEvent>> GetDispatcher()
     {
-        const std::type_index type = typeid(Event);
+        const std::type_index type = typeid(TEvent);
 
         std::lock_guard lock(m_mutex);
         if (auto it = m_dispatchers.find(type); it != m_dispatchers.end()) {
-            return std::static_pointer_cast<Dispatcher<Event>>(it->second);
+            return std::static_pointer_cast<Dispatcher<TEvent>>(it->second);
         }
 
-        auto dispatcher     = std::make_shared<Dispatcher<Event>>();
+        auto dispatcher     = std::make_shared<Dispatcher<TEvent>>();
         m_dispatchers[type] = dispatcher;
         return dispatcher;
     }
 
     std::mutex m_mutex;
-    std::unordered_map<std::type_index, std::shared_ptr<DispatcherBase>> m_dispatchers;
+    std::unordered_map<std::type_index, std::shared_ptr<IDispatcherBase>> m_dispatchers;
 };
 
 } // namespace game_engine

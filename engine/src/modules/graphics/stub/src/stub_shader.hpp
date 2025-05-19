@@ -9,15 +9,15 @@
 namespace game_engine::graphics
 {
 
-class StubShader final : public graphics::Shader
+class StubShader final : public graphics::IShader
 {
 public:
 
-    // graphics::Shader
-    void setSource(const std::string& vertexSource, const std::string& fragmentSource) override;
-    bool link() override;
-    void clear() noexcept override;
-    bool isValid() const noexcept override;
+    // graphics::IShader
+    void SetSource(const std::string& vertex_source, const std::string& fragment_source) override;
+    bool Link() override;
+    void Clear() noexcept override;
+    bool IsValid() const noexcept override;
 };
 
 } // namespace game_engine::graphics

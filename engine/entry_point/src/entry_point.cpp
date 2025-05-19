@@ -13,7 +13,7 @@
 #include <iostream>
 
 #ifdef USE_WINMAIN_ENTRY
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int cmd_show)
 #else
 int main(int argc, char* argv[])
 #endif
@@ -22,17 +22,17 @@ int main(int argc, char* argv[])
     using namespace game_engine;
 
     try {
-        auto createModuleLocator = []() {
+        auto create_module_locator = []() {
             ModuleLocator ml;
 
-            ml.setImplementation(backend::Backend::Create());
-            ml.setImplementation(graphics::Renderer::Create());
-            ml.setImplementation(Game::Create());
+            ml.SetImplementation(backend::IBackend::Create());
+            ml.SetImplementation(graphics::IRenderer::Create());
+            ml.SetImplementation(IGame::Create());
 
             return ml;
         };
 
-        auto engine = std::make_shared<EngineImpl>(createModuleLocator());
+        auto engine = std::make_shared<EngineImpl>(create_module_locator());
         return engine->run();
 
     } catch (std::exception& e) {

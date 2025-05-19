@@ -32,7 +32,7 @@ struct VertexAttribute
 /// @brief Vertex format description
 struct VertexLayout
 {
-    std::size_t vertexSize = 0;              ///< Vertex size in bytes.
+    std::size_t vertex_size = 0;             ///< Vertex size in bytes.
     std::vector<VertexAttribute> attributes; ///< Vertex attributes list.
 };
 
@@ -52,8 +52,8 @@ struct SubMesh
 /// @brief Represents instance data for instanced rendering.
 struct InstanceData
 {
-    Matrix4 modelMatrix; ///< Transformation matrix for the instance.
-    Vector4 color;       ///< Additional data (e.g., color) for the instance.
+    Matrix4 model_matrix; ///< Transformation matrix for the instance.
+    Vector4 color;        ///< Additional data (e.g., color) for the instance.
 };
 
 /// @brief Enumeration for primitive types used in rendering.
@@ -71,13 +71,13 @@ enum class PrimitiveType
 /// @brief Mesh Data
 struct MeshData
 {
-    std::vector<std::uint8_t> vertexData; ///< List of vertices in the mesh.
-    size_t vertexCount = 0;
+    std::vector<std::uint8_t> vertex_data; ///< List of vertices in the mesh.
+    size_t vertex_count = 0;
 
-    std::vector<SubMesh> submeshes;                         ///< List of submeshes (each with its own material).
-    std::vector<InstanceData> instances;                    ///< List of instances for instanced rendering.
-    PrimitiveType primitiveType = PrimitiveType::Triangles; ///< Type of primitives used for rendering.
-    VertexLayout layout;                                    ///< vertex layout,
+    std::vector<SubMesh> submeshes;                          ///< List of submeshes (each with its own material).
+    std::vector<InstanceData> instances;                     ///< List of instances for instanced rendering.
+    PrimitiveType primitive_type = PrimitiveType::Triangles; ///< Type of primitives used for rendering.
+    VertexLayout layout;                                     ///< vertex layout,
 };
 
 } // namespace game_engine::graphics

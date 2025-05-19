@@ -71,6 +71,7 @@ target_sources(engine
         include/engine/graphics/vertex_traits.hpp
         include/engine/details/event_system_details.inl
         include/engine/details/hash_helpers.hpp
+        src/event_system.cpp
         src/engine_impl.cpp
         src/engine_impl.hpp
         src/game_settings.cpp

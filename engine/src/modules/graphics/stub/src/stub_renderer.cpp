@@ -11,31 +11,31 @@ StubRenderer::StubRenderer()
 
 StubRenderer::~StubRenderer() = default;
 
-bool StubRenderer::init(std::shared_ptr<const RenderContext>) noexcept
+bool StubRenderer::Init(std::shared_ptr<const IRenderContext>) noexcept
 {
     return true;
 }
 
-void StubRenderer::shutdown() noexcept
+void StubRenderer::Shutdown() noexcept
 {}
 
-std::shared_ptr<graphics::Shader> StubRenderer::createShader()
+std::shared_ptr<graphics::IShader> StubRenderer::CreateShader()
 {
     return std::make_shared<StubShader>();
 }
 
-std::shared_ptr<graphics::Mesh> StubRenderer::createMesh()
+std::shared_ptr<graphics::IMesh> StubRenderer::CreateMesh()
 {
     return std::make_shared<StubMesh>();
 }
 
-void StubRenderer::addRenderCommand(const RenderCommand& command)
+void StubRenderer::AddRenderCommand(const RenderCommand& command)
 {}
 
-void StubRenderer::clearRenderCommands()
+void StubRenderer::ClearRenderCommands()
 {}
 
-void StubRenderer::executeRenderCommands()
+void StubRenderer::ExecuteRenderCommands()
 {}
 
 } // namespace game_engine::graphics

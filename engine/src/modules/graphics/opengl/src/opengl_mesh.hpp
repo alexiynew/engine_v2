@@ -12,10 +12,10 @@
 namespace game_engine::graphics
 {
 
-class OpenGLMesh final : public graphics::Mesh
+class OpenGLMesh final : public graphics::IMesh
 {
 public:
-    explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
+    explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
     ~OpenGLMesh() override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
@@ -25,23 +25,23 @@ public:
     OpenGLMesh& operator=(OpenGLMesh&& other) noexcept;
 
     // graphics::Mesh
-    void setMeshData(const graphics::MeshData& data) override;
-    void flush() override;
-    void clear() noexcept override;
-    bool isValid() const noexcept override;
+    void SetMeshData(const graphics::MeshData& data) override;
+    void Flush() override;
+    void Clear() noexcept override;
+    bool IsValid() const noexcept override;
 
-    void render() const;
+    void Render() const;
 
 private:
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
 
-    bool loadToGPU();
+    bool LoadToGPU();
 
     std::shared_ptr<OpenGLRenderer> m_renderer;
 
-    unsigned int m_VAO = 0;
-    unsigned int m_VBO = 0;
-    unsigned int m_EBO = 0;
+    unsigned int m_vao = 0;
+    unsigned int m_vbo = 0;
+    unsigned int m_ebo = 0;
 
     graphics::MeshData m_data = {};
 };

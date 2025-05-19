@@ -3,32 +3,32 @@
 #include <engine/event_system.hpp>
 #include <engine/game.hpp>
 
-class Game final : public game_engine::Game
+class Game final : public game_engine::IGame
 {
 public:
     Game();
     ~Game() override;
 
     // game_engine::Game
-    bool init(std::shared_ptr<game_engine::Engine> engine) noexcept override;
-    void shutdown() noexcept override;
+    bool Init(std::shared_ptr<game_engine::IEngine> engine) noexcept override;
+    void Shutdown() noexcept override;
 
-    void onUpdate(std::chrono::nanoseconds elapsedTime) override;
-    void onDraw() override;
-    bool onShouldClose() override;
-    game_engine::GameSettings getSettings() override;
+    void OnUpdate(std::chrono::nanoseconds elapsedTime) override;
+    void OnDraw() override;
+    bool OnShouldClose() override;
+    game_engine::GameSettings GetSettings() override;
 
 private:
     void subscribeForEvents();
     void unsubscribeFromEvents();
 
-    std::shared_ptr<game_engine::Engine> m_engine;
+    std::shared_ptr<game_engine::IEngine> m_engine;
 
     std::vector<game_engine::EventSystem::SubscriptionPtr> m_subscriptions;
 
-    std::shared_ptr<game_engine::graphics::Shader> m_shader;
-    std::shared_ptr<game_engine::graphics::Mesh> m_mesh;
+    std::shared_ptr<game_engine::graphics::IShader> m_shader;
+    std::shared_ptr<game_engine::graphics::IMesh> m_mesh;
 
     std::size_t m_updatesCount = 0;
-    std::size_t m_framesCount  = 0;
+    std::size_t m_frames_count = 0;
 };

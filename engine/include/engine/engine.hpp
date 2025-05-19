@@ -16,43 +16,43 @@ namespace game_engine
 // TODO: Game in separate thread
 // TODO: Add rendering methods like in web canvas2d
 
-class Engine
+class IEngine
 {
 public:
     using TimePoint  = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
     using ReturnCode = int;
 
-    virtual ~Engine() = default;
+    virtual ~IEngine() = default;
 
     /// @brief Gets the current time.
     /// @return The current time point.
-    virtual TimePoint getTime() const noexcept = 0;
+    virtual TimePoint GetTime() const noexcept = 0;
 
     /// @brief Checks if the engine should stop.
     /// @return True if the engine should stop, false otherwise.
-    virtual bool shouldStop() const noexcept = 0;
+    virtual bool ShouldStop() const noexcept = 0;
 
     /// @brief Creates a Mesh instance.
     /// @return New Mesh.
-    virtual std::shared_ptr<graphics::Mesh> createMesh() = 0;
+    virtual std::shared_ptr<graphics::IMesh> CreateMesh() = 0;
 
     /// @brief Creates a Shader instance.
     /// @return New Shader.
-    virtual std::shared_ptr<graphics::Shader> createShader() = 0;
+    virtual std::shared_ptr<graphics::IShader> CreateShader() = 0;
 
     /// @brief Renders a mesh with shader.
     /// @param mesh Mesh to render.
     /// @param shader Shader ot use to render mesh.
     /// @param uniforms Uniforms to use in shader.
-    virtual void render(const std::shared_ptr<graphics::Mesh>& mesh,
-                        const std::shared_ptr<graphics::Shader>& shader,
+    virtual void Render(const std::shared_ptr<graphics::IMesh>& mesh,
+                        const std::shared_ptr<graphics::IShader>& shader,
                         const std::vector<graphics::Uniform>& uniforms) = 0;
 
     /// @brief Sets the flag to stop the engine.
-    virtual void setShouldStopFlag() noexcept = 0;
+    virtual void SetShouldStopFlag() noexcept = 0;
 
     [[nodiscard]]
-    virtual EventSystem& getEventSystem() const = 0;
+    virtual EventSystem& GetEventSystem() const = 0;
 };
 
 } // namespace game_engine

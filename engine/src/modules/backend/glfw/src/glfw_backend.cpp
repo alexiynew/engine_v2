@@ -9,67 +9,67 @@ namespace
 {
 using game_engine::backend::GLFWBackend;
 
-void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
+void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleKeyEvent(key, scancode, action, mods);
+        backend->HandleKeyEvent(key, scancode, action, mods);
     }
 }
 
-void onWindowResize(GLFWwindow* window, int width, int height)
+void OnWindowResize(GLFWwindow* window, int width, int height)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleWindowResize(width, height);
+        backend->HandleWindowResize(width, height);
     }
 }
 
-void onWindowMove(GLFWwindow* window, int xpos, int ypos)
+void OnWindowMove(GLFWwindow* window, int xpos, int ypos)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleWindowMove(xpos, ypos);
+        backend->HandleWindowMove(xpos, ypos);
     }
 }
 
-void onWindowClose(GLFWwindow* window)
+void OnWindowClose(GLFWwindow* window)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleWindowClose();
+        backend->HandleWindowClose();
     }
 }
 
-void onWindowFocus(GLFWwindow* window, int focused)
+void OnWindowFocus(GLFWwindow* window, int focused)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleWindowFocus(focused == GLFW_TRUE);
+        backend->HandleWindowFocus(focused == GLFW_TRUE);
     }
 }
 
-void onWindowIconify(GLFWwindow* window, int iconified)
+void OnWindowIconify(GLFWwindow* window, int iconified)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleWindowIconify(iconified == GLFW_TRUE);
+        backend->HandleWindowIconify(iconified == GLFW_TRUE);
     }
 }
 
-void onWindowMaximize(GLFWwindow* window, int maximized)
+void OnWindowMaximize(GLFWwindow* window, int maximized)
 {
     if (auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window))) {
-        backend->handleWindowMaximize(maximized == GLFW_TRUE);
+        backend->HandleWindowMaximize(maximized == GLFW_TRUE);
     }
 }
 
-void setCallbacks(GLFWwindow* window)
+void SetCallbacks(GLFWwindow* window)
 {
-    glfwSetKeyCallback(window, &onKeyEvent);
-    glfwSetWindowSizeCallback(window, &onWindowResize);
-    glfwSetWindowPosCallback(window, &onWindowMove);
-    glfwSetWindowCloseCallback(window, &onWindowClose);
-    glfwSetWindowFocusCallback(window, &onWindowFocus);
-    glfwSetWindowIconifyCallback(window, &onWindowIconify);
-    glfwSetWindowMaximizeCallback(window, &onWindowMaximize);
+    glfwSetKeyCallback(window, &OnKeyEvent);
+    glfwSetWindowSizeCallback(window, &OnWindowResize);
+    glfwSetWindowPosCallback(window, &OnWindowMove);
+    glfwSetWindowCloseCallback(window, &OnWindowClose);
+    glfwSetWindowFocusCallback(window, &OnWindowFocus);
+    glfwSetWindowIconifyCallback(window, &OnWindowIconify);
+    glfwSetWindowMaximizeCallback(window, &OnWindowMaximize);
 }
 
-void dropCallbacks(GLFWwindow* window)
+void DropCallbacks(GLFWwindow* window)
 {
     glfwSetKeyCallback(window, nullptr);
     glfwSetWindowSizeCallback(window, nullptr);
@@ -79,7 +79,7 @@ void dropCallbacks(GLFWwindow* window)
     glfwSetWindowIconifyCallback(window, nullptr);
 }
 
-void logErrors()
+void LogErrors()
 {
     const char* error = nullptr;
     const int code    = glfwGetError(&error);
@@ -97,14 +97,14 @@ GLFWBackend::GLFWBackend() = default;
 
 GLFWBackend::~GLFWBackend()
 {
-    shutdown();
+    Shutdown();
 }
 
 #pragma region Backend
 
-bool GLFWBackend::init(const GameSettings& settings) noexcept
+bool GLFWBackend::Init(const GameSettings& settings) noexcept
 {
-    std::lock_guard lock(m_windowMutex);
+    std::lock_guard lock(m_window_mutex);
 
     if (m_window) {
         LOG_ERROR << "Already initialized";
@@ -112,7 +112,7 @@ bool GLFWBackend::init(const GameSettings& settings) noexcept
     }
 
     if (!glfwInit()) {
-        logErrors();
+        LogErrors();
         return false;
     }
 
@@ -122,59 +122,59 @@ bool GLFWBackend::init(const GameSettings& settings) noexcept
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    if (settings.displayMode == DisplayMode::BorderlessFullscreen) {
+    if (settings.display_mode == DisplayMode::BorderlessFullscreen) {
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     }
-    applyAntiAliasing(settings);
+    ApplyAntiAliasing(settings);
 
-    m_window = glfwCreateWindow(settings.resolutionWidth,
-                                settings.resolutionHeight,
-                                settings.windowTitle.c_str(),
+    m_window = glfwCreateWindow(settings.resolution_width,
+                                settings.resolution_height,
+                                settings.window_title.c_str(),
                                 nullptr,
                                 nullptr);
     if (!m_window) {
-        logErrors();
+        LogErrors();
         glfwTerminate();
         return false;
     }
 
-    applySettings(settings);
+    ApplySettings(settings);
 
     glfwSetWindowUserPointer(m_window, this);
 
-    setCallbacks(m_window);
+    SetCallbacks(m_window);
 
     return true;
 }
 
-void GLFWBackend::shutdown() noexcept
+void GLFWBackend::Shutdown() noexcept
 {
-    std::lock_guard lock(m_windowMutex);
+    std::lock_guard lock(m_window_mutex);
     if (m_window) {
         glfwSetWindowUserPointer(m_window, nullptr);
-        dropCallbacks(m_window);
+        DropCallbacks(m_window);
         glfwDestroyWindow(m_window);
         m_window = nullptr;
     }
     glfwTerminate();
 }
 
-void GLFWBackend::pollEvents()
+void GLFWBackend::PollEvents()
 {
     glfwPollEvents();
 }
 
-void GLFWBackend::attachBackendObserver(BackendObserver& observer)
+void GLFWBackend::AttachBackendObserver(IBackendObserver& observer)
 {
     m_observers.push_front(observer);
 }
 
-void GLFWBackend::detachBackendObserver(const BackendObserver& observer)
+void GLFWBackend::DetachBackendObserver(const IBackendObserver& observer)
 {
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }
 
-std::shared_ptr<const RenderContext> GLFWBackend::getRenderContext() const
+std::shared_ptr<const IRenderContext> GLFWBackend::GetRenderContext() const
 {
     return shared_from_this();
 }
@@ -183,21 +183,21 @@ std::shared_ptr<const RenderContext> GLFWBackend::getRenderContext() const
 
 #pragma region RenderContext
 
-void GLFWBackend::makeCurrent() const
+void GLFWBackend::MakeCurrent() const
 {
-    std::lock_guard lock(m_windowMutex);
+    std::lock_guard lock(m_window_mutex);
     glfwMakeContextCurrent(m_window);
 }
 
-void GLFWBackend::dropCurrent() const
+void GLFWBackend::DropCurrent() const
 {
-    std::lock_guard lock(m_windowMutex);
+    std::lock_guard lock(m_window_mutex);
     glfwMakeContextCurrent(nullptr);
 }
 
-void GLFWBackend::swapBuffers() const
+void GLFWBackend::SwapBuffers() const
 {
-    std::lock_guard lock(m_windowMutex);
+    std::lock_guard lock(m_window_mutex);
     glfwSwapBuffers(m_window);
 }
 
@@ -205,95 +205,95 @@ void GLFWBackend::swapBuffers() const
 
 #pragma region Event handling
 
-void GLFWBackend::handleKeyEvent(int key, int scancode, int action, int mods)
+void GLFWBackend::HandleKeyEvent(int key, int scancode, int action, int mods)
 {
     KeyboardInputEvent event;
-    event.key       = convertGLFWKey(key);
-    event.action    = convertGLFWAction(action);
-    event.modifiers = convertGLFWModifiers(mods);
+    event.key       = ConvertGlfwKey(key);
+    event.action    = ConvertGlfwAction(action);
+    event.modifiers = ConvertGlfwModifiers(mods);
 
-    notify(event);
+    Notify(event);
 }
 
-void GLFWBackend::handleWindowResize(int width, int height)
+void GLFWBackend::HandleWindowResize(int width, int height)
 {
-    notify(WindowResizeEvent{width, height});
+    Notify(WindowResizeEvent{width, height});
 }
 
-void GLFWBackend::handleWindowMove(int xpos, int ypos)
+void GLFWBackend::HandleWindowMove(int xpos, int ypos)
 {
-    notify(WindowMoveEvent{xpos, ypos});
+    Notify(WindowMoveEvent{xpos, ypos});
 }
 
-void GLFWBackend::handleWindowClose()
+void GLFWBackend::HandleWindowClose()
 {
-    notify(WindowCloseEvent{});
+    Notify(WindowCloseEvent{});
 }
 
-void GLFWBackend::handleWindowFocus(bool focused)
+void GLFWBackend::HandleWindowFocus(bool focused)
 {
-    notify(WindowFocusEvent{focused});
+    Notify(WindowFocusEvent{focused});
 }
 
-void GLFWBackend::handleWindowIconify(bool iconified)
+void GLFWBackend::HandleWindowIconify(bool iconified)
 {
-    notify(WindowIconifyEvent{iconified});
+    Notify(WindowIconifyEvent{iconified});
 }
 
-void GLFWBackend::handleWindowMaximize(bool maximized)
+void GLFWBackend::HandleWindowMaximize(bool maximized)
 {
-    notify(WindowMaximizeEvent{maximized});
+    Notify(WindowMaximizeEvent{maximized});
 }
 
 #pragma endregion
 
 #pragma region GLFWBackend private
 
-void GLFWBackend::applySettings(const GameSettings& settings)
+void GLFWBackend::ApplySettings(const GameSettings& settings)
 {
-    applyDisplayMode(settings);
+    ApplyDisplayMode(settings);
 
-    glfwSetWindowTitle(m_window, settings.windowTitle.c_str());
+    glfwSetWindowTitle(m_window, settings.window_title.c_str());
 
-    glfwSwapInterval(settings.vSync ? 1 : 0);
+    glfwSwapInterval(settings.v_sync ? 1 : 0);
 }
 
-void GLFWBackend::applyDisplayMode(const GameSettings& settings)
+void GLFWBackend::ApplyDisplayMode(const GameSettings& settings)
 {
     GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-    switch (settings.displayMode) {
+    switch (settings.display_mode) {
         case DisplayMode::Fullscreen:
             glfwSetWindowMonitor(m_window,
                                  monitor,
                                  0,
                                  0,
-                                 settings.resolutionWidth,
-                                 settings.resolutionHeight,
+                                 settings.resolution_width,
+                                 settings.resolution_height,
                                  mode->refreshRate);
             break;
         case DisplayMode::BorderlessFullscreen:
             glfwSetWindowMonitor(m_window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
             break;
         case DisplayMode::Windowed: {
-            const int xPos = (mode->width - settings.resolutionWidth) / 2;
-            const int yPos = (mode->height - settings.resolutionHeight) / 2;
+            const int x_pos = (mode->width - settings.resolution_width) / 2;
+            const int y_pos = (mode->height - settings.resolution_height) / 2;
 
             glfwSetWindowMonitor(m_window,
                                  nullptr,
-                                 xPos,
-                                 yPos,
-                                 settings.resolutionWidth,
-                                 settings.resolutionHeight,
+                                 x_pos,
+                                 y_pos,
+                                 settings.resolution_width,
+                                 settings.resolution_height,
                                  mode->refreshRate);
         } break;
     }
 }
 
-void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
+void GLFWBackend::ApplyAntiAliasing(const GameSettings& settings)
 {
-    switch (settings.antiAliasing) {
+    switch (settings.anti_aliasing) {
         case AntiAliasing::None:   glfwWindowHint(GLFW_SAMPLES, 0); break;
         case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
         case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;
@@ -301,11 +301,11 @@ void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
     }
 }
 
-template <typename EventType>
-void GLFWBackend::notify(const EventType& event)
+template <typename TEventType>
+void GLFWBackend::Notify(const TEventType& event)
 {
     for (auto observer : m_observers) {
-        observer.get().onEvent(event);
+        observer.get().OnEvent(event);
     }
 }
 

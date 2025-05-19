@@ -3,14 +3,14 @@
 namespace game_engine
 {
 
-class RenderContext
+class IRenderContext
 {
 public:
-    virtual ~RenderContext() = default;
+    virtual ~IRenderContext() = default;
 
-    virtual void makeCurrent() const = 0;
-    virtual void dropCurrent() const = 0;
-    virtual void swapBuffers() const = 0;
+    virtual void MakeCurrent() const = 0;
+    virtual void DropCurrent() const = 0;
+    virtual void SwapBuffers() const = 0;
 };
 
 } // namespace game_engine

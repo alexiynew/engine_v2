@@ -12,9 +12,9 @@ namespace game_engine
 {
 
 class EngineImpl final
-    : public Engine
+    : public IEngine
     , public std::enable_shared_from_this<EngineImpl>
-    , private BackendObserver
+    , private IBackendObserver
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
@@ -22,43 +22,43 @@ public:
     explicit EngineImpl(const ModuleLocator& locator);
     ~EngineImpl() override;
 
-    // Engine
-    TimePoint getTime() const noexcept override;
-    bool shouldStop() const noexcept override;
-    void setShouldStopFlag() noexcept override;
-    std::shared_ptr<graphics::Mesh> createMesh() override;
-    std::shared_ptr<graphics::Shader> createShader() override;
-    void render(const std::shared_ptr<graphics::Mesh>& mesh,
-                const std::shared_ptr<graphics::Shader>& shader,
+    // IEngine
+    TimePoint GetTime() const noexcept override;
+    bool ShouldStop() const noexcept override;
+    void SetShouldStopFlag() noexcept override;
+    std::shared_ptr<graphics::IMesh> CreateMesh() override;
+    std::shared_ptr<graphics::IShader> CreateShader() override;
+    void Render(const std::shared_ptr<graphics::IMesh>& mesh,
+                const std::shared_ptr<graphics::IShader>& shader,
                 const std::vector<graphics::Uniform>& uniforms) override;
 
     [[nodiscard]]
-    EventSystem& getEventSystem() const override;
+    EventSystem& GetEventSystem() const override;
 
     ReturnCode run() noexcept;
 
 private:
     // BackendEventHandler
-    void onEvent(const KeyboardInputEvent& event) override;
-    void onEvent(const WindowResizeEvent& event) override;
-    void onEvent(const WindowMoveEvent& event) override;
-    void onEvent(const WindowCloseEvent& event) override;
-    void onEvent(const WindowFocusEvent& event) override;
-    void onEvent(const WindowIconifyEvent& event) override;
-    void onEvent(const WindowMaximizeEvent& event) override;
+    void OnEvent(const KeyboardInputEvent& event) override;
+    void OnEvent(const WindowResizeEvent& event) override;
+    void OnEvent(const WindowMoveEvent& event) override;
+    void OnEvent(const WindowCloseEvent& event) override;
+    void OnEvent(const WindowFocusEvent& event) override;
+    void OnEvent(const WindowIconifyEvent& event) override;
+    void OnEvent(const WindowMaximizeEvent& event) override;
 
     void setupFrameRate(const GameSettings& settings);
     void mainLoop();
 
     void update(std::chrono::nanoseconds elapsedTime);
-    void render();
+    void Render();
 
-    std::shared_ptr<backend::Backend> m_backend;
-    std::shared_ptr<graphics::Renderer> m_renderer;
+    std::shared_ptr<backend::IBackend> m_backend;
+    std::shared_ptr<graphics::IRenderer> m_renderer;
 
     std::shared_ptr<EventSystem> m_eventSystem;
 
-    std::shared_ptr<Game> m_game;
+    std::shared_ptr<IGame> m_game;
 
     TimePoint m_engineStartTime;
     bool m_shouldStop = false;

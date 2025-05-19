@@ -6,22 +6,22 @@
 namespace game_engine::graphics
 {
 
-class StubRenderer final : public Renderer
+class StubRenderer final : public IRenderer
 {
 public:
     StubRenderer();
     ~StubRenderer() override;
 
     // Renderer
-    bool init(std::shared_ptr<const RenderContext>) noexcept override;
-    void shutdown() noexcept override;
+    bool Init(std::shared_ptr<const IRenderContext>) noexcept override;
+    void Shutdown() noexcept override;
 
-    std::shared_ptr<graphics::Shader> createShader() override;
-    std::shared_ptr<graphics::Mesh> createMesh() override;
+    std::shared_ptr<graphics::IShader> CreateShader() override;
+    std::shared_ptr<graphics::IMesh> CreateMesh() override;
 
-    void addRenderCommand(const RenderCommand& command) override;
-    void clearRenderCommands() override;
-    void executeRenderCommands() override;
+    void AddRenderCommand(const RenderCommand& command) override;
+    void ClearRenderCommands() override;
+    void ExecuteRenderCommands() override;
 };
 
 } // namespace game_engine::graphics
