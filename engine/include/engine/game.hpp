@@ -9,15 +9,15 @@
 namespace game_engine
 {
 
-class Game
+class IGame
 {
 public:
-    static std::shared_ptr<Game> Create();
+    static std::shared_ptr<IGame> Create();
 
-    virtual ~Game() = default;
+    virtual ~IGame() = default;
 
-    virtual bool init(std::shared_ptr<game_engine::Engine> engine) noexcept = 0;
-    virtual void shutdown() noexcept                                        = 0;
+    virtual bool init(std::shared_ptr<game_engine::IEngine> engine) noexcept = 0;
+    virtual void shutdown() noexcept                                         = 0;
 
     /// @brief Called every frame to update the game state.
     /// @param elapsedTime The time elapsed since the last update.

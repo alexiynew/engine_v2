@@ -8,7 +8,7 @@ namespace game_engine
 {
 template <typename Event>
 class EventSystem::Dispatcher final
-    : public DispatcherBase
+    : public IDispatcherBase
     , public std::enable_shared_from_this<Dispatcher<Event>>
 {
 public:
@@ -22,7 +22,7 @@ public:
         HandlerPriority priority;
     };
 
-    class SubscriptionImpl final : public Subscription
+    class SubscriptionImpl final : public ISubscription
     {
     public:
         SubscriptionImpl(std::weak_ptr<Dispatcher> dispatcher, HandlerId id)

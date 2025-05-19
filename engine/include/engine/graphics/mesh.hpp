@@ -6,10 +6,10 @@
 namespace game_engine::graphics
 {
 
-class Mesh
+class IMesh
 {
 public:
-    virtual ~Mesh() = default;
+    virtual ~IMesh() = default;
 
     virtual void setMeshData(const MeshData& data) = 0;
     virtual void flush()                           = 0;

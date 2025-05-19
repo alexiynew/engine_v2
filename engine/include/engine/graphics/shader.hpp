@@ -21,10 +21,10 @@ struct Uniform
 ///
 /// Provides an interface for setting shader source code, linking shader programs,
 /// setting uniform variables, and managing the lifecycle of the shader.
-class Shader
+class IShader
 {
 public:
-    virtual ~Shader() = default;
+    virtual ~IShader() = default;
 
     /// @brief Sets the source code for the vertex and fragment shaders.
     /// @param vertexSource The source code for the vertex shader.

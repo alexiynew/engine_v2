@@ -25,24 +25,24 @@ class EventSystem final
 public:
 
     /// @brief Base class for event subscription. Unsubscribes automatically on destruction.
-    class Subscription
+    class ISubscription
     {
     public:
 
-        Subscription()          = default;
-        virtual ~Subscription() = default;
+        ISubscription()          = default;
+        virtual ~ISubscription() = default;
 
-        Subscription(const Subscription&) = delete;
-        Subscription(Subscription&&)      = default;
+        ISubscription(const ISubscription&) = delete;
+        ISubscription(ISubscription&&)      = default;
 
-        Subscription& operator=(const Subscription&) = delete;
-        Subscription& operator=(Subscription&&)      = default;
+        ISubscription& operator=(const ISubscription&) = delete;
+        ISubscription& operator=(ISubscription&&)      = default;
 
         /// @brief Unsubscribes the associated handler. Called automatically when the handle is destroyed.
         virtual void unsubscribe() const = 0;
     };
 
-    using SubscriptionPtr = std::unique_ptr<Subscription>;
+    using SubscriptionPtr = std::unique_ptr<ISubscription>;
 
     EventSystem() = default;
     ~EventSystem();
@@ -70,10 +70,10 @@ public:
     }
 
 private:
-    class DispatcherBase
+    class IDispatcherBase
     {
     public:
-        virtual ~DispatcherBase()                    = default;
+        virtual ~IDispatcherBase()                   = default;
         virtual bool hasHandlers() const             = 0;
         virtual std::string getEventTypeName() const = 0;
     };
@@ -97,7 +97,7 @@ private:
     }
 
     std::mutex m_mutex;
-    std::unordered_map<std::type_index, std::shared_ptr<DispatcherBase>> m_dispatchers;
+    std::unordered_map<std::type_index, std::shared_ptr<IDispatcherBase>> m_dispatchers;
 };
 
 } // namespace game_engine

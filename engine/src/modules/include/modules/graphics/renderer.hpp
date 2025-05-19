@@ -12,8 +12,8 @@ namespace game_engine::graphics
 
 struct RenderCommand
 {
-    std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<Shader> shader;
+    std::shared_ptr<IMesh> mesh;
+    std::shared_ptr<IShader> shader;
     std::vector<Uniform> uniforms;
     uint32_t instanceCount = 1;
 };
@@ -28,8 +28,8 @@ public:
     virtual bool init(std::shared_ptr<const RenderContext> context) noexcept = 0;
     virtual void shutdown() noexcept                                         = 0;
 
-    virtual std::shared_ptr<Shader> createShader() = 0;
-    virtual std::shared_ptr<Mesh> createMesh()     = 0;
+    virtual std::shared_ptr<IShader> createShader() = 0;
+    virtual std::shared_ptr<IMesh> createMesh()     = 0;
 
     virtual void addRenderCommand(const RenderCommand& command) = 0;
     virtual void clearRenderCommands()                          = 0;

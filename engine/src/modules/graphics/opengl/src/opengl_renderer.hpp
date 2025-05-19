@@ -36,8 +36,8 @@ public:
     bool init(std::shared_ptr<const RenderContext> context) noexcept override;
     void shutdown() noexcept override;
 
-    std::shared_ptr<graphics::Shader> createShader() override;
-    std::shared_ptr<graphics::Mesh> createMesh() override;
+    std::shared_ptr<graphics::IShader> createShader() override;
+    std::shared_ptr<graphics::IMesh> createMesh() override;
 
     void addRenderCommand(const RenderCommand& command) override;
     void clearRenderCommands() override;

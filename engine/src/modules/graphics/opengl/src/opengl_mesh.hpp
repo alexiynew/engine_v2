@@ -12,7 +12,7 @@
 namespace game_engine::graphics
 {
 
-class OpenGLMesh final : public graphics::Mesh
+class OpenGLMesh final : public graphics::IMesh
 {
 public:
     explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;

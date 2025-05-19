@@ -135,7 +135,7 @@ Game::~Game()
     std::cout << "Game::~Game" << std::endl;
 }
 
-bool Game::init(std::shared_ptr<game_engine::Engine> engine) noexcept
+bool Game::init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 {
     m_engine = std::move(engine);
 

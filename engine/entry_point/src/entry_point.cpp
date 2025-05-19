@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 
             ml.setImplementation(backend::Backend::Create());
             ml.setImplementation(graphics::Renderer::Create());
-            ml.setImplementation(Game::Create());
+            ml.setImplementation(IGame::Create());
 
             return ml;
         };

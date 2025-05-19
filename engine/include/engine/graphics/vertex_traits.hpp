@@ -29,7 +29,7 @@ inline constexpr bool SupportedVertexAttribute = IsFloatVertexAttribute<T> || Is
                                                  IsUIntVertexAttribute<T>;
 
 template <typename T>
-inline constexpr VertexAttributeType getAttributeType() noexcept
+constexpr VertexAttributeType getAttributeType() noexcept
 {
     if constexpr (IsFloatVertexAttribute<T>)
         return VertexAttributeType::Float;
@@ -42,7 +42,7 @@ inline constexpr VertexAttributeType getAttributeType() noexcept
 }
 
 template <typename T>
-inline constexpr int getComponentCount() noexcept
+constexpr int getComponentCount() noexcept
 {
     static_assert(SupportedVertexAttribute<T>, "Unsupported vertex attribute type");
 
@@ -59,7 +59,7 @@ inline constexpr int getComponentCount() noexcept
 }
 
 template <typename T, typename U>
-inline std::size_t memberOffset(U T::* ptr) noexcept
+std::size_t memberOffset(U T::* ptr) noexcept
 {
     constexpr T* nullObj = nullptr;
     return std::bit_cast<std::size_t>(&(nullObj->*ptr));
@@ -68,10 +68,10 @@ inline std::size_t memberOffset(U T::* ptr) noexcept
 } // namespace vertex_traits
 
 template <typename VertexType, typename MemberType>
-inline constexpr VertexAttribute generateAttribute(int location,
-                                                   const char* name,
-                                                   MemberType(VertexType::* ptr),
-                                                   bool normalized = false) noexcept
+constexpr VertexAttribute generateAttribute(int location,
+                                            const char* name,
+                                            MemberType(VertexType::* ptr),
+                                            bool normalized = false) noexcept
 {
     static_assert(vertex_traits::SupportedVertexAttribute<MemberType>, "Unsupported vertex attribute type");
 
@@ -86,7 +86,7 @@ inline constexpr VertexAttribute generateAttribute(int location,
 }
 
 template <typename AttributeType>
-inline constexpr VertexAttribute generateAttribute(int location, const char* name, bool normalized = false) noexcept
+constexpr VertexAttribute generateAttribute(int location, const char* name, bool normalized = false) noexcept
 {
     return {location,
             vertex_traits::getComponentCount<AttributeType>(),

@@ -3,7 +3,7 @@
 namespace game_engine
 {
 
-std::shared_ptr<game_engine::Game> Game::Create()
+std::shared_ptr<game_engine::IGame> IGame::Create()
 {
     return std::make_shared<::Game>();
 }

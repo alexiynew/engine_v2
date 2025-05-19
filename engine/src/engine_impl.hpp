@@ -12,7 +12,7 @@ namespace game_engine
 {
 
 class EngineImpl final
-    : public Engine
+    : public IEngine
     , public std::enable_shared_from_this<EngineImpl>
     , private BackendObserver
 {
@@ -26,10 +26,10 @@ public:
     TimePoint getTime() const noexcept override;
     bool shouldStop() const noexcept override;
     void setShouldStopFlag() noexcept override;
-    std::shared_ptr<graphics::Mesh> createMesh() override;
-    std::shared_ptr<graphics::Shader> createShader() override;
-    void render(const std::shared_ptr<graphics::Mesh>& mesh,
-                const std::shared_ptr<graphics::Shader>& shader,
+    std::shared_ptr<graphics::IMesh> createMesh() override;
+    std::shared_ptr<graphics::IShader> createShader() override;
+    void render(const std::shared_ptr<graphics::IMesh>& mesh,
+                const std::shared_ptr<graphics::IShader>& shader,
                 const std::vector<graphics::Uniform>& uniforms) override;
 
     [[nodiscard]]
@@ -58,7 +58,7 @@ private:
 
     std::shared_ptr<EventSystem> m_eventSystem;
 
-    std::shared_ptr<Game> m_game;
+    std::shared_ptr<IGame> m_game;
 
     TimePoint m_engineStartTime;
     bool m_shouldStop = false;

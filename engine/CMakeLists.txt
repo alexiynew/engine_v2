@@ -65,11 +65,9 @@ target_sources(engine
         include/engine/window_events.hpp
         include/engine/graphics/mesh_data.hpp
         include/engine/graphics/mesh.hpp
-        include/engine/graphics/model_loader.hpp
         include/engine/graphics/shader.hpp
         include/engine/graphics/vertex_traits.hpp
         include/engine/details/event_system_details.inl
-        src/game_settings.cpp
         src/event_system.cpp
         src/engine_impl.cpp
         src/engine_impl.hpp

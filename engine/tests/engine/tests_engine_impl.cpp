@@ -14,8 +14,8 @@ public:
     MOCK_METHOD(bool, init, (std::shared_ptr<const game_engine::RenderContext>), (noexcept, override));
     MOCK_METHOD(void, shutdown, (), (noexcept, override));
 
-    MOCK_METHOD(std::shared_ptr<game_engine::graphics::Mesh>, createMesh, (), (override));
-    MOCK_METHOD(std::shared_ptr<game_engine::graphics::Shader>, createShader, (), (override));
+    MOCK_METHOD(std::shared_ptr<game_engine::graphics::IMesh>, createMesh, (), (override));
+    MOCK_METHOD(std::shared_ptr<game_engine::graphics::IShader>, createShader, (), (override));
 
     MOCK_METHOD(void, addRenderCommand, (const game_engine::graphics::RenderCommand&), (override));
     MOCK_METHOD(void, executeRenderCommands, (), (override));
@@ -35,10 +35,10 @@ public:
     MOCK_METHOD(void, detachBackendObserver, (const game_engine::BackendObserver&), (override));
 };
 
-class MockGame : public game_engine::Game
+class MockGame : public game_engine::IGame
 {
 public:
-    MOCK_METHOD(bool, init, (std::shared_ptr<game_engine::Engine>), (noexcept, override));
+    MOCK_METHOD(bool, init, (std::shared_ptr<game_engine::IEngine>), (noexcept, override));
     MOCK_METHOD(void, shutdown, (), (noexcept, override));
 
     MOCK_METHOD(void, onUpdate, (std::chrono::nanoseconds elapsedTime), (override));
@@ -57,7 +57,7 @@ protected:
 
             ml.setImplementation<game_engine::backend::Backend>(m_mockBackend);
             ml.setImplementation<game_engine::graphics::Renderer>(m_mockRenderer);
-            ml.setImplementation<game_engine::Game>(m_mockGame);
+            ml.setImplementation<game_engine::IGame>(m_mockGame);
 
             return ml;
         };

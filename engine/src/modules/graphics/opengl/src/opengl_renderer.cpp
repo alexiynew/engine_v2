@@ -98,13 +98,13 @@ void OpenGLRenderer::shutdown() noexcept
     m_context.reset();
 }
 
-std::shared_ptr<graphics::Shader> OpenGLRenderer::createShader()
+std::shared_ptr<graphics::IShader> OpenGLRenderer::createShader()
 {
     m_shaders.push_back(std::make_shared<OpenGLShader>(shared_from_this()));
     return m_shaders.back();
 }
 
-std::shared_ptr<graphics::Mesh> OpenGLRenderer::createMesh()
+std::shared_ptr<graphics::IMesh> OpenGLRenderer::createMesh()
 {
     m_meshes.push_back(std::make_shared<OpenGLMesh>(shared_from_this()));
     return m_meshes.back();

@@ -30,8 +30,7 @@ struct GameSettings
     AntiAliasing antiAliasing = AntiAliasing::None;
     bool vSync                = false;
 
-    friend bool operator==(const GameSettings& lhs, const GameSettings& rhs);
-    friend bool operator!=(const GameSettings& lhs, const GameSettings& rhs);
+    friend bool operator==(const GameSettings& lhs, const GameSettings& rhs) = default;
 };
 
 }; // namespace game_engine

@@ -17,7 +17,7 @@ EngineImpl::EngineImpl(const ModuleLocator& locator)
     : m_backend(locator.get<backend::Backend>())
     , m_renderer(locator.get<graphics::Renderer>())
     , m_eventSystem(std::make_shared<EventSystem>())
-    , m_game(locator.get<Game>())
+    , m_game(locator.get<IGame>())
 {}
 
 EngineImpl::~EngineImpl() = default;
@@ -39,18 +39,18 @@ void EngineImpl::setShouldStopFlag() noexcept
     m_shouldStop = true;
 }
 
-std::shared_ptr<graphics::Mesh> EngineImpl::createMesh()
+std::shared_ptr<graphics::IMesh> EngineImpl::createMesh()
 {
     return m_renderer->createMesh();
 }
 
-std::shared_ptr<graphics::Shader> EngineImpl::createShader()
+std::shared_ptr<graphics::IShader> EngineImpl::createShader()
 {
     return m_renderer->createShader();
 }
 
-void EngineImpl::render(const std::shared_ptr<graphics::Mesh>& mesh,
-                        const std::shared_ptr<graphics::Shader>& shader,
+void EngineImpl::render(const std::shared_ptr<graphics::IMesh>& mesh,
+                        const std::shared_ptr<graphics::IShader>& shader,
                         const std::vector<graphics::Uniform>& uniforms)
 {
     graphics::RenderCommand cmd;

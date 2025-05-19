@@ -12,7 +12,7 @@
 namespace game_engine::graphics
 {
 
-class OpenGLShader final : public graphics::Shader
+class OpenGLShader final : public graphics::IShader
 {
 public:
     explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;

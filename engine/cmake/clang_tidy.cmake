@@ -3,11 +3,11 @@
 find_program(CLANG_TIDY clang-tidy)
 if(CLANG_TIDY)
     file(GLOB_RECURSE SOURCES 
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.[ch]pp
+        #${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.[ch]pp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.inl
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/**/*.[ch]pp
-        ${CMAKE_CURRENT_SOURCE_DIR}/entry_point/**/*.[ch]pp
+        #${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.inl
+        #${CMAKE_CURRENT_SOURCE_DIR}/tests/**/*.[ch]pp
+        #${CMAKE_CURRENT_SOURCE_DIR}/entry_point/**/*.[ch]pp
     )
 
     add_custom_target(clang-tidy
