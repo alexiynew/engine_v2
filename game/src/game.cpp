@@ -166,7 +166,7 @@ void Game::Shutdown() noexcept
 {
     std::cout << "Game::onShutdown" << std::endl;
     std::cout << " -- updates count: " << m_updatesCount << std::endl;
-    std::cout << " -- frames count: " << m_framesCount << std::endl;
+    std::cout << " -- frames count: " << m_frames_count << std::endl;
 
     unsubscribeFromEvents();
 
@@ -183,9 +183,9 @@ void Game::OnUpdate(std::chrono::nanoseconds)
 
 void Game::OnDraw()
 {
-    m_framesCount++;
+    m_frames_count++;
 
-    float time = (static_cast<float>(m_framesCount) * 3.14f) / 180.0f;
+    float time = (static_cast<float>(m_frames_count) * 3.14f) / 180.0f;
 
     using game_engine::Matrix4;
     using game_engine::Vector3;

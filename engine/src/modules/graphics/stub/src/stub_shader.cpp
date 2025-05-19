@@ -3,7 +3,7 @@
 namespace game_engine::graphics
 {
 
-void StubShader::SetSource(const std::string& vertexSource, const std::string& fragmentSource)
+void StubShader::SetSource(const std::string& vertex_source, const std::string& fragment_source)
 {}
 
 bool StubShader::Link()

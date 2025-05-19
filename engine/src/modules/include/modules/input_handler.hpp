@@ -20,26 +20,26 @@ public:
     virtual ~IBackendObserver() = default;
 
     /// @brief Method to handle keyboard input events (e.g., key presses)
-    virtual void onEvent(const KeyboardInputEvent& event) = 0;
+    virtual void OnEvent(const KeyboardInputEvent& event) = 0;
 
     /// @brief Method to handle window resize events
-    virtual void onEvent(const WindowResizeEvent& event) = 0;
+    virtual void OnEvent(const WindowResizeEvent& event) = 0;
 
     /// @brief Method to handle window move events
-    virtual void onEvent(const WindowMoveEvent& event) = 0;
+    virtual void OnEvent(const WindowMoveEvent& event) = 0;
 
     /// @brief Method to handle window close events
     /// This is called when the user attempts to close the window.
-    virtual void onEvent(const WindowCloseEvent& event) = 0;
+    virtual void OnEvent(const WindowCloseEvent& event) = 0;
 
     /// @brief Method to handle window focus events
-    virtual void onEvent(const WindowFocusEvent& event) = 0;
+    virtual void OnEvent(const WindowFocusEvent& event) = 0;
 
     /// @brief Method to handle window iconify events
-    virtual void onEvent(const WindowIconifyEvent& event) = 0;
+    virtual void OnEvent(const WindowIconifyEvent& event) = 0;
 
     /// @brief Method to handle window maximize events
-    virtual void onEvent(const WindowMaximizeEvent& event) = 0;
+    virtual void OnEvent(const WindowMaximizeEvent& event) = 0;
 };
 
 } // namespace game_engine

@@ -23,9 +23,9 @@ GLenum ToGLType(game_engine::graphics::VertexAttributeType type)
     }
 }
 
-GLenum ToGLPrimitiveType(game_engine::graphics::PrimitiveType primitiveType)
+GLenum ToGLPrimitiveType(game_engine::graphics::PrimitiveType primitive_type)
 {
-    switch (primitiveType) {
+    switch (primitive_type) {
         case game_engine::graphics::PrimitiveType::Triangles:     return GL_TRIANGLES;
         case game_engine::graphics::PrimitiveType::TriangleStrip: return GL_TRIANGLE_STRIP;
         case game_engine::graphics::PrimitiveType::TriangleFan:   return GL_TRIANGLE_FAN;
@@ -43,8 +43,8 @@ GLenum ToGLPrimitiveType(game_engine::graphics::PrimitiveType primitiveType)
 namespace game_engine::graphics
 {
 
-OpenGLMesh::OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
-    : m_renderer(renderThread)
+OpenGLMesh::OpenGLMesh(std::shared_ptr<OpenGLRenderer> render_thread) noexcept
+    : m_renderer(render_thread)
 {}
 
 OpenGLMesh::~OpenGLMesh()
@@ -74,8 +74,8 @@ void OpenGLMesh::SetMeshData(const graphics::MeshData& data)
 
 void OpenGLMesh::Flush()
 {
-    auto result = m_renderer->submitSync([this]() {
-        if (!loadToGPU()) {
+    auto result = m_renderer->SubmitSync([this]() {
+        if (!LoadToGPU()) {
             // TODO: report error
         }
     });
@@ -89,18 +89,18 @@ void OpenGLMesh::Flush()
 
 void OpenGLMesh::Clear() noexcept
 {
-    glDeleteVertexArrays(1, &m_VAO);
-    glDeleteBuffers(1, &m_VBO);
-    glDeleteBuffers(1, &m_EBO);
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
 
-    m_VAO = 0;
-    m_VBO = 0;
-    m_EBO = 0;
+    m_vao = 0;
+    m_vbo = 0;
+    m_ebo = 0;
 }
 
 bool OpenGLMesh::IsValid() const noexcept
 {
-    return m_VAO != 0 && m_VBO != 0 && m_EBO != 0;
+    return m_vao != 0 && m_vbo != 0 && m_ebo != 0;
 }
 
 #pragma endregion
@@ -113,47 +113,47 @@ void OpenGLMesh::Render() const
         return;
     }
 
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
-    const GLsizei indicesCount = static_cast<GLsizei>(m_data.submeshes[0].indices.size());
-    if (indicesCount == 0) {
+    const GLsizei indices_count = static_cast<GLsizei>(m_data.submeshes[0].indices.size());
+    if (indices_count == 0) {
         return;
     }
 
-    const GLenum primitiveType = ToGLPrimitiveType(m_data.primitive_type);
-    glDrawElements(primitiveType, indicesCount, GL_UNSIGNED_INT, 0);
+    const GLenum primitive_type = ToGLPrimitiveType(m_data.primitive_type);
+    glDrawElements(primitive_type, indices_count, GL_UNSIGNED_INT, 0);
 }
 
 #pragma endregion
 
 #pragma region OpenGLMesh private
 
-bool OpenGLMesh::loadToGPU()
+bool OpenGLMesh::LoadToGPU()
 {
     // Create buffers
-    if (m_VAO == 0) {
-        glGenVertexArrays(1, &m_VAO);
+    if (m_vao == 0) {
+        glGenVertexArrays(1, &m_vao);
     }
 
-    if (m_VBO == 0) {
-        glGenBuffers(1, &m_VBO);
+    if (m_vbo == 0) {
+        glGenBuffers(1, &m_vbo);
     }
 
-    if (m_EBO == 0) {
-        glGenBuffers(1, &m_EBO);
+    if (m_ebo == 0) {
+        glGenBuffers(1, &m_ebo);
     }
 
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
     // Load data
     {
-        const GLsizeiptr dataSize = m_data.vertex_count * m_data.layout.vertex_size;
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, dataSize, nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, m_data.vertex_data.data());
+        const GLsizeiptr data_size = m_data.vertex_count * m_data.layout.vertex_size;
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, data_size, nullptr, GL_STATIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, data_size, m_data.vertex_data.data());
     }
 
-    if (hasOpenGLErrors()) {
+    if (HasOpenGLErrors()) {
         Clear();
         return false;
     }
@@ -161,15 +161,15 @@ bool OpenGLMesh::loadToGPU()
     // Load indices
     // TODO: Implement instancing
     if (!m_data.submeshes.empty() && !m_data.submeshes[0].indices.empty()) {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 
-        const GLsizeiptr dataSize = m_data.submeshes[0].indices.size() * sizeof(m_data.submeshes[0].indices[0]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, dataSize, m_data.vertex_data.data());
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, m_data.submeshes[0].indices.data(), GL_STATIC_DRAW);
+        const GLsizeiptr data_size = m_data.submeshes[0].indices.size() * sizeof(m_data.submeshes[0].indices[0]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, nullptr, GL_STATIC_DRAW);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, data_size, m_data.vertex_data.data());
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, m_data.submeshes[0].indices.data(), GL_STATIC_DRAW);
     }
 
-    if (hasOpenGLErrors()) {
+    if (HasOpenGLErrors()) {
         Clear();
         return false;
     }
@@ -199,7 +199,7 @@ bool OpenGLMesh::loadToGPU()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    if (hasOpenGLErrors()) {
+    if (HasOpenGLErrors()) {
         Clear();
         return false;
     }
@@ -212,9 +212,9 @@ void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept
     using std::swap;
 
     swap(a.m_renderer, b.m_renderer);
-    swap(a.m_VAO, b.m_VAO);
-    swap(a.m_VBO, b.m_VBO);
-    swap(a.m_EBO, b.m_EBO);
+    swap(a.m_vao, b.m_vao);
+    swap(a.m_vbo, b.m_vbo);
+    swap(a.m_ebo, b.m_ebo);
     swap(a.m_data, b.m_data);
 }
 

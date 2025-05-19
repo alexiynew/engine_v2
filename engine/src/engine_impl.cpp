@@ -14,10 +14,10 @@ namespace game_engine
 {
 
 EngineImpl::EngineImpl(const ModuleLocator& locator)
-    : m_backend(locator.get<backend::IBackend>())
-    , m_renderer(locator.get<graphics::IRenderer>())
+    : m_backend(locator.Get<backend::IBackend>())
+    , m_renderer(locator.Get<graphics::IRenderer>())
     , m_eventSystem(std::make_shared<EventSystem>())
-    , m_game(locator.get<IGame>())
+    , m_game(locator.Get<IGame>())
 {}
 
 EngineImpl::~EngineImpl() = default;
@@ -54,12 +54,12 @@ void EngineImpl::Render(const std::shared_ptr<graphics::IMesh>& mesh,
                         const std::vector<graphics::Uniform>& uniforms)
 {
     graphics::RenderCommand cmd;
-    cmd.mesh          = mesh;
-    cmd.shader        = shader;
-    cmd.uniforms      = uniforms;
-    cmd.instanceCount = 1;
+    cmd.mesh           = mesh;
+    cmd.shader         = shader;
+    cmd.uniforms       = uniforms;
+    cmd.instance_count = 1;
 
-    m_renderer->addRenderCommand(cmd);
+    m_renderer->AddRenderCommand(cmd);
 }
 
 [[nodiscard]]
@@ -83,7 +83,7 @@ int EngineImpl::run() noexcept
             return -1;
         }
 
-        if (!m_renderer->Init(m_backend->getRenderContext())) {
+        if (!m_renderer->Init(m_backend->GetRenderContext())) {
             return -1;
         }
 
@@ -93,11 +93,11 @@ int EngineImpl::run() noexcept
 
         setupFrameRate(settings);
 
-        m_backend->attachBackendObserver(*this);
+        m_backend->AttachBackendObserver(*this);
 
         mainLoop();
 
-        m_backend->detachBackendObserver(*this);
+        m_backend->DetachBackendObserver(*this);
 
         m_game->Shutdown();
         m_renderer->Shutdown();
@@ -130,24 +130,24 @@ int EngineImpl::run() noexcept
 
 #pragma region BackendEventHandler
 
-void EngineImpl::onEvent(const KeyboardInputEvent& event)
+void EngineImpl::OnEvent(const KeyboardInputEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 }
 
 // TODO: Handle window events
 // TODO: Save view aspect ratio on window resize
-void EngineImpl::onEvent(const WindowResizeEvent& event)
+void EngineImpl::OnEvent(const WindowResizeEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 }
 
-void EngineImpl::onEvent(const WindowMoveEvent& event)
+void EngineImpl::OnEvent(const WindowMoveEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 }
 
-void EngineImpl::onEvent(const WindowCloseEvent& event)
+void EngineImpl::OnEvent(const WindowCloseEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 
@@ -156,17 +156,17 @@ void EngineImpl::onEvent(const WindowCloseEvent& event)
     }
 }
 
-void EngineImpl::onEvent(const WindowFocusEvent& event)
+void EngineImpl::OnEvent(const WindowFocusEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 }
 
-void EngineImpl::onEvent(const WindowIconifyEvent& event)
+void EngineImpl::OnEvent(const WindowIconifyEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 }
 
-void EngineImpl::onEvent(const WindowMaximizeEvent& event)
+void EngineImpl::OnEvent(const WindowMaximizeEvent& event)
 {
     m_eventSystem->ProcessEvent(event);
 }
@@ -190,7 +190,7 @@ void EngineImpl::mainLoop()
     std::chrono::nanoseconds framesDeltaTime{0};
 
     while (!ShouldStop()) {
-        m_backend->pollEvents();
+        m_backend->PollEvents();
 
         const TimePoint nowTime = GetTime();
         auto frameDuration      = (nowTime - lastTime);
@@ -236,8 +236,8 @@ void EngineImpl::Render()
 {
     m_game->OnDraw();
 
-    m_renderer->executeRenderCommands();
-    m_renderer->clearRenderCommands();
+    m_renderer->ExecuteRenderCommands();
+    m_renderer->ClearRenderCommands();
 }
 
 #pragma endregion

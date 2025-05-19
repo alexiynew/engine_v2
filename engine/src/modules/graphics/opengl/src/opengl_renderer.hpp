@@ -39,16 +39,16 @@ public:
     std::shared_ptr<graphics::IShader> CreateShader() override;
     std::shared_ptr<graphics::IMesh> CreateMesh() override;
 
-    void addRenderCommand(const RenderCommand& command) override;
-    void clearRenderCommands() override;
-    void executeRenderCommands() override;
+    void AddRenderCommand(const RenderCommand& command) override;
+    void ClearRenderCommands() override;
+    void ExecuteRenderCommands() override;
 
-    void submit(Task task);
-    std::future<void> submitSync(Task task);
+    void Submit(Task task);
+    std::future<void> SubmitSync(Task task);
 
 private:
 
-    void renderLoop();
+    void RenderLoop();
 
     std::shared_ptr<const IRenderContext> m_context;
 
@@ -59,12 +59,12 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
 
-    std::promise<void> m_initPromise;
+    std::promise<void> m_init_promise;
 
     std::vector<std::shared_ptr<OpenGLShader>> m_shaders;
     std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
-    std::mutex m_commandsMutex;
+    std::mutex m_commands_mutex;
     std::deque<RenderCommand> m_commands;
 };
 

@@ -28,10 +28,10 @@ public:
     ModuleLocator& operator=(const ModuleLocator&) = delete;
     ModuleLocator& operator=(ModuleLocator&&)      = default;
 
-    template <ModuleInterface Interface>
-    void setImplementation(std::shared_ptr<Interface>&& module)
+    template <ModuleInterface TInterface>
+    void SetImplementation(std::shared_ptr<TInterface>&& module)
     {
-        const std::type_index key{typeid(Interface)};
+        const std::type_index key{typeid(TInterface)};
         if (m_modules.contains(key)) {
             throw std::runtime_error("Module already registered: " + std::string(key.name()));
         }
@@ -39,17 +39,17 @@ public:
         m_modules[key] = std::move(module);
     }
 
-    template <ModuleInterface Interface>
-    std::shared_ptr<Interface> get() const
+    template <ModuleInterface TInterface>
+    std::shared_ptr<TInterface> Get() const
     {
-        const std::type_index key{typeid(Interface)};
+        const std::type_index key{typeid(TInterface)};
 
         auto it = m_modules.find(key);
         if (it == m_modules.end()) {
             throw std::runtime_error("Module not registered: " + std::string(key.name()));
         }
 
-        return std::static_pointer_cast<Interface>(it->second);
+        return std::static_pointer_cast<TInterface>(it->second);
     }
 
 private:

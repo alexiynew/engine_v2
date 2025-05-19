@@ -19,9 +19,9 @@ public:
     std::shared_ptr<graphics::IShader> CreateShader() override;
     std::shared_ptr<graphics::IMesh> CreateMesh() override;
 
-    void addRenderCommand(const RenderCommand& command) override;
-    void clearRenderCommands() override;
-    void executeRenderCommands() override;
+    void AddRenderCommand(const RenderCommand& command) override;
+    void ClearRenderCommands() override;
+    void ExecuteRenderCommands() override;
 };
 
 } // namespace game_engine::graphics

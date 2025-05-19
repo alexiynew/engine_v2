@@ -26,13 +26,13 @@ bool OpenGLRenderer::Init(std::shared_ptr<const IRenderContext> context) noexcep
         m_context = std::move(context);
 
         m_running.store(true, std::memory_order_release);
-        m_thread = std::thread(&OpenGLRenderer::renderLoop, this);
+        m_thread = std::thread(&OpenGLRenderer::RenderLoop, this);
 
         // Wait for tread to start
-        m_initPromise.get_future().get();
+        m_init_promise.get_future().get();
 
-        auto result = submitSync([this] {
-            m_context->makeCurrent();
+        auto result = SubmitSync([this] {
+            m_context->MakeCurrent();
 
             if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
                 throw std::runtime_error("Unsupported OpenGL version");
@@ -59,7 +59,7 @@ void OpenGLRenderer::Shutdown() noexcept
     try {
         if (m_thread.joinable()) {
             if (!m_meshes.empty()) {
-                auto result = submitSync([this] {
+                auto result = SubmitSync([this] {
                     // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
                     for (auto& mesh : m_meshes) {
                         mesh->Clear();
@@ -69,7 +69,7 @@ void OpenGLRenderer::Shutdown() noexcept
             }
 
             if (!m_shaders.empty()) {
-                auto result = submitSync([this] {
+                auto result = SubmitSync([this] {
                     // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
                     for (auto& shader : m_shaders) {
                         shader->Clear();
@@ -79,7 +79,7 @@ void OpenGLRenderer::Shutdown() noexcept
             }
 
             {
-                auto result = submitSync([this] { m_context->dropCurrent(); });
+                auto result = SubmitSync([this] { m_context->DropCurrent(); });
                 result.get();
             }
 
@@ -110,57 +110,57 @@ std::shared_ptr<graphics::IMesh> OpenGLRenderer::CreateMesh()
     return m_meshes.back();
 }
 
-void OpenGLRenderer::addRenderCommand(const RenderCommand& command)
+void OpenGLRenderer::AddRenderCommand(const RenderCommand& command)
 {
-    std::lock_guard<std::mutex> lock(m_commandsMutex);
+    std::lock_guard<std::mutex> lock(m_commands_mutex);
     m_commands.push_back(command);
 }
 
-void OpenGLRenderer::clearRenderCommands()
+void OpenGLRenderer::ClearRenderCommands()
 {
-    std::lock_guard<std::mutex> lock(m_commandsMutex);
+    std::lock_guard<std::mutex> lock(m_commands_mutex);
     m_commands.clear();
 }
 
 // TODO: Add submeshes support with materials
-void OpenGLRenderer::executeRenderCommands()
+void OpenGLRenderer::ExecuteRenderCommands()
 {
-    submit([] {
+    Submit([] {
         glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     });
 
     std::deque<RenderCommand> commands;
     {
-        std::lock_guard<std::mutex> lock(m_commandsMutex);
+        std::lock_guard<std::mutex> lock(m_commands_mutex);
         std::swap(m_commands, commands);
     }
 
-    submit([commands = std::move(commands)] {
+    Submit([commands = std::move(commands)] {
         for (const auto& cmd : commands) {
-            const auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
-            if (openglShader && openglShader->IsValid()) {
-                openglShader->use();
+            const auto opengl_shader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
+            if (opengl_shader && opengl_shader->IsValid()) {
+                opengl_shader->Use();
 
                 for (const auto& uniform : cmd.uniforms) {
-                    openglShader->setUniform(uniform);
+                    opengl_shader->SetUniform(uniform);
                 }
             }
 
-            const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(cmd.mesh);
-            if (openglMesh && openglMesh->IsValid()) {
-                if (cmd.instanceCount > 1) {
+            const auto opengl_mesh = std::dynamic_pointer_cast<OpenGLMesh>(cmd.mesh);
+            if (opengl_mesh && opengl_mesh->IsValid()) {
+                if (cmd.instance_count > 1) {
                     // TODO: Implement instancing
                 } else {
-                    openglMesh->Render();
+                    opengl_mesh->Render();
                 }
             }
         }
     });
 
-    submit([this] {
+    Submit([this] {
         // --
-        m_context->swapBuffers();
+        m_context->SwapBuffers();
     });
 }
 
@@ -168,36 +168,36 @@ void OpenGLRenderer::executeRenderCommands()
 
 #pragma region OpenGLRenderer private
 
-void OpenGLRenderer::submit(Task task)
+void OpenGLRenderer::Submit(Task task)
 {
-    std::packaged_task<void()> packagedTask(std::move(task));
+    std::packaged_task<void()> packaged_task(std::move(task));
 
     {
         std::lock_guard lock(m_mutex);
-        m_tasks.push_back(std::move(packagedTask));
+        m_tasks.push_back(std::move(packaged_task));
     }
 
     m_cv.notify_one();
 }
 
-std::future<void> OpenGLRenderer::submitSync(Task task)
+std::future<void> OpenGLRenderer::SubmitSync(Task task)
 {
-    std::packaged_task<void()> packagedTask(std::move(task));
-    auto future = packagedTask.get_future();
+    std::packaged_task<void()> packaged_task(std::move(task));
+    auto future = packaged_task.get_future();
 
     {
         std::lock_guard lock(m_mutex);
-        m_tasks.push_back(std::move(packagedTask));
+        m_tasks.push_back(std::move(packaged_task));
     }
 
     m_cv.notify_one();
     return future;
 }
 
-void OpenGLRenderer::renderLoop()
+void OpenGLRenderer::RenderLoop()
 {
     // Signal tread start
-    m_initPromise.set_value();
+    m_init_promise.set_value();
 
     while (m_running.load(std::memory_order_acquire)) {
         std::deque<std::packaged_task<void()>> tasks;

@@ -17,9 +17,9 @@ public:
     MOCK_METHOD(std::shared_ptr<game_engine::graphics::IMesh>, CreateMesh, (), (override));
     MOCK_METHOD(std::shared_ptr<game_engine::graphics::IShader>, CreateShader, (), (override));
 
-    MOCK_METHOD(void, addRenderCommand, (const game_engine::graphics::RenderCommand&), (override));
-    MOCK_METHOD(void, executeRenderCommands, (), (override));
-    MOCK_METHOD(void, clearRenderCommands, (), (override));
+    MOCK_METHOD(void, AddRenderCommand, (const game_engine::graphics::RenderCommand&), (override));
+    MOCK_METHOD(void, ExecuteRenderCommands, (), (override));
+    MOCK_METHOD(void, ClearRenderCommands, (), (override));
 };
 
 class MockBackend : public game_engine::backend::IBackend
@@ -28,11 +28,11 @@ public:
     MOCK_METHOD(bool, Init, (const game_engine::GameSettings&), (noexcept, override));
     MOCK_METHOD(void, Shutdown, (), (noexcept, override));
 
-    MOCK_METHOD(void, pollEvents, (), (override));
-    MOCK_METHOD(std::shared_ptr<const game_engine::IRenderContext>, getRenderContext, (), (const, override));
+    MOCK_METHOD(void, PollEvents, (), (override));
+    MOCK_METHOD(std::shared_ptr<const game_engine::IRenderContext>, GetRenderContext, (), (const, override));
 
-    MOCK_METHOD(void, attachBackendObserver, (game_engine::IBackendObserver&), (override));
-    MOCK_METHOD(void, detachBackendObserver, (const game_engine::IBackendObserver&), (override));
+    MOCK_METHOD(void, AttachBackendObserver, (game_engine::IBackendObserver&), (override));
+    MOCK_METHOD(void, DetachBackendObserver, (const game_engine::IBackendObserver&), (override));
 };
 
 class MockGame : public game_engine::IGame
@@ -55,9 +55,9 @@ protected:
         auto create_module_locator = [&]() {
             game_engine::ModuleLocator ml;
 
-            ml.setImplementation<game_engine::backend::IBackend>(m_mock_backend);
-            ml.setImplementation<game_engine::graphics::IRenderer>(m_mock_renderer);
-            ml.setImplementation<game_engine::IGame>(m_mock_game);
+            ml.SetImplementation<game_engine::backend::IBackend>(m_mock_backend);
+            ml.SetImplementation<game_engine::graphics::IRenderer>(m_mock_renderer);
+            ml.SetImplementation<game_engine::IGame>(m_mock_game);
 
             return ml;
         };
@@ -116,7 +116,7 @@ TEST_F(EngineFixture, RenderCommandSubmission)
 
     EXPECT_CALL(*m_mock_renderer, CreateMesh()).WillOnce(Return(nullptr));
     EXPECT_CALL(*m_mock_renderer, CreateShader()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_mock_renderer, addRenderCommand(_)).Times(1);
+    EXPECT_CALL(*m_mock_renderer, AddRenderCommand(_)).Times(1);
 
     auto mesh   = m_engine->CreateMesh();
     auto shader = m_engine->CreateShader();
@@ -134,7 +134,7 @@ TEST_F(EngineFixture, MainLoopExecution)
         EXPECT_CALL(*m_mock_game, Init(_)).WillOnce(Return(true));
     }
 
-    EXPECT_CALL(*m_mock_backend, pollEvents()).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mock_backend, PollEvents()).Times(testing::AtLeast(1));
 
     {
         Sequence seq2;

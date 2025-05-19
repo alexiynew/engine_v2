@@ -15,7 +15,7 @@ namespace game_engine::graphics
 class OpenGLMesh final : public graphics::IMesh
 {
 public:
-    explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
+    explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
     ~OpenGLMesh() override;
 
     OpenGLMesh(const OpenGLMesh&) = delete;
@@ -35,13 +35,13 @@ public:
 private:
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
 
-    bool loadToGPU();
+    bool LoadToGPU();
 
     std::shared_ptr<OpenGLRenderer> m_renderer;
 
-    unsigned int m_VAO = 0;
-    unsigned int m_VBO = 0;
-    unsigned int m_EBO = 0;
+    unsigned int m_vao = 0;
+    unsigned int m_vbo = 0;
+    unsigned int m_ebo = 0;
 
     graphics::MeshData m_data = {};
 };

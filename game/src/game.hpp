@@ -30,5 +30,5 @@ private:
     std::shared_ptr<game_engine::graphics::IMesh> m_mesh;
 
     std::size_t m_updatesCount = 0;
-    std::size_t m_framesCount  = 0;
+    std::size_t m_frames_count = 0;
 };

@@ -39,13 +39,13 @@ public:
 
 private:
     // BackendEventHandler
-    void onEvent(const KeyboardInputEvent& event) override;
-    void onEvent(const WindowResizeEvent& event) override;
-    void onEvent(const WindowMoveEvent& event) override;
-    void onEvent(const WindowCloseEvent& event) override;
-    void onEvent(const WindowFocusEvent& event) override;
-    void onEvent(const WindowIconifyEvent& event) override;
-    void onEvent(const WindowMaximizeEvent& event) override;
+    void OnEvent(const KeyboardInputEvent& event) override;
+    void OnEvent(const WindowResizeEvent& event) override;
+    void OnEvent(const WindowMoveEvent& event) override;
+    void OnEvent(const WindowCloseEvent& event) override;
+    void OnEvent(const WindowFocusEvent& event) override;
+    void OnEvent(const WindowIconifyEvent& event) override;
+    void OnEvent(const WindowMaximizeEvent& event) override;
 
     void setupFrameRate(const GameSettings& settings);
     void mainLoop();

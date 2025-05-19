@@ -19,20 +19,20 @@ public:
     bool Init(const GameSettings&) noexcept override;
     void Shutdown() noexcept override;
 
-    void pollEvents() override;
-    std::shared_ptr<const IRenderContext> getRenderContext() const override;
+    void PollEvents() override;
+    std::shared_ptr<const IRenderContext> GetRenderContext() const override;
 
-    void attachBackendObserver(IBackendObserver& observer) override;
-    void detachBackendObserver(const IBackendObserver& observer) override;
+    void AttachBackendObserver(IBackendObserver& observer) override;
+    void DetachBackendObserver(const IBackendObserver& observer) override;
 
     // renderer::IRenderContext
-    void makeCurrent() const override;
-    void dropCurrent() const override;
-    void swapBuffers() const override;
+    void MakeCurrent() const override;
+    void DropCurrent() const override;
+    void SwapBuffers() const override;
 
 private:
-    int m_framesCount       = 0;
-    int m_targetFramesCount = 100;
+    int m_frames_count        = 0;
+    int m_target_frames_count = 100;
 
     std::list<RefObserver> m_observers;
 };

@@ -15,7 +15,7 @@ struct RenderCommand
     std::shared_ptr<IMesh> mesh;
     std::shared_ptr<IShader> shader;
     std::vector<Uniform> uniforms;
-    uint32_t instanceCount = 1;
+    uint32_t instance_count = 1;
 };
 
 class IRenderer
@@ -31,9 +31,9 @@ public:
     virtual std::shared_ptr<IShader> CreateShader() = 0;
     virtual std::shared_ptr<IMesh> CreateMesh()     = 0;
 
-    virtual void addRenderCommand(const RenderCommand& command) = 0;
-    virtual void clearRenderCommands()                          = 0;
-    virtual void executeRenderCommands()                        = 0;
+    virtual void AddRenderCommand(const RenderCommand& command) = 0;
+    virtual void ClearRenderCommands()                          = 0;
+    virtual void ExecuteRenderCommands()                        = 0;
 };
 
 } // namespace game_engine::graphics

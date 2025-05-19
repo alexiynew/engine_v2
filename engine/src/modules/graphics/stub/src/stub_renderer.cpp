@@ -29,13 +29,13 @@ std::shared_ptr<graphics::IMesh> StubRenderer::CreateMesh()
     return std::make_shared<StubMesh>();
 }
 
-void StubRenderer::addRenderCommand(const RenderCommand& command)
+void StubRenderer::AddRenderCommand(const RenderCommand& command)
 {}
 
-void StubRenderer::clearRenderCommands()
+void StubRenderer::ClearRenderCommands()
 {}
 
-void StubRenderer::executeRenderCommands()
+void StubRenderer::ExecuteRenderCommands()
 {}
 
 } // namespace game_engine::graphics

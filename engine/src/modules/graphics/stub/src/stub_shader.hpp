@@ -14,7 +14,7 @@ class StubShader final : public graphics::IShader
 public:
 
     // graphics::IShader
-    void SetSource(const std::string& vertexSource, const std::string& fragmentSource) override;
+    void SetSource(const std::string& vertex_source, const std::string& fragment_source) override;
     bool Link() override;
     void Clear() noexcept override;
     bool IsValid() const noexcept override;

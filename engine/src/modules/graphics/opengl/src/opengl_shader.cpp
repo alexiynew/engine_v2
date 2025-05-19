@@ -12,9 +12,9 @@
 // TODO: move all opengl stuff in render thread
 namespace
 {
-std::string shaderTypeString(int shaderType)
+std::string ShaderTypeString(int shader_type)
 {
-    switch (shaderType) {
+    switch (shader_type) {
         case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
         case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
     }
@@ -22,76 +22,76 @@ std::string shaderTypeString(int shaderType)
     return "UNKNOWN_SHADER";
 }
 
-std::string shaderInfoLog(GLuint shaderId)
+std::string ShaderInfoLog(GLuint shader_id)
 {
     int length = 0;
-    glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
+    glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
 
     if (length <= 0) {
         return {};
     }
 
     std::unique_ptr<char[]> buffer(new char[static_cast<std::size_t>(length)]);
-    glGetShaderInfoLog(shaderId, length, nullptr, buffer.get());
+    glGetShaderInfoLog(shader_id, length, nullptr, buffer.get());
 
     return {buffer.get()};
 }
 
-std::string shaderProgramInfoLog(GLuint programId)
+std::string ShaderProgramInfoLog(GLuint program_id)
 {
     int length = 0;
-    glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
+    glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &length);
 
     if (length <= 0) {
         return {};
     }
 
     std::unique_ptr<char[]> buffer(new char[static_cast<std::size_t>(length)]);
-    glGetProgramInfoLog(programId, length, nullptr, buffer.get());
+    glGetProgramInfoLog(program_id, length, nullptr, buffer.get());
 
     return {buffer.get()};
 }
 
-bool loadShader(GLuint shaderId, int shaderType, const std::string& source)
+bool LoadShader(GLuint shader_id, int shader_type, const std::string& source)
 {
-    if (shaderId == 0) {
+    if (shader_id == 0) {
         return false;
     }
 
-    const char* sourcePointer = source.c_str();
+    const char* source_ptr = source.c_str();
 
-    glShaderSource(shaderId, 1, &sourcePointer, nullptr);
-    glCompileShader(shaderId);
+    glShaderSource(shader_id, 1, &source_ptr, nullptr);
+    glCompileShader(shader_id);
 
     int compiled = 0;
-    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compiled);
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);
     if (compiled == 0) {
-        LOG_ERROR << shaderTypeString(shaderType) << " compilation error:\n" << shaderInfoLog(shaderId) << std::endl;
+        LOG_ERROR << ShaderTypeString(shader_type) << " compilation error:\n" << ShaderInfoLog(shader_id) << std::endl;
         return false;
     }
 
     return true;
 }
 
-bool compileShaderProgram(GLuint programId, GLuint vertexShaderId, GLuint fragmentShaderId)
+bool CompileShaderProgram(GLuint program_id, GLuint vertex_shader_id, GLuint fragment_shader_id)
 {
-    if (programId == 0 || vertexShaderId == 0 || fragmentShaderId == 0) {
+    if (program_id == 0 || vertex_shader_id == 0 || fragment_shader_id == 0) {
         return false;
     }
 
-    glAttachShader(programId, vertexShaderId);
-    glAttachShader(programId, fragmentShaderId);
+    glAttachShader(program_id, vertex_shader_id);
+    glAttachShader(program_id, fragment_shader_id);
 
-    glLinkProgram(programId);
+    glLinkProgram(program_id);
 
     // mark shader for deletion
-    glDeleteShader(vertexShaderId);
-    glDeleteShader(fragmentShaderId);
+    glDeleteShader(vertex_shader_id);
+    glDeleteShader(fragment_shader_id);
 
     int linked = 0;
-    glGetProgramiv(programId, GL_LINK_STATUS, &linked);
+    glGetProgramiv(program_id, GL_LINK_STATUS, &linked);
     if (linked == 0) {
-        LOG_ERROR << "Shader program link error:\n" << shaderProgramInfoLog(programId) << std::endl;
+        LOG_ERROR << "Shader program link error:\n" << ShaderProgramInfoLog(program_id) << std::endl;
         return false;
     }
 
@@ -103,8 +103,8 @@ bool compileShaderProgram(GLuint programId, GLuint vertexShaderId, GLuint fragme
 namespace game_engine::graphics
 {
 
-OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
-    : m_renderer(std::move(renderThread))
+OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> render_thread) noexcept
+    : m_renderer(std::move(render_thread))
 {}
 
 OpenGLShader::~OpenGLShader()
@@ -125,16 +125,16 @@ OpenGLShader& OpenGLShader::operator=(OpenGLShader&& other) noexcept
     return *this;
 }
 
-void OpenGLShader::SetSource(const std::string& vertexSource, const std::string& fragmentSource)
+void OpenGLShader::SetSource(const std::string& vertex_source, const std::string& fragment_source)
 {
-    m_vertexSource   = vertexSource;
-    m_fragmentSource = fragmentSource;
+    m_vertex_source   = vertex_source;
+    m_fragment_source = fragment_source;
 }
 
 bool OpenGLShader::Link()
 {
-    auto result = m_renderer->submitSync([this]() {
-        if (!linkImpl()) {
+    auto result = m_renderer->SubmitSync([this]() {
+        if (!LinkImpl()) {
             // TODO: report error
         }
     });
@@ -147,20 +147,20 @@ bool OpenGLShader::Link()
     return true;
 }
 
-void OpenGLShader::use() const
+void OpenGLShader::Use() const
 {
-    if (m_shaderProgram == 0) {
+    if (m_shader_program == 0) {
         LOG_ERROR << "[SHADER] Shader program is not initialized." << std::endl;
         return;
     }
-    glUseProgram(m_shaderProgram);
+    glUseProgram(m_shader_program);
 }
 
-void OpenGLShader::setUniform(const graphics::Uniform& uniform) const
+void OpenGLShader::SetUniform(const graphics::Uniform& uniform) const
 {
-    const GLint location = getUniformLocation(uniform.name);
+    const GLint location = GetUniformLocation(uniform.name);
 
-    if (location < 0 || m_shaderProgram == 0) {
+    if (location < 0 || m_shader_program == 0) {
         LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
         return;
     }
@@ -190,98 +190,98 @@ void OpenGLShader::setUniform(const graphics::Uniform& uniform) const
 
 void OpenGLShader::Clear() noexcept
 {
-    if (m_vertexShader) {
-        glDeleteShader(m_vertexShader);
+    if (m_vertex_shader) {
+        glDeleteShader(m_vertex_shader);
     }
 
-    if (m_fragmentShader) {
-        glDeleteShader(m_fragmentShader);
+    if (m_fragment_shader) {
+        glDeleteShader(m_fragment_shader);
     }
 
-    if (m_shaderProgram) {
-        glDeleteProgram(m_shaderProgram);
+    if (m_shader_program) {
+        glDeleteProgram(m_shader_program);
     }
 
-    m_vertexShader   = 0;
-    m_fragmentShader = 0;
-    m_shaderProgram  = 0;
+    m_vertex_shader   = 0;
+    m_fragment_shader = 0;
+    m_shader_program  = 0;
 
-    m_uniformCache.clear();
+    m_uniform_cache.clear();
 }
 
 bool OpenGLShader::IsValid() const noexcept
 {
-    return m_shaderProgram != 0;
+    return m_shader_program != 0;
 }
 
-void OpenGLShader::bindAttributeLocation(std::uint32_t location, const std::string& name) const
+void OpenGLShader::BindAttributeLocation(std::uint32_t location, const std::string& name) const
 {
-    if (m_shaderProgram == 0) {
+    if (m_shader_program == 0) {
         LOG_ERROR << "[SHADER] Shader program is not initialized." << std::endl;
         return;
     }
-    glBindAttribLocation(m_shaderProgram, location, name.c_str());
+    glBindAttribLocation(m_shader_program, location, name.c_str());
 }
 
-int OpenGLShader::getAttributeLocation(const std::string& name) const
+int OpenGLShader::GetAttributeLocation(const std::string& name) const
 {
-    if (m_shaderProgram == 0) {
+    if (m_shader_program == 0) {
         LOG_ERROR << "[SHADER] Shader program is not initialized." << std::endl;
         return -1;
     }
-    return glGetAttribLocation(m_shaderProgram, name.c_str());
+    return glGetAttribLocation(m_shader_program, name.c_str());
 }
 
-int OpenGLShader::getUniformLocation(const std::string& name) const
+int OpenGLShader::GetUniformLocation(const std::string& name) const
 {
-    if (m_uniformCache.find(name) != m_uniformCache.end()) {
-        return m_uniformCache[name];
+    if (m_uniform_cache.find(name) != m_uniform_cache.end()) {
+        return m_uniform_cache[name];
     }
 
-    int location = glGetUniformLocation(m_shaderProgram, name.c_str());
+    int location = glGetUniformLocation(m_shader_program, name.c_str());
     if (location == -1) {
         LOG_ERROR << "[SHADER] Uniform '" << name << "' not found." << std::endl;
         return location;
     }
 
-    m_uniformCache[name] = location;
+    m_uniform_cache[name] = location;
     return location;
 }
 
-bool OpenGLShader::linkImpl()
+bool OpenGLShader::LinkImpl()
 {
-    if (m_vertexSource.empty() || m_fragmentSource.empty()) {
+    if (m_vertex_source.empty() || m_fragment_source.empty()) {
         return false;
     }
 
-    if (m_vertexShader == 0) {
-        m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    if (m_vertex_shader == 0) {
+        m_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     }
 
-    if (m_fragmentShader == 0) {
-        m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    if (m_fragment_shader == 0) {
+        m_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     }
 
-    if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
+    if (!LoadShader(m_vertex_shader, GL_VERTEX_SHADER, m_vertex_source)) {
         Clear();
         return false;
     }
 
-    if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
+    if (!LoadShader(m_fragment_shader, GL_FRAGMENT_SHADER, m_fragment_source)) {
         Clear();
         return false;
     }
 
-    if (hasOpenGLErrors()) {
+    if (HasOpenGLErrors()) {
         Clear();
         return false;
     }
 
-    if (m_shaderProgram == 0) {
-        m_shaderProgram = glCreateProgram();
+    if (m_shader_program == 0) {
+        m_shader_program = glCreateProgram();
     }
 
-    if (!compileShaderProgram(m_shaderProgram, m_vertexShader, m_fragmentShader)) {
+    if (!CompileShaderProgram(m_shader_program, m_vertex_shader, m_fragment_shader)) {
         Clear();
         return false;
     }
@@ -294,12 +294,12 @@ void swap(OpenGLShader& a, OpenGLShader& b) noexcept
     using std::swap;
 
     swap(a.m_renderer, b.m_renderer);
-    swap(a.m_vertexSource, b.m_vertexSource);
-    swap(a.m_fragmentSource, b.m_fragmentSource);
-    swap(a.m_vertexShader, b.m_vertexShader);
-    swap(a.m_fragmentShader, b.m_fragmentShader);
-    swap(a.m_shaderProgram, b.m_shaderProgram);
-    swap(a.m_uniformCache, b.m_uniformCache);
+    swap(a.m_vertex_source, b.m_vertex_source);
+    swap(a.m_fragment_source, b.m_fragment_source);
+    swap(a.m_vertex_shader, b.m_vertex_shader);
+    swap(a.m_fragment_shader, b.m_fragment_shader);
+    swap(a.m_shader_program, b.m_shader_program);
+    swap(a.m_uniform_cache, b.m_uniform_cache);
 }
 
 } // namespace game_engine::graphics

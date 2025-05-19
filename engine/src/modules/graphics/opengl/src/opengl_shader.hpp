@@ -15,7 +15,7 @@ namespace game_engine::graphics
 class OpenGLShader final : public graphics::IShader
 {
 public:
-    explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcept;
+    explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
     ~OpenGLShader() override;
 
     OpenGLShader(const OpenGLShader&) = delete;
@@ -25,34 +25,34 @@ public:
     OpenGLShader& operator=(OpenGLShader&& other) noexcept;
 
     // graphics::Shader
-    void SetSource(const std::string& vertexSource, const std::string& fragmentSource) override;
+    void SetSource(const std::string& vertex_source, const std::string& fragment_source) override;
     bool Link() override;
     void Clear() noexcept override;
     bool IsValid() const noexcept override;
 
-    void setUniform(const graphics::Uniform& uniform) const;
-    void use() const;
+    void SetUniform(const graphics::Uniform& uniform) const;
+    void Use() const;
 
-    void bindAttributeLocation(std::uint32_t location, const std::string& name) const;
-    int getAttributeLocation(const std::string& name) const;
+    void BindAttributeLocation(std::uint32_t location, const std::string& name) const;
+    int GetAttributeLocation(const std::string& name) const;
 
 private:
     friend void swap(OpenGLShader& a, OpenGLShader& b) noexcept;
 
-    int getUniformLocation(const std::string& name) const;
+    int GetUniformLocation(const std::string& name) const;
 
-    bool linkImpl();
+    bool LinkImpl();
 
     std::shared_ptr<OpenGLRenderer> m_renderer;
 
-    std::string m_vertexSource;
-    std::string m_fragmentSource;
+    std::string m_vertex_source;
+    std::string m_fragment_source;
 
-    std::uint32_t m_shaderProgram  = 0;
-    std::uint32_t m_vertexShader   = 0;
-    std::uint32_t m_fragmentShader = 0;
+    std::uint32_t m_shader_program  = 0;
+    std::uint32_t m_vertex_shader   = 0;
+    std::uint32_t m_fragment_shader = 0;
 
-    mutable std::unordered_map<std::string, int> m_uniformCache;
+    mutable std::unordered_map<std::string, int> m_uniform_cache;
 };
 
 } // namespace game_engine::graphics
