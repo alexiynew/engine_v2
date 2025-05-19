@@ -113,13 +113,13 @@ const char* FragmentShaderSource = R"(
 inline game_engine::graphics::VertexLayout getVertexLayout()
 {
     return {
-        .vertexSize = sizeof(Vertex),
-        .attributes = {
-                       game_engine::graphics::generateAttribute(0, "position", &Vertex::position),
-                       game_engine::graphics::generateAttribute(1, "normal", &Vertex::normal),
-                       game_engine::graphics::generateAttribute(2, "uv", &Vertex::uv),
-                       game_engine::graphics::generateAttribute(3, "color", &Vertex::color),
-                       }
+        .vertex_size = sizeof(Vertex),
+        .attributes  = {
+                        game_engine::graphics::GenerateAttribute(0, "position", &Vertex::position),
+                        game_engine::graphics::GenerateAttribute(1, "normal", &Vertex::normal),
+                        game_engine::graphics::GenerateAttribute(2, "uv", &Vertex::uv),
+                        game_engine::graphics::GenerateAttribute(3, "color", &Vertex::color),
+                        }
     };
 }
 
@@ -135,7 +135,7 @@ Game::~Game()
     std::cout << "Game::~Game" << std::endl;
 }
 
-bool Game::init(std::shared_ptr<game_engine::Engine> engine) noexcept
+bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 {
     m_engine = std::move(engine);
 
@@ -147,13 +147,13 @@ bool Game::init(std::shared_ptr<game_engine::Engine> engine) noexcept
         {cube_mesh::submesh_indices, {}}
     };
 
-    m_mesh = m_engine->createMesh();
-    m_mesh->setMeshData(createMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
-    m_mesh->flush();
+    m_mesh = m_engine->CreateMesh();
+    m_mesh->SetMeshData(CreateMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
+    m_mesh->Flush();
 
-    m_shader = m_engine->createShader();
-    m_shader->setSource(VertexShaderSource, FragmentShaderSource);
-    if (!m_shader->link()) {
+    m_shader = m_engine->CreateShader();
+    m_shader->SetSource(VertexShaderSource, FragmentShaderSource);
+    if (!m_shader->Link()) {
         std::cout << "Failed to load shader" << std::endl;
     }
 
@@ -162,11 +162,11 @@ bool Game::init(std::shared_ptr<game_engine::Engine> engine) noexcept
     return true;
 }
 
-void Game::shutdown() noexcept
+void Game::Shutdown() noexcept
 {
     std::cout << "Game::onShutdown" << std::endl;
     std::cout << " -- updates count: " << m_updatesCount << std::endl;
-    std::cout << " -- frames count: " << m_framesCount << std::endl;
+    std::cout << " -- frames count: " << m_frames_count << std::endl;
 
     unsubscribeFromEvents();
 
@@ -176,16 +176,16 @@ void Game::shutdown() noexcept
     m_engine.reset();
 }
 
-void Game::onUpdate(std::chrono::nanoseconds)
+void Game::OnUpdate(std::chrono::nanoseconds)
 {
     m_updatesCount++;
 }
 
-void Game::onDraw()
+void Game::OnDraw()
 {
-    m_framesCount++;
+    m_frames_count++;
 
-    float time = (static_cast<float>(m_framesCount) * 3.14f) / 180.0f;
+    float time = (static_cast<float>(m_frames_count) * 3.14f) / 180.0f;
 
     using game_engine::Matrix4;
     using game_engine::Vector3;
@@ -195,7 +195,7 @@ void Game::onDraw()
     const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_engine->render(m_mesh,
+    m_engine->Render(m_mesh,
                      m_shader,
                      {
                          Uniform{     "model",      model},
@@ -204,23 +204,23 @@ void Game::onDraw()
     });
 }
 
-bool Game::onShouldClose()
+bool Game::OnShouldClose()
 {
     return true;
 }
 
-game_engine::GameSettings Game::getSettings()
+game_engine::GameSettings Game::GetSettings()
 {
     using namespace game_engine;
 
     GameSettings settings;
-    settings.resolutionWidth  = 1920;
-    settings.resolutionHeight = 1080;
-    settings.displayMode      = DisplayMode::Windowed;
-    settings.frameRate        = 60;
-    settings.updateRate       = 120;
-    settings.antiAliasing     = AntiAliasing::MSAA4x;
-    settings.vSync            = true;
+    settings.resolution_width  = 1920;
+    settings.resolution_height = 1080;
+    settings.display_mode      = DisplayMode::Windowed;
+    settings.frame_rate        = 60;
+    settings.update_rate       = 120;
+    settings.anti_aliasing     = AntiAliasing::MSAA4x;
+    settings.v_sync            = true;
 
     return settings;
 }
@@ -229,9 +229,9 @@ void Game::subscribeForEvents()
 {
     using namespace game_engine;
 
-    m_subscriptions.push_back(m_engine->getEventSystem().subscribe<KeyboardInputEvent>([this](const auto& event) {
+    m_subscriptions.push_back(m_engine->GetEventSystem().Subscribe<KeyboardInputEvent>([this](const auto& event) {
         if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
-            m_engine->setShouldStopFlag();
+            m_engine->SetShouldStopFlag();
         }
     }));
 }

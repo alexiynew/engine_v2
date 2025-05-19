@@ -1,5 +1,4 @@
 # Custom target to run clang-tidy
-
 find_program(CLANG_TIDY clang-tidy)
 if(CLANG_TIDY)
     file(GLOB_RECURSE SOURCES 
@@ -14,7 +13,6 @@ if(CLANG_TIDY)
         COMMAND ${CLANG_TIDY}   
             -p ${CMAKE_BINARY_DIR}
             --config-file ${CMAKE_SOURCE_DIR}/.clang-tidy
-            --quiet
             ${SOURCES}
         COMMAND_EXPAND_LISTS
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"

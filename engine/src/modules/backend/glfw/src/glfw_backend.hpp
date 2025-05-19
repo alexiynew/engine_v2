@@ -11,49 +11,49 @@ namespace game_engine::backend
 {
 
 class GLFWBackend final
-    : public Backend
-    , public RenderContext
+    : public IBackend
+    , public IRenderContext
     , public std::enable_shared_from_this<GLFWBackend>
 {
 public:
     GLFWBackend();
     ~GLFWBackend() override;
 
-    // Backend
-    bool init(const GameSettings& settings) noexcept override;
-    void shutdown() noexcept override;
+    // IBackend
+    bool Init(const GameSettings& settings) noexcept override;
+    void Shutdown() noexcept override;
 
-    void pollEvents() override;
+    void PollEvents() override;
 
-    std::shared_ptr<const RenderContext> getRenderContext() const override;
+    std::shared_ptr<const IRenderContext> GetRenderContext() const override;
 
-    void attachBackendObserver(BackendObserver& observer) override;
-    void detachBackendObserver(const BackendObserver& observer) override;
+    void AttachBackendObserver(IBackendObserver& observer) override;
+    void DetachBackendObserver(const IBackendObserver& observer) override;
 
-    // RenderContext
-    void makeCurrent() const override;
-    void dropCurrent() const override;
-    void swapBuffers() const override;
+    // IRenderContext
+    void MakeCurrent() const override;
+    void DropCurrent() const override;
+    void SwapBuffers() const override;
 
     // Event handling
-    void handleKeyEvent(int key, int scancode, int action, int mods);
-    void handleWindowResize(int width, int height);
-    void handleWindowMove(int xpos, int ypos);
-    void handleWindowClose();
-    void handleWindowFocus(bool focused);
-    void handleWindowIconify(bool iconified);
-    void handleWindowMaximize(bool maximized);
+    void HandleKeyEvent(int key, int scancode, int action, int mods);
+    void HandleWindowResize(int width, int height);
+    void HandleWindowMove(int xpos, int ypos);
+    void HandleWindowClose();
+    void HandleWindowFocus(bool focused);
+    void HandleWindowIconify(bool iconified);
+    void HandleWindowMaximize(bool maximized);
 
 private:
 
-    void applySettings(const GameSettings& settings);
-    void applyDisplayMode(const GameSettings& settings);
-    void applyAntiAliasing(const GameSettings& settings);
+    void ApplySettings(const GameSettings& settings);
+    void ApplyDisplayMode(const GameSettings& settings);
+    void ApplyAntiAliasing(const GameSettings& settings);
 
-    template <typename EventType>
-    void notify(const EventType& event);
+    template <typename TEventType>
+    void Notify(const TEventType& event);
 
-    mutable std::mutex m_windowMutex;
+    mutable std::mutex m_window_mutex;
     GLFWwindow* m_window = nullptr;
 
     std::list<RefObserver> m_observers;

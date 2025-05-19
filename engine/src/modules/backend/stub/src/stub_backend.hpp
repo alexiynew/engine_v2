@@ -7,32 +7,32 @@ namespace game_engine::backend
 {
 
 class StubBackend final
-    : public Backend
-    , public RenderContext
+    : public IBackend
+    , public IRenderContext
     , public std::enable_shared_from_this<StubBackend>
 {
 public:
     StubBackend();
     ~StubBackend() override;
 
-    // Backend
-    bool init(const GameSettings&) noexcept override;
-    void shutdown() noexcept override;
+    // IBackend
+    bool Init(const GameSettings&) noexcept override;
+    void Shutdown() noexcept override;
 
-    void pollEvents() override;
-    std::shared_ptr<const RenderContext> getRenderContext() const override;
+    void PollEvents() override;
+    std::shared_ptr<const IRenderContext> GetRenderContext() const override;
 
-    void attachBackendObserver(BackendObserver& observer) override;
-    void detachBackendObserver(const BackendObserver& observer) override;
+    void AttachBackendObserver(IBackendObserver& observer) override;
+    void DetachBackendObserver(const IBackendObserver& observer) override;
 
-    // renderer::RenderContext
-    void makeCurrent() const override;
-    void dropCurrent() const override;
-    void swapBuffers() const override;
+    // renderer::IRenderContext
+    void MakeCurrent() const override;
+    void DropCurrent() const override;
+    void SwapBuffers() const override;
 
 private:
-    int m_framesCount       = 0;
-    int m_targetFramesCount = 100;
+    int m_frames_count        = 0;
+    int m_target_frames_count = 100;
 
     std::list<RefObserver> m_observers;
 };

@@ -8,7 +8,7 @@
 namespace game_engine::graphics
 {
 
-std::string_view getErrorName(unsigned int error)
+std::string_view GetErrorName(unsigned int error)
 {
     switch (error) {
         case GL_INVALID_ENUM:                  return "GL_INVALID_ENUM";
@@ -21,19 +21,19 @@ std::string_view getErrorName(unsigned int error)
     return "UNKNOWN_ERROR";
 }
 
-bool hasOpenGLErrors()
+bool HasOpenGLErrors()
 {
-    bool hasErrors = false;
+    bool has_errors = false;
     while (const GLuint error = glGetError()) {
         if (error == GL_NO_ERROR) {
             break;
         }
 
-        LOG_ERROR << getErrorName(error) << "\n";
-        hasErrors = true;
+        LOG_ERROR << GetErrorName(error) << "\n";
+        has_errors = true;
     }
 
-    return hasErrors;
+    return has_errors;
 }
 
 } // namespace game_engine::graphics

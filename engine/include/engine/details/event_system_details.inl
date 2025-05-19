@@ -6,13 +6,13 @@
 
 namespace game_engine
 {
-template <typename Event>
+template <typename TEvent>
 class EventSystem::Dispatcher final
-    : public DispatcherBase
-    , public std::enable_shared_from_this<Dispatcher<Event>>
+    : public IDispatcherBase
+    , public std::enable_shared_from_this<Dispatcher<TEvent>>
 {
 public:
-    using Handler   = std::function<void(const Event&)>;
+    using Handler   = std::function<void(const TEvent&)>;
     using HandlerId = std::size_t;
 
     struct HandlerNode
@@ -22,7 +22,7 @@ public:
         HandlerPriority priority;
     };
 
-    class SubscriptionImpl final : public Subscription
+    class SubscriptionImpl final : public ISubscription
     {
     public:
         SubscriptionImpl(std::weak_ptr<Dispatcher> dispatcher, HandlerId id)
@@ -32,7 +32,7 @@ public:
 
         ~SubscriptionImpl() override
         {
-            unsubscribe();
+            Unsubscribe();
         }
 
         SubscriptionImpl(const SubscriptionImpl&) = delete;
@@ -41,10 +41,10 @@ public:
         SubscriptionImpl& operator=(const SubscriptionImpl&) = delete;
         SubscriptionImpl& operator=(SubscriptionImpl&&)      = default;
 
-        void unsubscribe() const override
+        void Unsubscribe() const override
         {
             if (auto dispatcher = m_dispatcher.lock()) {
-                dispatcher->unsubscribe(m_id);
+                dispatcher->Unsubscribe(m_id);
             }
         }
 
@@ -53,44 +53,44 @@ public:
         HandlerId m_id;
     };
 
-    bool hasHandlers() const override
+    bool HasHandlers() const override
     {
         std::lock_guard lock(m_mutex);
         return !m_handlers.empty();
     }
 
-    std::string getEventTypeName() const override
+    std::string GetEventTypeName() const override
     {
-        return typeid(Event).name();
+        return typeid(TEvent).name();
     }
 
-    SubscriptionPtr subscribe(Handler&& handler, HandlerPriority priority)
+    SubscriptionPtr Subscribe(Handler&& handler, HandlerPriority priority)
     {
         std::lock_guard lock(m_mutex);
-        HandlerId id = m_nextId++;
+        HandlerId id = m_next_id++;
 
-        std::ignore = addHandler({id, std::move(handler), priority});
+        std::ignore = AddHandler({id, std::move(handler), priority});
         return std::make_unique<SubscriptionImpl>(this->weak_from_this(), id);
     }
 
-    void unsubscribe(HandlerId id)
+    void Unsubscribe(HandlerId id)
     {
         std::lock_guard lock(m_mutex);
-        if (auto mapIt = m_handlersMap.find(id); mapIt != m_handlersMap.end()) {
-            m_handlers.erase(mapIt->second);
-            m_handlersMap.erase(mapIt);
+        if (auto map_it = m_handlers_map.find(id); map_it != m_handlers_map.end()) {
+            m_handlers.erase(map_it->second);
+            m_handlers_map.erase(map_it);
         }
     }
 
-    void processEvent(const Event& event) const
+    void ProcessEvent(const TEvent& event) const
     {
-        std::list<HandlerNode> handlersCopy;
+        std::list<HandlerNode> handlers_copy;
         {
             std::lock_guard lock(m_mutex);
-            handlersCopy = m_handlers;
+            handlers_copy = m_handlers;
         }
 
-        for (const auto& node : handlersCopy) {
+        for (const auto& node : handlers_copy) {
             try {
                 if (node.handler) {
                     node.handler(event);
@@ -104,7 +104,7 @@ public:
 
 private:
 
-    auto addHandler(HandlerNode&& node)
+    auto AddHandler(HandlerNode&& node)
     {
         auto it = std::lower_bound(m_handlers.begin(),
                                    m_handlers.end(),
@@ -119,7 +119,7 @@ private:
         auto inserted = m_handlers.insert(it, std::move(node));
 
         try {
-            m_handlersMap.emplace(inserted->id, inserted);
+            m_handlers_map.emplace(inserted->id, inserted);
         } catch (...) {
             // Rollback: Remove from the list if map insertion failed
             m_handlers.erase(inserted);
@@ -131,8 +131,8 @@ private:
 
     mutable std::mutex m_mutex;
     std::list<HandlerNode> m_handlers;
-    std::unordered_map<HandlerId, typename std::list<HandlerNode>::iterator> m_handlersMap;
-    HandlerId m_nextId{1};
+    std::unordered_map<HandlerId, typename std::list<HandlerNode>::iterator> m_handlers_map;
+    HandlerId m_next_id{1};
 };
 
 } // namespace game_engine

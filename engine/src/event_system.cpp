@@ -26,8 +26,8 @@ EventSystem::~EventSystem()
     {
         std::lock_guard lock(m_mutex);
         for (const auto& [type, dispatcher] : m_dispatchers) {
-            if (dispatcher->hasHandlers()) {
-                leakedEvents.push_back(dispatcher->getEventTypeName());
+            if (dispatcher->HasHandlers()) {
+                leakedEvents.push_back(dispatcher->GetEventTypeName());
             }
         }
     }

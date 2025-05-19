@@ -29,7 +29,7 @@ inline constexpr bool SupportedVertexAttribute = IsFloatVertexAttribute<T> || Is
                                                  IsUIntVertexAttribute<T>;
 
 template <typename T>
-inline constexpr VertexAttributeType getAttributeType() noexcept
+constexpr VertexAttributeType GetAttributeType() noexcept
 {
     if constexpr (IsFloatVertexAttribute<T>)
         return VertexAttributeType::Float;
@@ -42,7 +42,7 @@ inline constexpr VertexAttributeType getAttributeType() noexcept
 }
 
 template <typename T>
-inline constexpr int getComponentCount() noexcept
+constexpr int GetComponentCount() noexcept
 {
     static_assert(SupportedVertexAttribute<T>, "Unsupported vertex attribute type");
 
@@ -59,60 +59,60 @@ inline constexpr int getComponentCount() noexcept
 }
 
 template <typename T, typename U>
-inline std::size_t memberOffset(U T::* ptr) noexcept
+std::size_t MemberOffset(U T::* ptr) noexcept
 {
-    constexpr T* nullObj = nullptr;
-    return std::bit_cast<std::size_t>(&(nullObj->*ptr));
+    constexpr T* NullObj = nullptr;
+    return std::bit_cast<std::size_t>(&(NullObj->*ptr));
 }
 
 } // namespace vertex_traits
 
-template <typename VertexType, typename MemberType>
-inline constexpr VertexAttribute generateAttribute(int location,
-                                                   const char* name,
-                                                   MemberType(VertexType::* ptr),
-                                                   bool normalized = false) noexcept
+template <typename TVertexType, typename TMemberType>
+constexpr VertexAttribute GenerateAttribute(int location,
+                                            const char* name,
+                                            TMemberType(TVertexType::* ptr),
+                                            bool normalized = false) noexcept
 {
-    static_assert(vertex_traits::SupportedVertexAttribute<MemberType>, "Unsupported vertex attribute type");
+    static_assert(vertex_traits::SupportedVertexAttribute<TMemberType>, "Unsupported vertex attribute type");
 
-    const std::size_t offset = vertex_traits::memberOffset(ptr);
+    const std::size_t offset = vertex_traits::MemberOffset(ptr);
 
     return {location,
-            vertex_traits::getComponentCount<MemberType>(),
+            vertex_traits::GetComponentCount<TMemberType>(),
             offset,
-            vertex_traits::getAttributeType<MemberType>(),
+            vertex_traits::GetAttributeType<TMemberType>(),
             normalized,
             name};
 }
 
-template <typename AttributeType>
-inline constexpr VertexAttribute generateAttribute(int location, const char* name, bool normalized = false) noexcept
+template <typename TAttributeType>
+constexpr VertexAttribute GenerateAttribute(int location, const char* name, bool normalized = false) noexcept
 {
     return {location,
-            vertex_traits::getComponentCount<AttributeType>(),
+            vertex_traits::GetComponentCount<TAttributeType>(),
             0,
-            vertex_traits::getAttributeType<AttributeType>(),
+            vertex_traits::GetAttributeType<TAttributeType>(),
             normalized,
             name};
 }
 
-template <typename VertexType>
-MeshData createMeshData(const std::vector<VertexType>& vertices,
+template <typename TVertexType>
+MeshData CreateMeshData(const std::vector<TVertexType>& vertices,
                         const std::vector<SubMesh>& submeshes,
-                        PrimitiveType primitiveType,
+                        PrimitiveType primitive_type,
                         VertexLayout&& layout)
 {
-    static_assert(std::is_standard_layout_v<VertexType>, "Vertex type must be standard layout");
+    static_assert(std::is_standard_layout_v<TVertexType>, "Vertex type must be standard layout");
 
-    MeshData data = {.vertexData    = {},
-                     .vertexCount   = vertices.size(),
-                     .submeshes     = submeshes,
-                     .instances     = {},
-                     .primitiveType = primitiveType,
-                     .layout        = std::move(layout)};
+    MeshData data = {.vertex_data    = {},
+                     .vertex_count   = vertices.size(),
+                     .submeshes      = submeshes,
+                     .instances      = {},
+                     .primitive_type = primitive_type,
+                     .layout         = std::move(layout)};
 
-    data.vertexData.resize(vertices.size() * sizeof(VertexType));
-    std::memcpy(data.vertexData.data(), vertices.data(), data.vertexData.size());
+    data.vertex_data.resize(vertices.size() * sizeof(TVertexType));
+    std::memcpy(data.vertex_data.data(), vertices.data(), data.vertex_data.size());
 
     return data;
 }
