@@ -22,8 +22,8 @@ public:
 
     virtual ~IBackend() = default;
 
-    virtual bool init(const GameSettings& settings) noexcept = 0;
-    virtual void shutdown() noexcept                         = 0;
+    virtual bool Init(const GameSettings& settings) noexcept = 0;
+    virtual void Shutdown() noexcept                         = 0;
 
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;

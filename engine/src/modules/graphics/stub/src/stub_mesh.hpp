@@ -10,10 +10,10 @@ class StubMesh final : public graphics::IMesh
 public:
 
     // graphics::mesh
-    void setMeshData(const graphics::MeshData& data) override;
-    void flush() override;
-    void clear() noexcept override;
-    bool isValid() const noexcept override;
+    void SetMeshData(const graphics::MeshData& data) override;
+    void Flush() override;
+    void Clear() noexcept override;
+    bool IsValid() const noexcept override;
 };
 
 } // namespace game_engine::graphics

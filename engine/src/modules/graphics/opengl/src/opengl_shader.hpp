@@ -25,10 +25,10 @@ public:
     OpenGLShader& operator=(OpenGLShader&& other) noexcept;
 
     // graphics::Shader
-    void setSource(const std::string& vertexSource, const std::string& fragmentSource) override;
-    bool link() override;
-    void clear() noexcept override;
-    bool isValid() const noexcept override;
+    void SetSource(const std::string& vertexSource, const std::string& fragmentSource) override;
+    bool Link() override;
+    void Clear() noexcept override;
+    bool IsValid() const noexcept override;
 
     void setUniform(const graphics::Uniform& uniform) const;
     void use() const;

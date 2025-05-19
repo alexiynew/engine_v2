@@ -19,7 +19,7 @@ TEST_F(EventSystemFixture, BasicSubscription)
     int handled_value = 0;
 
     auto sub = m_es.Subscribe<Event>([&](const Event& event) { handled_value = event.value; });
-    m_es.processEvent(Event{42});
+    m_es.ProcessEvent(Event{42});
 
     EXPECT_EQ(handled_value, 42);
 }
@@ -78,16 +78,16 @@ TEST_F(EventSystemFixture, SubscriptionDifferentEvents)
     auto sub8 = m_es.Subscribe<Event8>([&](const auto& event) { handled_value8++; });
     auto sub9 = m_es.Subscribe<Event9>([&](const auto& event) { handled_value9++; });
 
-    m_es.processEvent(Event0{});
-    m_es.processEvent(Event1{});
-    m_es.processEvent(Event2{});
-    m_es.processEvent(Event3{});
-    m_es.processEvent(Event4{});
-    m_es.processEvent(Event5{});
-    m_es.processEvent(Event6{});
-    m_es.processEvent(Event7{});
-    m_es.processEvent(Event8{});
-    m_es.processEvent(Event9{});
+    m_es.ProcessEvent(Event0{});
+    m_es.ProcessEvent(Event1{});
+    m_es.ProcessEvent(Event2{});
+    m_es.ProcessEvent(Event3{});
+    m_es.ProcessEvent(Event4{});
+    m_es.ProcessEvent(Event5{});
+    m_es.ProcessEvent(Event6{});
+    m_es.ProcessEvent(Event7{});
+    m_es.ProcessEvent(Event8{});
+    m_es.ProcessEvent(Event9{});
 
     EXPECT_EQ(handled_value0, 1);
     EXPECT_EQ(handled_value1, 1);
@@ -112,7 +112,7 @@ TEST_F(EventSystemFixture, HandlerPriorityOrder)
                                   HandlerPriority::UrgentButCanVibe);
     auto s3 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::RedPanic);
 
-    m_es.processEvent(0);
+    m_es.ProcessEvent(0);
 
     ASSERT_EQ(execution_order.size(), 3);
     EXPECT_EQ(execution_order[0], 2);
@@ -127,7 +127,7 @@ TEST_F(EventSystemFixture, ManualUnsubscription)
     auto sub = m_es.Subscribe<int>([&](const auto&) { counter++; });
     sub->Unsubscribe();
 
-    m_es.processEvent(0);
+    m_es.ProcessEvent(0);
 
     EXPECT_EQ(counter, 0);
 }
@@ -142,8 +142,8 @@ TEST_F(EventSystemFixture, SelfUnsubscriptionInHandler)
         self_sub->Unsubscribe();
     });
 
-    m_es.processEvent(0); // Must be called once
-    m_es.processEvent(0); // No effect
+    m_es.ProcessEvent(0); // Must be called once
+    m_es.ProcessEvent(0); // No effect
 
     EXPECT_EQ(counter, 1);
 }
@@ -161,7 +161,7 @@ TEST_F(EventSystemFixture, MultithreadedProcessing)
     for (int i = 0; i < ThreadsCount; ++i) {
         threads.emplace_back([&] {
             for (int j = 0; j < EventsPerThread; ++j) {
-                m_es.processEvent(42);
+                m_es.ProcessEvent(42);
             }
         });
     }
@@ -196,7 +196,7 @@ TEST_F(EventSystemFixture, MultithreadedSubscription)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     for (int j = 0; j < EventsPerThread; ++j) {
-        m_es.processEvent(0);
+        m_es.ProcessEvent(0);
     }
 
     // Stop threads

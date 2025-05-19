@@ -3,16 +3,16 @@
 namespace game_engine::graphics
 {
 
-void StubMesh::setMeshData(const graphics::MeshData&)
+void StubMesh::SetMeshData(const graphics::MeshData&)
 {}
 
-void StubMesh::flush()
+void StubMesh::Flush()
 {}
 
-void StubMesh::clear() noexcept
+void StubMesh::Clear() noexcept
 {}
 
-bool StubMesh::isValid() const noexcept
+bool StubMesh::IsValid() const noexcept
 {
     return true;
 }

@@ -10,13 +10,13 @@ public:
     ~Game() override;
 
     // game_engine::Game
-    bool init(std::shared_ptr<game_engine::IEngine> engine) noexcept override;
-    void shutdown() noexcept override;
+    bool Init(std::shared_ptr<game_engine::IEngine> engine) noexcept override;
+    void Shutdown() noexcept override;
 
-    void onUpdate(std::chrono::nanoseconds elapsedTime) override;
-    void onDraw() override;
-    bool onShouldClose() override;
-    game_engine::GameSettings getSettings() override;
+    void OnUpdate(std::chrono::nanoseconds elapsedTime) override;
+    void OnDraw() override;
+    bool OnShouldClose() override;
+    game_engine::GameSettings GetSettings() override;
 
 private:
     void subscribeForEvents();

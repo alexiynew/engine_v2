@@ -25,11 +25,11 @@ public:
 
     static std::shared_ptr<IRenderer> Create();
 
-    virtual bool init(std::shared_ptr<const IRenderContext> context) noexcept = 0;
-    virtual void shutdown() noexcept                                          = 0;
+    virtual bool Init(std::shared_ptr<const IRenderContext> context) noexcept = 0;
+    virtual void Shutdown() noexcept                                          = 0;
 
-    virtual std::shared_ptr<IShader> createShader() = 0;
-    virtual std::shared_ptr<IMesh> createMesh()     = 0;
+    virtual std::shared_ptr<IShader> CreateShader() = 0;
+    virtual std::shared_ptr<IMesh> CreateMesh()     = 0;
 
     virtual void addRenderCommand(const RenderCommand& command) = 0;
     virtual void clearRenderCommands()                          = 0;

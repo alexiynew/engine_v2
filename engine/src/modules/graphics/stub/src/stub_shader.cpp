@@ -3,18 +3,18 @@
 namespace game_engine::graphics
 {
 
-void StubShader::setSource(const std::string& vertexSource, const std::string& fragmentSource)
+void StubShader::SetSource(const std::string& vertexSource, const std::string& fragmentSource)
 {}
 
-bool StubShader::link()
+bool StubShader::Link()
 {
     return true;
 }
 
-void StubShader::clear() noexcept
+void StubShader::Clear() noexcept
 {}
 
-bool StubShader::isValid() const noexcept
+bool StubShader::IsValid() const noexcept
 {
     return true;
 }

@@ -20,8 +20,8 @@ public:
     ~GLFWBackend() override;
 
     // IBackend
-    bool init(const GameSettings& settings) noexcept override;
-    void shutdown() noexcept override;
+    bool Init(const GameSettings& settings) noexcept override;
+    void Shutdown() noexcept override;
 
     void pollEvents() override;
 

@@ -16,8 +16,8 @@ public:
     ~StubBackend() override;
 
     // IBackend
-    bool init(const GameSettings&) noexcept override;
-    void shutdown() noexcept override;
+    bool Init(const GameSettings&) noexcept override;
+    void Shutdown() noexcept override;
 
     void pollEvents() override;
     std::shared_ptr<const IRenderContext> getRenderContext() const override;

@@ -57,16 +57,16 @@ public:
     SubscriptionPtr Subscribe(std::function<void(const TEvent&)> handler,
                               HandlerPriority priority = HandlerPriority::Whenever)
     {
-        return getDispatcher<TEvent>()->Subscribe(std::move(handler), priority);
+        return GetDispatcher<TEvent>()->Subscribe(std::move(handler), priority);
     }
 
     /// @brief Dispatches an event to all subscribed handlers of type `Event`.
     /// @tparam Event      The event type to process.
     /// @param event       The event object to dispatch.
     template <typename TEvent>
-    void processEvent(const TEvent& event)
+    void ProcessEvent(const TEvent& event)
     {
-        getDispatcher<TEvent>()->processEvent(event);
+        GetDispatcher<TEvent>()->ProcessEvent(event);
     }
 
 private:
@@ -74,15 +74,15 @@ private:
     {
     public:
         virtual ~IDispatcherBase()                   = default;
-        virtual bool hasHandlers() const             = 0;
-        virtual std::string getEventTypeName() const = 0;
+        virtual bool HasHandlers() const             = 0;
+        virtual std::string GetEventTypeName() const = 0;
     };
 
     template <typename TEvent>
     class Dispatcher;
 
     template <typename TEvent>
-    std::shared_ptr<Dispatcher<TEvent>> getDispatcher()
+    std::shared_ptr<Dispatcher<TEvent>> GetDispatcher()
     {
         const std::type_index type = typeid(TEvent);
 

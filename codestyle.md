@@ -82,7 +82,7 @@ Foo& Foo::Instance()
 ### 1.5. Classes, Structs and Template Parameters
 
 Use `PascalCase` for classes, structs, enums, unions and any type declarations.\
-Use the `T` prefix for template parameters.
+Template parameters should use the `T` prefix (e.g., `TValue`). If the parameter name is a single letter (e.g., `K`, `V`), the prefix may be omitted.
 
 ```cpp
 class UserProfile;

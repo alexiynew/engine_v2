@@ -97,12 +97,12 @@ GLFWBackend::GLFWBackend() = default;
 
 GLFWBackend::~GLFWBackend()
 {
-    shutdown();
+    Shutdown();
 }
 
 #pragma region Backend
 
-bool GLFWBackend::init(const GameSettings& settings) noexcept
+bool GLFWBackend::Init(const GameSettings& settings) noexcept
 {
     std::lock_guard lock(m_windowMutex);
 
@@ -122,14 +122,14 @@ bool GLFWBackend::init(const GameSettings& settings) noexcept
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    if (settings.displayMode == DisplayMode::BorderlessFullscreen) {
+    if (settings.display_mode == DisplayMode::BorderlessFullscreen) {
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     }
     applyAntiAliasing(settings);
 
-    m_window = glfwCreateWindow(settings.resolutionWidth,
-                                settings.resolutionHeight,
-                                settings.windowTitle.c_str(),
+    m_window = glfwCreateWindow(settings.resolution_width,
+                                settings.resolution_height,
+                                settings.window_title.c_str(),
                                 nullptr,
                                 nullptr);
     if (!m_window) {
@@ -147,7 +147,7 @@ bool GLFWBackend::init(const GameSettings& settings) noexcept
     return true;
 }
 
-void GLFWBackend::shutdown() noexcept
+void GLFWBackend::Shutdown() noexcept
 {
     std::lock_guard lock(m_windowMutex);
     if (m_window) {
@@ -253,9 +253,9 @@ void GLFWBackend::applySettings(const GameSettings& settings)
 {
     applyDisplayMode(settings);
 
-    glfwSetWindowTitle(m_window, settings.windowTitle.c_str());
+    glfwSetWindowTitle(m_window, settings.window_title.c_str());
 
-    glfwSwapInterval(settings.vSync ? 1 : 0);
+    glfwSwapInterval(settings.v_sync ? 1 : 0);
 }
 
 void GLFWBackend::applyDisplayMode(const GameSettings& settings)
@@ -263,29 +263,29 @@ void GLFWBackend::applyDisplayMode(const GameSettings& settings)
     GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-    switch (settings.displayMode) {
+    switch (settings.display_mode) {
         case DisplayMode::Fullscreen:
             glfwSetWindowMonitor(m_window,
                                  monitor,
                                  0,
                                  0,
-                                 settings.resolutionWidth,
-                                 settings.resolutionHeight,
+                                 settings.resolution_width,
+                                 settings.resolution_height,
                                  mode->refreshRate);
             break;
         case DisplayMode::BorderlessFullscreen:
             glfwSetWindowMonitor(m_window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
             break;
         case DisplayMode::Windowed: {
-            const int xPos = (mode->width - settings.resolutionWidth) / 2;
-            const int yPos = (mode->height - settings.resolutionHeight) / 2;
+            const int xPos = (mode->width - settings.resolution_width) / 2;
+            const int yPos = (mode->height - settings.resolution_height) / 2;
 
             glfwSetWindowMonitor(m_window,
                                  nullptr,
                                  xPos,
                                  yPos,
-                                 settings.resolutionWidth,
-                                 settings.resolutionHeight,
+                                 settings.resolution_width,
+                                 settings.resolution_height,
                                  mode->refreshRate);
         } break;
     }
@@ -293,7 +293,7 @@ void GLFWBackend::applyDisplayMode(const GameSettings& settings)
 
 void GLFWBackend::applyAntiAliasing(const GameSettings& settings)
 {
-    switch (settings.antiAliasing) {
+    switch (settings.anti_aliasing) {
         case AntiAliasing::None:   glfwWindowHint(GLFW_SAMPLES, 0); break;
         case AntiAliasing::MSAA2x: glfwWindowHint(GLFW_SAMPLES, 2); break;
         case AntiAliasing::MSAA4x: glfwWindowHint(GLFW_SAMPLES, 4); break;

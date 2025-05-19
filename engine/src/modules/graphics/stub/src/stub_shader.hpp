@@ -14,10 +14,10 @@ class StubShader final : public graphics::IShader
 public:
 
     // graphics::IShader
-    void setSource(const std::string& vertexSource, const std::string& fragmentSource) override;
-    bool link() override;
-    void clear() noexcept override;
-    bool isValid() const noexcept override;
+    void SetSource(const std::string& vertexSource, const std::string& fragmentSource) override;
+    bool Link() override;
+    void Clear() noexcept override;
+    bool IsValid() const noexcept override;
 };
 
 } // namespace game_engine::graphics

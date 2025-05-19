@@ -24,32 +24,32 @@ EngineImpl::~EngineImpl() = default;
 
 #pragma region Engine
 
-EngineImpl::TimePoint EngineImpl::getTime() const noexcept
+EngineImpl::TimePoint EngineImpl::GetTime() const noexcept
 {
     return std::chrono::steady_clock::now();
 }
 
-bool EngineImpl::shouldStop() const noexcept
+bool EngineImpl::ShouldStop() const noexcept
 {
     return m_shouldStop;
 }
 
-void EngineImpl::setShouldStopFlag() noexcept
+void EngineImpl::SetShouldStopFlag() noexcept
 {
     m_shouldStop = true;
 }
 
-std::shared_ptr<graphics::IMesh> EngineImpl::createMesh()
+std::shared_ptr<graphics::IMesh> EngineImpl::CreateMesh()
 {
-    return m_renderer->createMesh();
+    return m_renderer->CreateMesh();
 }
 
-std::shared_ptr<graphics::IShader> EngineImpl::createShader()
+std::shared_ptr<graphics::IShader> EngineImpl::CreateShader()
 {
-    return m_renderer->createShader();
+    return m_renderer->CreateShader();
 }
 
-void EngineImpl::render(const std::shared_ptr<graphics::IMesh>& mesh,
+void EngineImpl::Render(const std::shared_ptr<graphics::IMesh>& mesh,
                         const std::shared_ptr<graphics::IShader>& shader,
                         const std::vector<graphics::Uniform>& uniforms)
 {
@@ -63,7 +63,7 @@ void EngineImpl::render(const std::shared_ptr<graphics::IMesh>& mesh,
 }
 
 [[nodiscard]]
-EventSystem& EngineImpl::getEventSystem() const
+EventSystem& EngineImpl::GetEventSystem() const
 {
     return *m_eventSystem;
 }
@@ -74,20 +74,20 @@ EventSystem& EngineImpl::getEventSystem() const
 
 int EngineImpl::run() noexcept
 {
-    m_engineStartTime = getTime();
+    m_engineStartTime = GetTime();
     std::cout << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count() << std::endl;
 
     try {
-        const GameSettings& settings = m_game->getSettings();
-        if (!m_backend->init(settings)) {
+        const GameSettings& settings = m_game->GetSettings();
+        if (!m_backend->Init(settings)) {
             return -1;
         }
 
-        if (!m_renderer->init(m_backend->getRenderContext())) {
+        if (!m_renderer->Init(m_backend->getRenderContext())) {
             return -1;
         }
 
-        if (!m_game->init(shared_from_this())) {
+        if (!m_game->Init(shared_from_this())) {
             return -1;
         }
 
@@ -99,9 +99,9 @@ int EngineImpl::run() noexcept
 
         m_backend->detachBackendObserver(*this);
 
-        m_game->shutdown();
-        m_renderer->shutdown();
-        m_backend->shutdown();
+        m_game->Shutdown();
+        m_renderer->Shutdown();
+        m_backend->Shutdown();
 
         if (m_game.use_count() != 1) {
             LOG_ERROR << "Game instance leaked. Uses: " << m_game.use_count() << std::endl;
@@ -132,43 +132,43 @@ int EngineImpl::run() noexcept
 
 void EngineImpl::onEvent(const KeyboardInputEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 }
 
 // TODO: Handle window events
 // TODO: Save view aspect ratio on window resize
 void EngineImpl::onEvent(const WindowResizeEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 }
 
 void EngineImpl::onEvent(const WindowMoveEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 }
 
 void EngineImpl::onEvent(const WindowCloseEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 
-    if (m_game->onShouldClose()) {
-        setShouldStopFlag();
+    if (m_game->OnShouldClose()) {
+        SetShouldStopFlag();
     }
 }
 
 void EngineImpl::onEvent(const WindowFocusEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 }
 
 void EngineImpl::onEvent(const WindowIconifyEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 }
 
 void EngineImpl::onEvent(const WindowMaximizeEvent& event)
 {
-    m_eventSystem->processEvent(event);
+    m_eventSystem->ProcessEvent(event);
 }
 
 #pragma endregion
@@ -177,22 +177,22 @@ void EngineImpl::onEvent(const WindowMaximizeEvent& event)
 
 void EngineImpl::setupFrameRate(const GameSettings& settings)
 {
-    m_targetUpdateTime = Second / settings.updateRate;
-    m_targetFrameTime  = Second / settings.frameRate;
+    m_targetUpdateTime = Second / settings.update_rate;
+    m_targetFrameTime  = Second / settings.frame_rate;
 }
 
 void EngineImpl::mainLoop()
 {
-    TimePoint lastTime       = getTime();
+    TimePoint lastTime       = GetTime();
     TimePoint fpsCounterTime = lastTime;
 
     std::chrono::nanoseconds updatesDeltaTime{0};
     std::chrono::nanoseconds framesDeltaTime{0};
 
-    while (!shouldStop()) {
+    while (!ShouldStop()) {
         m_backend->pollEvents();
 
-        const TimePoint nowTime = getTime();
+        const TimePoint nowTime = GetTime();
         auto frameDuration      = (nowTime - lastTime);
 
         // Run the required number of updates
@@ -206,7 +206,7 @@ void EngineImpl::mainLoop()
         // Render one frame
         framesDeltaTime += frameDuration;
         if (framesDeltaTime >= m_targetFrameTime) {
-            render();
+            Render();
             m_frames++;
             m_totalFrames++;
             framesDeltaTime -= m_targetFrameTime;
@@ -229,12 +229,12 @@ void EngineImpl::mainLoop()
 
 void EngineImpl::update(std::chrono::nanoseconds elapsedTime)
 {
-    m_game->onUpdate(elapsedTime);
+    m_game->OnUpdate(elapsedTime);
 }
 
-void EngineImpl::render()
+void EngineImpl::Render()
 {
-    m_game->onDraw();
+    m_game->OnDraw();
 
     m_renderer->executeRenderCommands();
     m_renderer->clearRenderCommands();

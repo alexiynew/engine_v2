@@ -15,12 +15,12 @@ OpenGLRenderer::OpenGLRenderer()
 
 OpenGLRenderer::~OpenGLRenderer()
 {
-    shutdown();
+    Shutdown();
 }
 
 #pragma region Renderer
 
-bool OpenGLRenderer::init(std::shared_ptr<const IRenderContext> context) noexcept
+bool OpenGLRenderer::Init(std::shared_ptr<const IRenderContext> context) noexcept
 {
     try {
         m_context = std::move(context);
@@ -54,7 +54,7 @@ bool OpenGLRenderer::init(std::shared_ptr<const IRenderContext> context) noexcep
     return true;
 }
 
-void OpenGLRenderer::shutdown() noexcept
+void OpenGLRenderer::Shutdown() noexcept
 {
     try {
         if (m_thread.joinable()) {
@@ -62,7 +62,7 @@ void OpenGLRenderer::shutdown() noexcept
                 auto result = submitSync([this] {
                     // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
                     for (auto& mesh : m_meshes) {
-                        mesh->clear();
+                        mesh->Clear();
                     }
                 });
                 result.get();
@@ -72,7 +72,7 @@ void OpenGLRenderer::shutdown() noexcept
                 auto result = submitSync([this] {
                     // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
                     for (auto& shader : m_shaders) {
-                        shader->clear();
+                        shader->Clear();
                     }
                 });
                 result.get();
@@ -98,13 +98,13 @@ void OpenGLRenderer::shutdown() noexcept
     m_context.reset();
 }
 
-std::shared_ptr<graphics::IShader> OpenGLRenderer::createShader()
+std::shared_ptr<graphics::IShader> OpenGLRenderer::CreateShader()
 {
     m_shaders.push_back(std::make_shared<OpenGLShader>(shared_from_this()));
     return m_shaders.back();
 }
 
-std::shared_ptr<graphics::IMesh> OpenGLRenderer::createMesh()
+std::shared_ptr<graphics::IMesh> OpenGLRenderer::CreateMesh()
 {
     m_meshes.push_back(std::make_shared<OpenGLMesh>(shared_from_this()));
     return m_meshes.back();
@@ -139,7 +139,7 @@ void OpenGLRenderer::executeRenderCommands()
     submit([commands = std::move(commands)] {
         for (const auto& cmd : commands) {
             const auto openglShader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
-            if (openglShader && openglShader->isValid()) {
+            if (openglShader && openglShader->IsValid()) {
                 openglShader->use();
 
                 for (const auto& uniform : cmd.uniforms) {
@@ -148,11 +148,11 @@ void OpenGLRenderer::executeRenderCommands()
             }
 
             const auto openglMesh = std::dynamic_pointer_cast<OpenGLMesh>(cmd.mesh);
-            if (openglMesh && openglMesh->isValid()) {
+            if (openglMesh && openglMesh->IsValid()) {
                 if (cmd.instanceCount > 1) {
                     // TODO: Implement instancing
                 } else {
-                    openglMesh->render();
+                    openglMesh->Render();
                 }
             }
         }

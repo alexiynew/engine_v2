@@ -21,14 +21,14 @@ enum class AntiAliasing
 
 struct GameSettings
 {
-    int resolutionWidth       = 1600;
-    int resolutionHeight      = 1200;
-    std::string windowTitle   = "Game";
-    int frameRate             = 60;
-    int updateRate            = 60;
-    DisplayMode displayMode   = DisplayMode::Windowed;
-    AntiAliasing antiAliasing = AntiAliasing::None;
-    bool vSync                = false;
+    int resolution_width       = 1600;
+    int resolution_height      = 1200;
+    std::string window_title   = "Game";
+    int frame_rate             = 60;
+    int update_rate            = 60;
+    DisplayMode display_mode   = DisplayMode::Windowed;
+    AntiAliasing anti_aliasing = AntiAliasing::None;
+    bool v_sync                = false;
 
     friend bool operator==(const GameSettings& lhs, const GameSettings& rhs) = default;
 };

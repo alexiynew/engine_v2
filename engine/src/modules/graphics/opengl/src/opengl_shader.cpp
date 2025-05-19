@@ -109,7 +109,7 @@ OpenGLShader::OpenGLShader(std::shared_ptr<OpenGLRenderer> renderThread) noexcep
 
 OpenGLShader::~OpenGLShader()
 {
-    clear();
+    Clear();
 }
 
 OpenGLShader::OpenGLShader(OpenGLShader&& other) noexcept
@@ -125,13 +125,13 @@ OpenGLShader& OpenGLShader::operator=(OpenGLShader&& other) noexcept
     return *this;
 }
 
-void OpenGLShader::setSource(const std::string& vertexSource, const std::string& fragmentSource)
+void OpenGLShader::SetSource(const std::string& vertexSource, const std::string& fragmentSource)
 {
     m_vertexSource   = vertexSource;
     m_fragmentSource = fragmentSource;
 }
 
-bool OpenGLShader::link()
+bool OpenGLShader::Link()
 {
     auto result = m_renderer->submitSync([this]() {
         if (!linkImpl()) {
@@ -188,7 +188,7 @@ void OpenGLShader::setUniform(const graphics::Uniform& uniform) const
     }, uniform.value);
 }
 
-void OpenGLShader::clear() noexcept
+void OpenGLShader::Clear() noexcept
 {
     if (m_vertexShader) {
         glDeleteShader(m_vertexShader);
@@ -209,7 +209,7 @@ void OpenGLShader::clear() noexcept
     m_uniformCache.clear();
 }
 
-bool OpenGLShader::isValid() const noexcept
+bool OpenGLShader::IsValid() const noexcept
 {
     return m_shaderProgram != 0;
 }
@@ -263,17 +263,17 @@ bool OpenGLShader::linkImpl()
     }
 
     if (!loadShader(m_vertexShader, GL_VERTEX_SHADER, m_vertexSource)) {
-        clear();
+        Clear();
         return false;
     }
 
     if (!loadShader(m_fragmentShader, GL_FRAGMENT_SHADER, m_fragmentSource)) {
-        clear();
+        Clear();
         return false;
     }
 
     if (hasOpenGLErrors()) {
-        clear();
+        Clear();
         return false;
     }
 
@@ -282,7 +282,7 @@ bool OpenGLShader::linkImpl()
     }
 
     if (!compileShaderProgram(m_shaderProgram, m_vertexShader, m_fragmentShader)) {
-        clear();
+        Clear();
         return false;
     }
 

@@ -13,11 +13,11 @@ public:
     ~StubRenderer() override;
 
     // Renderer
-    bool init(std::shared_ptr<const IRenderContext>) noexcept override;
-    void shutdown() noexcept override;
+    bool Init(std::shared_ptr<const IRenderContext>) noexcept override;
+    void Shutdown() noexcept override;
 
-    std::shared_ptr<graphics::IShader> createShader() override;
-    std::shared_ptr<graphics::IMesh> createMesh() override;
+    std::shared_ptr<graphics::IShader> CreateShader() override;
+    std::shared_ptr<graphics::IMesh> CreateMesh() override;
 
     void addRenderCommand(const RenderCommand& command) override;
     void clearRenderCommands() override;

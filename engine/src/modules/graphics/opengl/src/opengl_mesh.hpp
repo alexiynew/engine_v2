@@ -25,12 +25,12 @@ public:
     OpenGLMesh& operator=(OpenGLMesh&& other) noexcept;
 
     // graphics::Mesh
-    void setMeshData(const graphics::MeshData& data) override;
-    void flush() override;
-    void clear() noexcept override;
-    bool isValid() const noexcept override;
+    void SetMeshData(const graphics::MeshData& data) override;
+    void Flush() override;
+    void Clear() noexcept override;
+    bool IsValid() const noexcept override;
 
-    void render() const;
+    void Render() const;
 
 private:
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;

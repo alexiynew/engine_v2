@@ -49,7 +49,7 @@ OpenGLMesh::OpenGLMesh(std::shared_ptr<OpenGLRenderer> renderThread) noexcept
 
 OpenGLMesh::~OpenGLMesh()
 {
-    clear();
+    Clear();
 }
 
 OpenGLMesh::OpenGLMesh(OpenGLMesh&& other) noexcept
@@ -67,12 +67,12 @@ OpenGLMesh& OpenGLMesh::operator=(OpenGLMesh&& other) noexcept
 
 #pragma region graphics::Mesh
 
-void OpenGLMesh::setMeshData(const graphics::MeshData& data)
+void OpenGLMesh::SetMeshData(const graphics::MeshData& data)
 {
     m_data = data;
 }
 
-void OpenGLMesh::flush()
+void OpenGLMesh::Flush()
 {
     auto result = m_renderer->submitSync([this]() {
         if (!loadToGPU()) {
@@ -87,7 +87,7 @@ void OpenGLMesh::flush()
     }
 }
 
-void OpenGLMesh::clear() noexcept
+void OpenGLMesh::Clear() noexcept
 {
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
@@ -98,7 +98,7 @@ void OpenGLMesh::clear() noexcept
     m_EBO = 0;
 }
 
-bool OpenGLMesh::isValid() const noexcept
+bool OpenGLMesh::IsValid() const noexcept
 {
     return m_VAO != 0 && m_VBO != 0 && m_EBO != 0;
 }
@@ -107,7 +107,7 @@ bool OpenGLMesh::isValid() const noexcept
 
 #pragma region OpenGLMesh
 
-void OpenGLMesh::render() const
+void OpenGLMesh::Render() const
 {
     if (m_data.submeshes.empty()) {
         return;
@@ -120,7 +120,7 @@ void OpenGLMesh::render() const
         return;
     }
 
-    const GLenum primitiveType = ToGLPrimitiveType(m_data.primitiveType);
+    const GLenum primitiveType = ToGLPrimitiveType(m_data.primitive_type);
     glDrawElements(primitiveType, indicesCount, GL_UNSIGNED_INT, 0);
 }
 
@@ -147,14 +147,14 @@ bool OpenGLMesh::loadToGPU()
 
     // Load data
     {
-        const GLsizeiptr dataSize = m_data.vertexCount * m_data.layout.vertexSize;
+        const GLsizeiptr dataSize = m_data.vertex_count * m_data.layout.vertex_size;
         glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
         glBufferData(GL_ARRAY_BUFFER, dataSize, nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, m_data.vertexData.data());
+        glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, m_data.vertex_data.data());
     }
 
     if (hasOpenGLErrors()) {
-        clear();
+        Clear();
         return false;
     }
 
@@ -165,12 +165,12 @@ bool OpenGLMesh::loadToGPU()
 
         const GLsizeiptr dataSize = m_data.submeshes[0].indices.size() * sizeof(m_data.submeshes[0].indices[0]);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, dataSize, m_data.vertexData.data());
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, dataSize, m_data.vertex_data.data());
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, m_data.submeshes[0].indices.data(), GL_STATIC_DRAW);
     }
 
     if (hasOpenGLErrors()) {
-        clear();
+        Clear();
         return false;
     }
 
@@ -182,14 +182,14 @@ bool OpenGLMesh::loadToGPU()
             glVertexAttribIPointer(attr.location,
                                    attr.components,
                                    type,
-                                   static_cast<GLsizei>(m_data.layout.vertexSize),
+                                   static_cast<GLsizei>(m_data.layout.vertex_size),
                                    reinterpret_cast<void*>(attr.offset));
         } else if (type == GL_FLOAT) {
             glVertexAttribPointer(attr.location,
                                   attr.components,
                                   type,
                                   attr.normalized ? GL_TRUE : GL_FALSE,
-                                  static_cast<GLsizei>(m_data.layout.vertexSize),
+                                  static_cast<GLsizei>(m_data.layout.vertex_size),
                                   reinterpret_cast<void*>(attr.offset));
         }
 
@@ -200,7 +200,7 @@ bool OpenGLMesh::loadToGPU()
     glBindVertexArray(0);
 
     if (hasOpenGLErrors()) {
-        clear();
+        Clear();
         return false;
     }
 
