@@ -229,7 +229,7 @@ void Game::subscribeForEvents()
 {
     using namespace game_engine;
 
-    m_subscriptions.push_back(m_engine->getEventSystem().subscribe<KeyboardInputEvent>([this](const auto& event) {
+    m_subscriptions.push_back(m_engine->getEventSystem().Subscribe<KeyboardInputEvent>([this](const auto& event) {
         if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
             m_engine->setShouldStopFlag();
         }

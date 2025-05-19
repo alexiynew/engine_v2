@@ -6,13 +6,13 @@
 
 namespace game_engine
 {
-template <typename Event>
+template <typename TEvent>
 class EventSystem::Dispatcher final
     : public IDispatcherBase
-    , public std::enable_shared_from_this<Dispatcher<Event>>
+    , public std::enable_shared_from_this<Dispatcher<TEvent>>
 {
 public:
-    using Handler   = std::function<void(const Event&)>;
+    using Handler   = std::function<void(const TEvent&)>;
     using HandlerId = std::size_t;
 
     struct HandlerNode
@@ -32,7 +32,7 @@ public:
 
         ~SubscriptionImpl() override
         {
-            unsubscribe();
+            Unsubscribe();
         }
 
         SubscriptionImpl(const SubscriptionImpl&) = delete;
@@ -41,10 +41,10 @@ public:
         SubscriptionImpl& operator=(const SubscriptionImpl&) = delete;
         SubscriptionImpl& operator=(SubscriptionImpl&&)      = default;
 
-        void unsubscribe() const override
+        void Unsubscribe() const override
         {
             if (auto dispatcher = m_dispatcher.lock()) {
-                dispatcher->unsubscribe(m_id);
+                dispatcher->Unsubscribe(m_id);
             }
         }
 
@@ -61,10 +61,10 @@ public:
 
     std::string getEventTypeName() const override
     {
-        return typeid(Event).name();
+        return typeid(TEvent).name();
     }
 
-    SubscriptionPtr subscribe(Handler&& handler, HandlerPriority priority)
+    SubscriptionPtr Subscribe(Handler&& handler, HandlerPriority priority)
     {
         std::lock_guard lock(m_mutex);
         HandlerId id = m_nextId++;
@@ -73,7 +73,7 @@ public:
         return std::make_unique<SubscriptionImpl>(this->weak_from_this(), id);
     }
 
-    void unsubscribe(HandlerId id)
+    void Unsubscribe(HandlerId id)
     {
         std::lock_guard lock(m_mutex);
         if (auto mapIt = m_handlersMap.find(id); mapIt != m_handlersMap.end()) {
@@ -82,7 +82,7 @@ public:
         }
     }
 
-    void processEvent(const Event& event) const
+    void processEvent(const TEvent& event) const
     {
         std::list<HandlerNode> handlersCopy;
         {

@@ -14,7 +14,7 @@ namespace game_engine
 class EngineImpl final
     : public IEngine
     , public std::enable_shared_from_this<EngineImpl>
-    , private BackendObserver
+    , private IBackendObserver
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;

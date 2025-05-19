@@ -13,11 +13,11 @@ namespace game_engine
 {
 
 /// @brief Interface for observers
-class BackendObserver
+class IBackendObserver
 
 {
 public:
-    virtual ~BackendObserver() = default;
+    virtual ~IBackendObserver() = default;
 
     /// @brief Method to handle keyboard input events (e.g., key presses)
     virtual void onEvent(const KeyboardInputEvent& event) = 0;

@@ -20,7 +20,7 @@ OpenGLRenderer::~OpenGLRenderer()
 
 #pragma region Renderer
 
-bool OpenGLRenderer::init(std::shared_ptr<const RenderContext> context) noexcept
+bool OpenGLRenderer::init(std::shared_ptr<const IRenderContext> context) noexcept
 {
     try {
         m_context = std::move(context);

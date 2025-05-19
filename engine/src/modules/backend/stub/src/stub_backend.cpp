@@ -30,17 +30,17 @@ void StubBackend::pollEvents()
     }
 }
 
-std::shared_ptr<const RenderContext> StubBackend::getRenderContext() const
+std::shared_ptr<const IRenderContext> StubBackend::getRenderContext() const
 {
     return shared_from_this();
 }
 
-void StubBackend::attachBackendObserver(BackendObserver& observer)
+void StubBackend::attachBackendObserver(IBackendObserver& observer)
 {
     m_observers.push_front(observer);
 }
 
-void StubBackend::detachBackendObserver(const BackendObserver& observer)
+void StubBackend::detachBackendObserver(const IBackendObserver& observer)
 {
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }

@@ -12,7 +12,7 @@ namespace game_engine::backend
 
 class GLFWBackend final
     : public IBackend
-    , public RenderContext
+    , public IRenderContext
     , public std::enable_shared_from_this<GLFWBackend>
 {
 public:
@@ -25,12 +25,12 @@ public:
 
     void pollEvents() override;
 
-    std::shared_ptr<const RenderContext> getRenderContext() const override;
+    std::shared_ptr<const IRenderContext> getRenderContext() const override;
 
-    void attachBackendObserver(BackendObserver& observer) override;
-    void detachBackendObserver(const BackendObserver& observer) override;
+    void attachBackendObserver(IBackendObserver& observer) override;
+    void detachBackendObserver(const IBackendObserver& observer) override;
 
-    // RenderContext
+    // IRenderContext
     void makeCurrent() const override;
     void dropCurrent() const override;
     void swapBuffers() const override;

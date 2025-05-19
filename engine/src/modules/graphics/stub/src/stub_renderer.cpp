@@ -11,7 +11,7 @@ StubRenderer::StubRenderer()
 
 StubRenderer::~StubRenderer() = default;
 
-bool StubRenderer::init(std::shared_ptr<const RenderContext>) noexcept
+bool StubRenderer::init(std::shared_ptr<const IRenderContext>) noexcept
 {
     return true;
 }
@@ -19,12 +19,12 @@ bool StubRenderer::init(std::shared_ptr<const RenderContext>) noexcept
 void StubRenderer::shutdown() noexcept
 {}
 
-std::shared_ptr<graphics::Shader> StubRenderer::createShader()
+std::shared_ptr<graphics::IShader> StubRenderer::createShader()
 {
     return std::make_shared<StubShader>();
 }
 
-std::shared_ptr<graphics::Mesh> StubRenderer::createMesh()
+std::shared_ptr<graphics::IMesh> StubRenderer::createMesh()
 {
     return std::make_shared<StubMesh>();
 }

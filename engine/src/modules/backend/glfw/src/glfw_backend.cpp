@@ -164,17 +164,17 @@ void GLFWBackend::pollEvents()
     glfwPollEvents();
 }
 
-void GLFWBackend::attachBackendObserver(BackendObserver& observer)
+void GLFWBackend::attachBackendObserver(IBackendObserver& observer)
 {
     m_observers.push_front(observer);
 }
 
-void GLFWBackend::detachBackendObserver(const BackendObserver& observer)
+void GLFWBackend::detachBackendObserver(const IBackendObserver& observer)
 {
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }
 
-std::shared_ptr<const RenderContext> GLFWBackend::getRenderContext() const
+std::shared_ptr<const IRenderContext> GLFWBackend::getRenderContext() const
 {
     return shared_from_this();
 }

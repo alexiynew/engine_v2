@@ -33,7 +33,7 @@ public:
     OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete;
 
     // Renderer
-    bool init(std::shared_ptr<const RenderContext> context) noexcept override;
+    bool init(std::shared_ptr<const IRenderContext> context) noexcept override;
     void shutdown() noexcept override;
 
     std::shared_ptr<graphics::IShader> createShader() override;
@@ -50,7 +50,7 @@ private:
 
     void renderLoop();
 
-    std::shared_ptr<const RenderContext> m_context;
+    std::shared_ptr<const IRenderContext> m_context;
 
     std::atomic<bool> m_running{false};
     std::thread m_thread;

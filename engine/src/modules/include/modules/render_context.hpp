@@ -3,10 +3,10 @@
 namespace game_engine
 {
 
-class RenderContext
+class IRenderContext
 {
 public:
-    virtual ~RenderContext() = default;
+    virtual ~IRenderContext() = default;
 
     virtual void makeCurrent() const = 0;
     virtual void dropCurrent() const = 0;

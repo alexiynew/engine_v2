@@ -16,7 +16,7 @@ namespace game_engine::backend
 class IBackend
 {
 public:
-    using RefObserver = std::reference_wrapper<BackendObserver>;
+    using RefObserver = std::reference_wrapper<IBackendObserver>;
 
     static std::shared_ptr<IBackend> Create();
 
@@ -28,10 +28,10 @@ public:
     /// @brief Poll events (input, window, etc.)
     virtual void pollEvents() = 0;
 
-    virtual std::shared_ptr<const RenderContext> getRenderContext() const = 0;
+    virtual std::shared_ptr<const IRenderContext> getRenderContext() const = 0;
 
-    virtual void attachBackendObserver(BackendObserver& observer)       = 0;
-    virtual void detachBackendObserver(const BackendObserver& observer) = 0;
+    virtual void attachBackendObserver(IBackendObserver& observer)       = 0;
+    virtual void detachBackendObserver(const IBackendObserver& observer) = 0;
 };
 
 } // namespace game_engine::backend

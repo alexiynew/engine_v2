@@ -25,8 +25,8 @@ public:
 
     static std::shared_ptr<IRenderer> Create();
 
-    virtual bool init(std::shared_ptr<const RenderContext> context) noexcept = 0;
-    virtual void shutdown() noexcept                                         = 0;
+    virtual bool init(std::shared_ptr<const IRenderContext> context) noexcept = 0;
+    virtual void shutdown() noexcept                                          = 0;
 
     virtual std::shared_ptr<IShader> createShader() = 0;
     virtual std::shared_ptr<IMesh> createMesh()     = 0;

@@ -11,7 +11,7 @@
 class MockRenderer : public game_engine::graphics::IRenderer
 {
 public:
-    MOCK_METHOD(bool, init, (std::shared_ptr<const game_engine::RenderContext>), (noexcept, override));
+    MOCK_METHOD(bool, init, (std::shared_ptr<const game_engine::IRenderContext>), (noexcept, override));
     MOCK_METHOD(void, shutdown, (), (noexcept, override));
 
     MOCK_METHOD(std::shared_ptr<game_engine::graphics::IMesh>, createMesh, (), (override));
@@ -29,10 +29,10 @@ public:
     MOCK_METHOD(void, shutdown, (), (noexcept, override));
 
     MOCK_METHOD(void, pollEvents, (), (override));
-    MOCK_METHOD(std::shared_ptr<const game_engine::RenderContext>, getRenderContext, (), (const, override));
+    MOCK_METHOD(std::shared_ptr<const game_engine::IRenderContext>, getRenderContext, (), (const, override));
 
-    MOCK_METHOD(void, attachBackendObserver, (game_engine::BackendObserver&), (override));
-    MOCK_METHOD(void, detachBackendObserver, (const game_engine::BackendObserver&), (override));
+    MOCK_METHOD(void, attachBackendObserver, (game_engine::IBackendObserver&), (override));
+    MOCK_METHOD(void, detachBackendObserver, (const game_engine::IBackendObserver&), (override));
 };
 
 class MockGame : public game_engine::IGame
@@ -52,26 +52,26 @@ class EngineFixture : public ::testing::Test
 protected:
     void SetUp() override
     {
-        auto createModuleLocator = [&]() {
+        auto create_module_locator = [&]() {
             game_engine::ModuleLocator ml;
 
-            ml.setImplementation<game_engine::backend::IBackend>(m_mockBackend);
-            ml.setImplementation<game_engine::graphics::IRenderer>(m_mockRenderer);
-            ml.setImplementation<game_engine::IGame>(m_mockGame);
+            ml.setImplementation<game_engine::backend::IBackend>(m_mock_backend);
+            ml.setImplementation<game_engine::graphics::IRenderer>(m_mock_renderer);
+            ml.setImplementation<game_engine::IGame>(m_mock_game);
 
             return ml;
         };
 
-        m_mockBackend  = std::make_shared<::testing::NiceMock<MockBackend>>();
-        m_mockRenderer = std::make_shared<::testing::NiceMock<MockRenderer>>();
-        m_mockGame     = std::make_shared<::testing::NiceMock<MockGame>>();
+        m_mock_backend  = std::make_shared<::testing::NiceMock<MockBackend>>();
+        m_mock_renderer = std::make_shared<::testing::NiceMock<MockRenderer>>();
+        m_mock_game     = std::make_shared<::testing::NiceMock<MockGame>>();
 
-        m_engine = std::make_shared<game_engine::EngineImpl>(createModuleLocator());
+        m_engine = std::make_shared<game_engine::EngineImpl>(create_module_locator());
     }
 
-    std::shared_ptr<MockBackend> m_mockBackend;
-    std::shared_ptr<MockRenderer> m_mockRenderer;
-    std::shared_ptr<MockGame> m_mockGame;
+    std::shared_ptr<MockBackend> m_mock_backend;
+    std::shared_ptr<MockRenderer> m_mock_renderer;
+    std::shared_ptr<MockGame> m_mock_game;
 
     game_engine::ModuleLocator m_locator;
 
@@ -95,8 +95,8 @@ TEST_F(EngineFixture, MeshAndShaderCreation)
 {
     using namespace testing;
 
-    EXPECT_CALL(*m_mockRenderer, createMesh()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_mockRenderer, createShader()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mock_renderer, createMesh()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mock_renderer, createShader()).WillOnce(Return(nullptr));
 
     auto mesh   = m_engine->createMesh();
     auto shader = m_engine->createShader();
@@ -106,17 +106,17 @@ TEST_F(EngineFixture, MeshAndShaderCreation)
 
 TEST_F(EngineFixture, EventSystemAccess)
 {
-    auto& eventSystem = m_engine->getEventSystem();
-    EXPECT_NE(&eventSystem, nullptr);
+    auto& event_system = m_engine->getEventSystem();
+    EXPECT_NE(&event_system, nullptr);
 }
 
 TEST_F(EngineFixture, RenderCommandSubmission)
 {
     using namespace testing;
 
-    EXPECT_CALL(*m_mockRenderer, createMesh()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_mockRenderer, createShader()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_mockRenderer, addRenderCommand(_)).Times(1);
+    EXPECT_CALL(*m_mock_renderer, createMesh()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mock_renderer, createShader()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mock_renderer, addRenderCommand(_)).Times(1);
 
     auto mesh   = m_engine->createMesh();
     auto shader = m_engine->createShader();
@@ -129,29 +129,29 @@ TEST_F(EngineFixture, MainLoopExecution)
 
     {
         Sequence seq1;
-        EXPECT_CALL(*m_mockBackend, init(_)).WillOnce(Return(true));
-        EXPECT_CALL(*m_mockRenderer, init(_)).WillOnce(Return(true));
-        EXPECT_CALL(*m_mockGame, init(_)).WillOnce(Return(true));
+        EXPECT_CALL(*m_mock_backend, init(_)).WillOnce(Return(true));
+        EXPECT_CALL(*m_mock_renderer, init(_)).WillOnce(Return(true));
+        EXPECT_CALL(*m_mock_game, init(_)).WillOnce(Return(true));
     }
 
-    EXPECT_CALL(*m_mockBackend, pollEvents()).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mock_backend, pollEvents()).Times(testing::AtLeast(1));
 
     {
         Sequence seq2;
-        EXPECT_CALL(*m_mockGame, shutdown()).Times(1);
-        EXPECT_CALL(*m_mockRenderer, shutdown()).Times(1);
-        EXPECT_CALL(*m_mockBackend, shutdown()).Times(1);
+        EXPECT_CALL(*m_mock_game, shutdown()).Times(1);
+        EXPECT_CALL(*m_mock_renderer, shutdown()).Times(1);
+        EXPECT_CALL(*m_mock_backend, shutdown()).Times(1);
     }
 
     // Free modules in fixture to prevent resource leak errors
-    m_mockBackend.reset();
-    m_mockRenderer.reset();
-    m_mockGame.reset();
+    m_mock_backend.reset();
+    m_mock_renderer.reset();
+    m_mock_game.reset();
 
-    std::atomic<bool> stopFlag{false};
+    std::atomic<bool> stop_flag{false};
     std::thread runner([&] {
         m_engine->run();
-        stopFlag.store(true);
+        stop_flag.store(true);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -159,5 +159,5 @@ TEST_F(EngineFixture, MainLoopExecution)
     m_engine->setShouldStopFlag();
     runner.join();
 
-    EXPECT_TRUE(stopFlag.load());
+    EXPECT_TRUE(stop_flag.load());
 }
