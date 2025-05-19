@@ -8,7 +8,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-class MockRenderer : public game_engine::graphics::Renderer
+class MockRenderer : public game_engine::graphics::IRenderer
 {
 public:
     MOCK_METHOD(bool, init, (std::shared_ptr<const game_engine::RenderContext>), (noexcept, override));
@@ -22,7 +22,7 @@ public:
     MOCK_METHOD(void, clearRenderCommands, (), (override));
 };
 
-class MockBackend : public game_engine::backend::Backend
+class MockBackend : public game_engine::backend::IBackend
 {
 public:
     MOCK_METHOD(bool, init, (const game_engine::GameSettings&), (noexcept, override));
@@ -55,8 +55,8 @@ protected:
         auto createModuleLocator = [&]() {
             game_engine::ModuleLocator ml;
 
-            ml.setImplementation<game_engine::backend::Backend>(m_mockBackend);
-            ml.setImplementation<game_engine::graphics::Renderer>(m_mockRenderer);
+            ml.setImplementation<game_engine::backend::IBackend>(m_mockBackend);
+            ml.setImplementation<game_engine::graphics::IRenderer>(m_mockRenderer);
             ml.setImplementation<game_engine::IGame>(m_mockGame);
 
             return ml;

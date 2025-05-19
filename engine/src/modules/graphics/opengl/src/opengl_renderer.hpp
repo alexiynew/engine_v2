@@ -17,7 +17,7 @@ class OpenGLShader;
 class OpenGLMesh;
 
 class OpenGLRenderer final
-    : public Renderer
+    : public IRenderer
     , public std::enable_shared_from_this<OpenGLRenderer>
 {
 public:

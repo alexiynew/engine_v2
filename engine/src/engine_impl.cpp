@@ -14,8 +14,8 @@ namespace game_engine
 {
 
 EngineImpl::EngineImpl(const ModuleLocator& locator)
-    : m_backend(locator.get<backend::Backend>())
-    , m_renderer(locator.get<graphics::Renderer>())
+    : m_backend(locator.get<backend::IBackend>())
+    , m_renderer(locator.get<graphics::IRenderer>())
     , m_eventSystem(std::make_shared<EventSystem>())
     , m_game(locator.get<IGame>())
 {}

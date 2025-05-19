@@ -7,7 +7,7 @@ namespace game_engine::backend
 {
 
 class StubBackend final
-    : public Backend
+    : public IBackend
     , public RenderContext
     , public std::enable_shared_from_this<StubBackend>
 {
@@ -15,7 +15,7 @@ public:
     StubBackend();
     ~StubBackend() override;
 
-    // Backend
+    // IBackend
     bool init(const GameSettings&) noexcept override;
     void shutdown() noexcept override;
 

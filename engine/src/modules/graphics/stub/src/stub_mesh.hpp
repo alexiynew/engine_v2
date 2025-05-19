@@ -5,7 +5,7 @@
 namespace game_engine::graphics
 {
 
-class StubMesh final : public graphics::Mesh
+class StubMesh final : public graphics::IMesh
 {
 public:
 

@@ -18,12 +18,12 @@ struct RenderCommand
     uint32_t instanceCount = 1;
 };
 
-class Renderer
+class IRenderer
 {
 public:
-    virtual ~Renderer() = default;
+    virtual ~IRenderer() = default;
 
-    static std::shared_ptr<Renderer> Create();
+    static std::shared_ptr<IRenderer> Create();
 
     virtual bool init(std::shared_ptr<const RenderContext> context) noexcept = 0;
     virtual void shutdown() noexcept                                         = 0;

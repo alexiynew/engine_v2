@@ -22,7 +22,7 @@ public:
     explicit EngineImpl(const ModuleLocator& locator);
     ~EngineImpl() override;
 
-    // Engine
+    // IEngine
     TimePoint getTime() const noexcept override;
     bool shouldStop() const noexcept override;
     void setShouldStopFlag() noexcept override;
@@ -53,8 +53,8 @@ private:
     void update(std::chrono::nanoseconds elapsedTime);
     void render();
 
-    std::shared_ptr<backend::Backend> m_backend;
-    std::shared_ptr<graphics::Renderer> m_renderer;
+    std::shared_ptr<backend::IBackend> m_backend;
+    std::shared_ptr<graphics::IRenderer> m_renderer;
 
     std::shared_ptr<EventSystem> m_eventSystem;
 

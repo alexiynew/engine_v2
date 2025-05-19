@@ -3,7 +3,7 @@
 namespace game_engine::backend
 {
 
-std::shared_ptr<Backend> Backend::Create()
+std::shared_ptr<IBackend> IBackend::Create()
 {
     return std::make_shared<StubBackend>();
 }

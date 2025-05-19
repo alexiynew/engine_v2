@@ -6,7 +6,7 @@
 namespace game_engine::graphics
 {
 
-class StubRenderer final : public Renderer
+class StubRenderer final : public IRenderer
 {
 public:
     StubRenderer();

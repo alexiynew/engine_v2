@@ -11,7 +11,7 @@ namespace game_engine::backend
 {
 
 class GLFWBackend final
-    : public Backend
+    : public IBackend
     , public RenderContext
     , public std::enable_shared_from_this<GLFWBackend>
 {
@@ -19,7 +19,7 @@ public:
     GLFWBackend();
     ~GLFWBackend() override;
 
-    // Backend
+    // IBackend
     bool init(const GameSettings& settings) noexcept override;
     void shutdown() noexcept override;
 

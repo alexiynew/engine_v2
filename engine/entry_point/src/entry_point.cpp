@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
         auto createModuleLocator = []() {
             ModuleLocator ml;
 
-            ml.setImplementation(backend::Backend::Create());
-            ml.setImplementation(graphics::Renderer::Create());
+            ml.setImplementation(backend::IBackend::Create());
+            ml.setImplementation(graphics::IRenderer::Create());
             ml.setImplementation(IGame::Create());
 
             return ml;

@@ -9,11 +9,11 @@
 namespace game_engine::graphics
 {
 
-class StubShader final : public graphics::Shader
+class StubShader final : public graphics::IShader
 {
 public:
 
-    // graphics::Shader
+    // graphics::IShader
     void setSource(const std::string& vertexSource, const std::string& fragmentSource) override;
     bool link() override;
     void clear() noexcept override;

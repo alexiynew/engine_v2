@@ -13,14 +13,14 @@
 namespace game_engine::backend
 {
 
-class Backend
+class IBackend
 {
 public:
     using RefObserver = std::reference_wrapper<BackendObserver>;
 
-    static std::shared_ptr<Backend> Create();
+    static std::shared_ptr<IBackend> Create();
 
-    virtual ~Backend() = default;
+    virtual ~IBackend() = default;
 
     virtual bool init(const GameSettings& settings) noexcept = 0;
     virtual void shutdown() noexcept                         = 0;
