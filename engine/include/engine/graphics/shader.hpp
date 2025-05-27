@@ -36,12 +36,7 @@ public:
     /// @return True if the shader program was successfully linked, false otherwise.
     virtual bool Link() = 0;
 
-    /// @brief Clears the shader program by removing it from the context.
-    virtual void Clear() noexcept = 0;
-
-    /// @brief Checks if the shader program is valid and ready to be used.
-    /// A shader program is considered valid if it has been successfully linked.
-    /// @return True if the shader program is valid, false otherwise.
+    virtual void Clear() noexcept         = 0;
     virtual bool IsValid() const noexcept = 0;
 };
 

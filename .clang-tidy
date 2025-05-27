@@ -1,7 +1,7 @@
 # https://releases.llvm.org/18.1.8/tools/clang/tools/extra/docs/clang-tidy/checks/list.html
 
 ---
-Checks: '-*,readability-*'
+Checks: '-*,readability-*,-readability-identifier-length,-readability-function-cognitive-complexity'
 
 CheckOptions:
   - key: readability-uniqueptr-delete-release.PreferResetCall
@@ -73,6 +73,14 @@ CheckOptions:
 
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
+
+  - key: readability-implicit-bool-conversion.AllowPointerConditions
+    value: true
+  - key: readability-implicit-bool-conversion.AllowIntegerConditions
+    value: true
+
+
+
 
 WarningsAsErrors: ''
 HeaderFileExtensions:

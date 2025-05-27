@@ -31,14 +31,15 @@ inline constexpr bool SupportedVertexAttribute = IsFloatVertexAttribute<T> || Is
 template <typename T>
 constexpr VertexAttributeType GetAttributeType() noexcept
 {
-    if constexpr (IsFloatVertexAttribute<T>)
+    if constexpr (IsFloatVertexAttribute<T>) {
         return VertexAttributeType::Float;
-    else if constexpr (IsIntVertexAttribute<T>)
+    } else if constexpr (IsIntVertexAttribute<T>) {
         return VertexAttributeType::Int;
-    else if constexpr (IsUIntVertexAttribute<T>)
+    } else if constexpr (IsUIntVertexAttribute<T>) {
         return VertexAttributeType::UInt;
-    else
+    } else {
         static_assert(!std::is_same_v<T, T>, "Unsupported vertex attribute type");
+    }
 }
 
 template <typename T>
@@ -46,16 +47,17 @@ constexpr int GetComponentCount() noexcept
 {
     static_assert(SupportedVertexAttribute<T>, "Unsupported vertex attribute type");
 
-    if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int> || std::is_same_v<T, unsigned int>)
+    if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int> || std::is_same_v<T, unsigned int>) {
         return 1; // for scalar types
-    else if constexpr (std::is_same_v<T, Vector2> || std::is_same_v<T, Vector2i> || std::is_same_v<T, Vector2u>)
+    } else if constexpr (std::is_same_v<T, Vector2> || std::is_same_v<T, Vector2i> || std::is_same_v<T, Vector2u>) {
         return 2;
-    else if constexpr (std::is_same_v<T, Vector3> || std::is_same_v<T, Vector3i> || std::is_same_v<T, Vector3u>)
+    } else if constexpr (std::is_same_v<T, Vector3> || std::is_same_v<T, Vector3i> || std::is_same_v<T, Vector3u>) {
         return 3;
-    else if constexpr (std::is_same_v<T, Vector4> || std::is_same_v<T, Vector4i> || std::is_same_v<T, Vector4u>)
+    } else if constexpr (std::is_same_v<T, Vector4> || std::is_same_v<T, Vector4i> || std::is_same_v<T, Vector4u>) {
         return 4;
-    else
+    } else {
         static_assert(!std::is_same_v<T, T>, "Unsupported vertex attribute type");
+    }
 }
 
 template <typename T, typename U>

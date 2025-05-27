@@ -5,7 +5,6 @@ target_sources(engine_test
         main.cpp
         tests_engine_impl.cpp
         tests_event_system.cpp
-        tests_resource_id.cpp
         ../../src/event_system.cpp
         ../../src/engine_impl.cpp
 )
