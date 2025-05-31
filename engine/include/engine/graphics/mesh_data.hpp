@@ -7,7 +7,7 @@
 
 #include <engine/common_types.hpp>
 
-namespace game_engine::graphics
+namespace game_engine
 {
 
 /// @brief Vertex attribute data type
@@ -80,4 +80,4 @@ struct MeshData
     VertexLayout layout;                                     ///< vertex layout,
 };
 
-} // namespace game_engine::graphics
+} // namespace game_engine

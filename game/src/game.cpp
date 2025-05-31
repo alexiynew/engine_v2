@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include <engine/event_system.hpp>
-#include <engine/graphics/mesh.hpp>
-#include <engine/graphics/shader.hpp>
+#include <engine/event_system/event_system.hpp>
+#include <engine/graphics/renderer.hpp>
+#include <engine/resource_manager.hpp>
 #include <engine/window_events.hpp>
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -21,104 +21,15 @@ struct Vertex
     game_engine::Vector4 color;
 };
 
-namespace triangle_mesh
-{
-
-std::vector<Vertex> vertices = {
-    Vertex{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, // Vertex 1
-    Vertex{ {0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 2
-    Vertex{  {0.0f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}  // Vertex 3
-};
-
-std::vector<unsigned int> submesh_indices = {0, 1, 2};
-
-} // namespace triangle_mesh
-
-namespace cube_mesh
-{
-
-std::vector<Vertex> vertices = {
-    // Front edge (red)
-    Vertex{ {-0.5f, -0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, // Vertex 0
-    Vertex{  {0.5f, -0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, // Vertex 1
-    Vertex{   {0.5f, 0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, // Vertex 2
-    Vertex{  {-0.5f, 0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, // Vertex 3
-
-    //Back edge (green)
-    Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 4
-    Vertex{ {0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 5
-    Vertex{  {0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 6
-    Vertex{ {-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 7
-
-    // Upper edge (blue)
-    Vertex{  {-0.5f, 0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 8
-    Vertex{   {0.5f, 0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 9
-    Vertex{  {0.5f, 0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 10
-    Vertex{ {-0.5f, 0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 11
-
-    // Bottom edge (yellow)
-    Vertex{ {-0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 12
-    Vertex{  {0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 13
-    Vertex{ {0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 14
-    Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, // Vertex 15
-
-    // Left edge (blue)
-    Vertex{{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, // Vertex 16
-    Vertex{ {-0.5f, -0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, // Vertex 17
-    Vertex{  {-0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, // Vertex 18
-    Vertex{ {-0.5f, 0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, // Vertex 19
-
-    // Right edge (purple)
-    Vertex{ {0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 20
-    Vertex{  {0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 21
-    Vertex{   {0.5f, 0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 22
-    Vertex{  {0.5f, 0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, // Vertex 23
-};
-
-std::vector<unsigned int> submesh_indices = {0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,  8,  9,  10, 10, 11, 8,
-                                             12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20};
-
-} // namespace cube_mesh
-
-const char* VertexShaderSource = R"(
-        #version 330 core
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec3 aNormal;
-        layout(location = 2) in vec2 aUV;
-        layout(location = 3) in vec4 aColor;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-
-        out vec4 color;
-        void main() {
-            color = aColor;
-            gl_Position = projection * view * model * vec4(aPos, 1.0);
-        }
-    )";
-
-const char* FragmentShaderSource = R"(
-        #version 330 core
-        in vec4 color;
-
-        out vec4 FragColor;
-
-        void main() {
-            FragColor = color;
-            //FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-        }
-    )";
-
-inline game_engine::graphics::VertexLayout getVertexLayout()
+inline game_engine::VertexLayout getVertexLayout()
 {
     return {
         .vertex_size = sizeof(Vertex),
         .attributes  = {
-                        game_engine::graphics::GenerateAttribute(0, "position", &Vertex::position),
-                        game_engine::graphics::GenerateAttribute(1, "normal", &Vertex::normal),
-                        game_engine::graphics::GenerateAttribute(2, "uv", &Vertex::uv),
-                        game_engine::graphics::GenerateAttribute(3, "color", &Vertex::color),
+                        game_engine::GenerateAttribute(0, "position", &Vertex::position),
+                        game_engine::GenerateAttribute(1, "normal", &Vertex::normal),
+                        game_engine::GenerateAttribute(2, "uv", &Vertex::uv),
+                        game_engine::GenerateAttribute(3, "color", &Vertex::color),
                         }
     };
 }
@@ -137,25 +48,52 @@ Game::~Game()
 
 bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 {
-    m_engine = std::move(engine);
+    using namespace game_engine;
+    using namespace std::literals;
 
-    using namespace game_engine::graphics;
+    m_engine = std::move(engine);
 
     std::cout << "Game::onInitialize" << std::endl;
 
-    const std::vector<SubMesh> submeshes = {
-        {cube_mesh::submesh_indices, {}}
-    };
+    auto rm = m_engine->GetResourceManager();
 
-    m_mesh = m_engine->CreateMesh();
-    m_mesh->SetMeshData(CreateMeshData(cube_mesh::vertices, submeshes, PrimitiveType::Triangles, getVertexLayout()));
-    m_mesh->Flush();
+    m_mesh = rm->LoadMesh("cube"sv,
+                          {
+                              .source = "data/3d/cude.obj",
+                              .layout = getVertexLayout(),
+                          });
+    if (!m_mesh->LoadToGpu()) {
+        std::cout << "Failed to load mesh" << std::endl;
+    }
 
-    m_shader = m_engine->CreateShader();
-    m_shader->SetSource(VertexShaderSource, FragmentShaderSource);
+    m_shader = rm->LoadShader("simple"sv,
+                              {
+                                  .source_files = {
+                                                   {ShaderType::Vertex, "data/shaders/simple.vert"},
+                                                   {ShaderType::Fragment, "data/shaders/simple.frag"},
+                                                   }
+    });
+
     if (!m_shader->Link()) {
         std::cout << "Failed to load shader" << std::endl;
     }
+
+    // TODO: do this
+    // Создание металлического материала
+    //MaterialLoadParams matParams;
+    //matParams.shaderName = "PBR";
+    //matParams.properties["albedo"] = MaterialProperty{
+    //    .type = MaterialProperty::Texture,
+    //    .value.texture = resourceManager->GetTexture("Iron_Diffuse")
+    //};
+    //matParams.properties["metallic"] = MaterialProperty{
+    //    .type = MaterialProperty::Float,
+    //    .value.floatValue = 0.9f
+    //};
+    //auto metalMaterial = resourceManager->LoadMaterial("Iron", matParams);
+    //
+    //// Рендеринг
+    //renderer->Render(characterMesh, metalMaterial);
 
     subscribeForEvents();
 
@@ -183,24 +121,22 @@ void Game::OnUpdate(std::chrono::nanoseconds)
 
 void Game::OnDraw()
 {
+    using namespace game_engine;
+
     m_frames_count++;
 
     float time = (static_cast<float>(m_frames_count) * 3.14f) / 180.0f;
-
-    using game_engine::Matrix4;
-    using game_engine::Vector3;
-    using game_engine::graphics::Uniform;
 
     const auto model      = glm::rotate(Matrix4(1.0f), time, Vector3(0.5f, 1.0f, 0.0f));
     const auto view       = glm::translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -3.0f));
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    m_engine->Render(m_mesh,
-                     m_shader,
-                     {
-                         Uniform{     "model",      model},
-                         Uniform{      "view",       view},
-                         Uniform{"projection", projection},
+    m_engine->GetRenderer()->Render(m_mesh,
+                                    m_shader,
+                                    {
+                                        Property{     "model",      model},
+                                        Property{      "view",       view},
+                                        Property{"projection", projection},
     });
 }
 
@@ -229,7 +165,7 @@ void Game::subscribeForEvents()
 {
     using namespace game_engine;
 
-    m_subscriptions.push_back(m_engine->GetEventSystem().Subscribe<KeyboardInputEvent>([this](const auto& event) {
+    m_subscriptions.push_back(m_engine->GetEventSystem()->Subscribe<KeyboardInputEvent>([this](const auto& event) {
         if (event.key == KeyCode::Escape && event.action == KeyAction::Press) {
             m_engine->SetShouldStopFlag();
         }

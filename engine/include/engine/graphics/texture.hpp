@@ -1,20 +1,42 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 
-namespace game_engine::graphics
+#include <engine/resource.hpp>
+
+namespace game_engine
 {
 
-class ITexture
+enum class TextureType
 {
-public:
-    virtual ~ITexture() = default;
-
-    virtual void Bind(std::uint32_t slot = 0) const = 0;
-    virtual void Unbind() const                     = 0;
-
-    virtual void Clear() noexcept         = 0;
-    virtual bool IsValid() const noexcept = 0;
+    Diffuse,
+    Normal,
+    Specular,
+    Environment,
+    RenderTarget
 };
 
-} // namespace game_engine::graphics
+enum class TextureWrapMode
+{
+    Repeat,
+    MirroredRepeat,
+    ClampToEdge,
+    ClampToBorder
+};
+
+struct TextureLoadParams
+{
+    std::filesystem::path source;
+    TextureType type          = TextureType::Diffuse;
+    bool generate_mipmaps     = true;
+    TextureWrapMode wrap_mode = TextureWrapMode::Repeat;
+};
+
+class ITexture : public IResource
+{
+public:
+    ~ITexture() override = default;
+};
+
+} // namespace game_engine

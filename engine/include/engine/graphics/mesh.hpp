@@ -2,20 +2,28 @@
 
 #include <engine/graphics/mesh_data.hpp>
 #include <engine/graphics/vertex_traits.hpp>
+#include <engine/resource.hpp>
 
-namespace game_engine::graphics
+namespace game_engine
 {
 
-class IMesh
+struct MeshLoadParams
 {
-public:
-    virtual ~IMesh() = default;
-
-    virtual void SetMeshData(const MeshData& data) = 0;
-    virtual void Flush()                           = 0;
-
-    virtual void Clear() noexcept         = 0;
-    virtual bool IsValid() const noexcept = 0;
+    std::string source;
+    std::vector<std::string> additional_files;
+    PrimitiveType primitive_type = PrimitiveType::Triangles;
+    VertexLayout layout;
 };
 
-} // namespace game_engine::graphics
+class IMesh : public IResource
+{
+public:
+    ~IMesh() override = default;
+
+    virtual void SetMeshData(const MeshData& data)           = 0;
+    virtual void SetPrimitiveType(PrimitiveType type)        = 0;
+    virtual void SetVertexLayout(const VertexLayout& layout) = 0;
+    virtual bool LoadToGpu()                                 = 0;
+};
+
+} // namespace game_engine

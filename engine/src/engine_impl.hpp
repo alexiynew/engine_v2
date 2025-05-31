@@ -11,6 +11,8 @@
 namespace game_engine
 {
 
+class ResourceManagerImpl;
+
 class EngineImpl final
     : public IEngine
     , public std::enable_shared_from_this<EngineImpl>
@@ -26,14 +28,15 @@ public:
     TimePoint GetTime() const noexcept override;
     bool ShouldStop() const noexcept override;
     void SetShouldStopFlag() noexcept override;
-    std::shared_ptr<graphics::IMesh> CreateMesh() override;
-    std::shared_ptr<graphics::IShader> CreateShader() override;
-    void Render(const std::shared_ptr<graphics::IMesh>& mesh,
-                const std::shared_ptr<graphics::IShader>& shader,
-                const std::vector<graphics::Uniform>& uniforms) override;
 
     [[nodiscard]]
-    EventSystem& GetEventSystem() const override;
+    std::shared_ptr<IResourceManager> GetResourceManager() const override;
+
+    [[nodiscard]]
+    std::shared_ptr<IRenderer> GetRenderer() const override;
+
+    [[nodiscard]]
+    std::shared_ptr<EventSystem> GetEventSystem() const override;
 
     ReturnCode run() noexcept;
 
@@ -53,10 +56,11 @@ private:
     void update(std::chrono::nanoseconds elapsedTime);
     void Render();
 
-    std::shared_ptr<backend::IBackend> m_backend;
-    std::shared_ptr<graphics::IRenderer> m_renderer;
+    std::shared_ptr<backend::IBackendModule> m_backend;
+    std::shared_ptr<graphics::IRendererModule> m_renderer;
 
-    std::shared_ptr<EventSystem> m_eventSystem;
+    std::shared_ptr<ResourceManagerImpl> m_resource_manager;
+    std::shared_ptr<EventSystem> m_event_system;
 
     std::shared_ptr<IGame> m_game;
 

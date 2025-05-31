@@ -1,43 +1,36 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
-#include <variant>
+#include <unordered_map>
 
-#include <engine/common_types.hpp>
+#include <engine/resource.hpp>
 
-namespace game_engine::graphics
+namespace game_engine
 {
 
-/// @brief Type alias for a variant that can hold various types of uniform values.
-using UniformValue = std::variant<int, float, Vector2, Vector3, Vector4, Matrix3, Matrix4>;
-
-struct Uniform
+enum class ShaderType
 {
-    std::string name;
-    UniformValue value;
+    Vertex,
+    Fragment,
+    Geometry,
+    TessControl,
+    TessEvaluation,
+    Compute
 };
 
-/// @brief Base class for managing shader programs.
-///
-/// Provides an interface for setting shader source code, linking shader programs,
-/// setting uniform variables, and managing the lifecycle of the shader.
-class IShader
+struct ShaderLoadParams
+{
+    std::unordered_map<ShaderType, std::filesystem::path> source_files;
+};
+
+class IShader : public IResource
 {
 public:
-    virtual ~IShader() = default;
+    ~IShader() override = default;
 
-    /// @brief Sets the source code for the vertex and fragment shaders.
-    /// @param vertex_source The source code for the vertex shader.
-    /// @param fragment_source The source code for the fragment shader.
-    virtual void SetSource(const std::string& vertex_source, const std::string& fragment_source) = 0;
-
-    /// @brief Links the shader program.
-    /// This method compiles the vertex and fragment shaders and links them into a single shader program.
-    /// @return True if the shader program was successfully linked, false otherwise.
-    virtual bool Link() = 0;
-
-    virtual void Clear() noexcept         = 0;
-    virtual bool IsValid() const noexcept = 0;
+    virtual void SetSource(ShaderType type, const std::string& source) = 0;
+    virtual bool Link()                                                = 0;
 };
 
-} // namespace game_engine::graphics
+} // namespace game_engine

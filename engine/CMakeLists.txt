@@ -54,31 +54,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 # Engine library
 add_library(engine STATIC)
 
+# Collect sources
+file(GLOB_RECURSE ENGINE_HEADERS CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/engine/**/*.hpp)
+file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/**/*.[ch]pp)
+
 target_sources(engine
     PRIVATE
-        include/engine/common_types.hpp
-        include/engine/engine.hpp
-        include/engine/game_settings.hpp
-        include/engine/game.hpp
-        include/engine/keyboard.hpp
-        include/engine/event_system.hpp
-        include/engine/window_events.hpp
-        include/engine/graphics/mesh.hpp
-        include/engine/graphics/shader.hpp
-        include/engine/graphics/texture.hpp
-        include/engine/graphics/mesh_data.hpp
-        include/engine/graphics/vertex_traits.hpp
-        include/engine/details/event_system_details.inl
-        src/helpers/hash_helpers.hpp
-        src/resource_management/resource.hpp
-        src/resource_management/resource_loader.hpp
-        src/resource_management/resource_id.hpp
-        src/resource_management/resource_id.cpp
-        src/resource_management/resource_manager.hpp
-        src/resource_management/resource_manager.cpp
-        src/engine_impl.cpp
-        src/engine_impl.hpp
-        src/event_system.cpp
+        ${ENGINE_HEADERS}
+        ${ENGINE_SOURCES}
 )
 
 target_include_directories(engine
@@ -93,7 +76,7 @@ include(cmake/compile_options)
 include(third_party/glm)
 
 add_subdirectory(entry_point)
-add_subdirectory(src/modules)
+add_subdirectory(modules)
 
 target_link_libraries(engine
     INTERFACE

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/event_system.hpp>
+#include <engine/event_system/event_system.hpp>
 #include <engine/game.hpp>
 
 class Game final : public game_engine::IGame
@@ -26,8 +26,8 @@ private:
 
     std::vector<game_engine::EventSystem::SubscriptionPtr> m_subscriptions;
 
-    std::shared_ptr<game_engine::graphics::IShader> m_shader;
-    std::shared_ptr<game_engine::graphics::IMesh> m_mesh;
+    std::shared_ptr<game_engine::IShader> m_shader;
+    std::shared_ptr<game_engine::IMesh> m_mesh;
 
     std::size_t m_updatesCount = 0;
     std::size_t m_frames_count = 0;

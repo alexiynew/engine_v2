@@ -2,11 +2,10 @@
 
 #include <chrono>
 #include <memory>
-#include <vector>
 
-#include <engine/event_system.hpp>
-#include <engine/graphics/mesh.hpp>
-#include <engine/graphics/shader.hpp>
+#include <engine/event_system/event_system.hpp>
+#include <engine/graphics/renderer.hpp>
+#include <engine/resource_manager.hpp>
 
 namespace game_engine
 {
@@ -32,27 +31,17 @@ public:
     /// @return True if the engine should stop, false otherwise.
     virtual bool ShouldStop() const noexcept = 0;
 
-    /// @brief Creates a Mesh instance.
-    /// @return New Mesh.
-    virtual std::shared_ptr<graphics::IMesh> CreateMesh() = 0;
-
-    /// @brief Creates a Shader instance.
-    /// @return New Shader.
-    virtual std::shared_ptr<graphics::IShader> CreateShader() = 0;
-
-    /// @brief Renders a mesh with shader.
-    /// @param mesh Mesh to render.
-    /// @param shader Shader ot use to render mesh.
-    /// @param uniforms Uniforms to use in shader.
-    virtual void Render(const std::shared_ptr<graphics::IMesh>& mesh,
-                        const std::shared_ptr<graphics::IShader>& shader,
-                        const std::vector<graphics::Uniform>& uniforms) = 0;
-
     /// @brief Sets the flag to stop the engine.
     virtual void SetShouldStopFlag() noexcept = 0;
 
     [[nodiscard]]
-    virtual EventSystem& GetEventSystem() const = 0;
+    virtual std::shared_ptr<IResourceManager> GetResourceManager() const = 0;
+
+    [[nodiscard]]
+    virtual std::shared_ptr<IRenderer> GetRenderer() const = 0;
+
+    [[nodiscard]]
+    virtual std::shared_ptr<EventSystem> GetEventSystem() const = 0;
 };
 
 } // namespace game_engine

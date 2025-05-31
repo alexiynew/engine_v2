@@ -6,7 +6,7 @@
 
 #include <engine/graphics/mesh_data.hpp>
 
-namespace game_engine::graphics
+namespace game_engine
 {
 
 namespace vertex_traits
@@ -119,4 +119,4 @@ MeshData CreateMeshData(const std::vector<TVertexType>& vertices,
     return data;
 }
 
-} // namespace game_engine::graphics
+} // namespace game_engine

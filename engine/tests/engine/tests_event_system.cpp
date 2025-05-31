@@ -1,4 +1,4 @@
-#include <engine/event_system.hpp>
+#include <engine/event_system/event_system.hpp>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
