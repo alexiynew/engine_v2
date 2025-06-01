@@ -30,7 +30,7 @@ void StubBackend::PollEvents()
     }
 }
 
-std::shared_ptr<const IRenderContext> StubBackend::GetRenderContext() const
+std::shared_ptr<graphics::IRenderContext> StubBackend::GetRenderContext() const
 {
     return shared_from_this();
 }

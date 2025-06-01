@@ -11,15 +11,15 @@
 class MockRenderer : public game_engine::graphics::IRendererModule
 {
 public:
-    MOCK_METHOD(bool, Init, (std::shared_ptr<const game_engine::IRenderContext>), (noexcept, override));
+    MOCK_METHOD(bool, Init, (std::shared_ptr<game_engine::graphics::IRenderContext>), (noexcept, override));
     MOCK_METHOD(void, Shutdown, (), (noexcept, override));
 
-    MOCK_METHOD(std::shared_ptr<game_engine::IMesh>, CreateMesh, (), (override));
-    MOCK_METHOD(std::shared_ptr<game_engine::IShader>, CreateShader, (), (override));
+    // MOCK_METHOD(std::shared_ptr<game_engine::IMesh>, CreateMesh, (), (override));
+    // MOCK_METHOD(std::shared_ptr<game_engine::IShader>, CreateShader, (), (override));
 
-    MOCK_METHOD(void, AddRenderCommand, (const game_engine::graphics::RenderCommand&), (override));
-    MOCK_METHOD(void, ExecuteRenderCommands, (), (override));
-    MOCK_METHOD(void, ClearRenderCommands, (), (override));
+    // MOCK_METHOD(void, AddRenderCommand, (const game_engine::graphics::RenderCommand&), (override));
+    // MOCK_METHOD(void, ExecuteRenderCommands, (), (override));
+    // MOCK_METHOD(void, ClearRenderCommands, (), (override));
 };
 
 class MockBackend : public game_engine::backend::IBackendModule
@@ -28,11 +28,14 @@ public:
     MOCK_METHOD(bool, Init, (const game_engine::GameSettings&), (noexcept, override));
     MOCK_METHOD(void, Shutdown, (), (noexcept, override));
 
-    MOCK_METHOD(void, PollEvents, (), (override));
-    MOCK_METHOD(std::shared_ptr<const game_engine::IRenderContext>, GetRenderContext, (), (const, override));
-
     MOCK_METHOD(void, AttachBackendObserver, (game_engine::IBackendObserver&), (override));
     MOCK_METHOD(void, DetachBackendObserver, (const game_engine::IBackendObserver&), (override));
+
+    MOCK_METHOD(void, PollEvents, (), (const, override));
+
+    MOCK_METHOD(void, MakeContextCurrent, (), (const, override));
+    MOCK_METHOD(void, DropCurrentContext, (), (const, override));
+    MOCK_METHOD(void, SwapBuffers, (), (const, override));
 };
 
 class MockGame : public game_engine::IGame

@@ -20,7 +20,7 @@ public:
     void Shutdown() noexcept override;
 
     void PollEvents() override;
-    std::shared_ptr<const IRenderContext> GetRenderContext() const override;
+    std::shared_ptr<IRenderContext> GetRenderContext() const override;
 
     void AttachBackendObserver(IBackendObserver& observer) override;
     void DetachBackendObserver(const IBackendObserver& observer) override;

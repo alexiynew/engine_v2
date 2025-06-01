@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string_view>
+#include <typeinfo>
 
 #include <glad/glad.h>
 #include <opengl_utils.hpp>
@@ -156,37 +157,41 @@ void OpenGLShader::Use() const
     glUseProgram(m_shader_program);
 }
 
-void OpenGLShader::SetUniform(const Uniform& uniform) const
-{
-    const GLint location = GetUniformLocation(uniform.name);
-
-    if (location < 0 || m_shader_program == 0) {
-        LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
-        return;
-    }
-
-    std::visit([location](auto&& arg) {
-        using T = std::decay_t<decltype(arg)>;
-
-        if constexpr (std::is_same_v<T, int>) {
-            glUniform1i(location, arg);
-        } else if constexpr (std::is_same_v<T, float>) {
-            glUniform1f(location, arg);
-        } else if constexpr (std::is_same_v<T, Vector2>) {
-            glUniform2f(location, arg.x, arg.y);
-        } else if constexpr (std::is_same_v<T, Vector3>) {
-            glUniform3f(location, arg.x, arg.y, arg.z);
-        } else if constexpr (std::is_same_v<T, Vector4>) {
-            glUniform4f(location, arg.x, arg.y, arg.z, arg.w);
-        } else if constexpr (std::is_same_v<T, Matrix3>) {
-            glUniformMatrix3fv(location, 1, GL_FALSE, &arg[0][0]);
-        } else if constexpr (std::is_same_v<T, Matrix4>) {
-            glUniformMatrix4fv(location, 1, GL_FALSE, &arg[0][0]);
-        } else {
-            static_assert(false, "Unsupported uniform type");
-        }
-    }, uniform.value);
-}
+//     void OpenGLShader::SetProperty(const Property& property) const
+//     {
+//         const GLint location = GetUniformLocation(property.name);
+//
+//         if (location < 0 || m_shader_program == 0) {
+//             LOG_ERROR << "[SHADER] Uniform is negative or shader program is not initialized." << std::endl;
+//             return;
+//         }
+//
+//         std::visit([location](auto&& arg) {
+//             using T = std::decay_t<decltype(arg)>;
+//
+//             if constexpr (std::is_same_v<T, int>) {
+//                 glUniform1i(location, arg);
+//             } else if constexpr (std::is_same_v<T, float>) {
+//                 glUniform1f(location, arg);
+//             } else if constexpr (std::is_same_v<T, Vector2>) {
+//                 glUniform2f(location, arg.x, arg.y);
+//             } else if constexpr (std::is_same_v<T, Vector3>) {
+//                 glUniform3f(location, arg.x, arg.y, arg.z);
+//             } else if constexpr (std::is_same_v<T, Vector4>) {
+//                 glUniform4f(location, arg.x, arg.y, arg.z, arg.w);
+//             } else if constexpr (std::is_same_v<T, Matrix3>) {
+//                 glUniformMatrix3fv(location, 1, GL_FALSE, &arg[0][0]);
+//             } else if constexpr (std::is_same_v<T, Matrix4>) {
+//                 glUniformMatrix4fv(location, 1, GL_FALSE, &arg[0][0]);
+//             } else if constexpr (std::is_same_v<T, std::shared_ptr<ITexture>>) {
+//                 // TODO: implement this
+//                 throw std::runtime_error("Not Implemented");
+//                 //glUniform1i(location, arg->GetId());
+//             } else {
+//                 static_assert(!std::is_same_v<T, T>, "Unsupported uniform type");
+//             }
+//         }, property.value);
+//     }
 
 void OpenGLShader::Clear() noexcept
 {

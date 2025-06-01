@@ -13,7 +13,7 @@ public:
     ~StubRenderer() override;
 
     // Renderer
-    bool Init(std::shared_ptr<const IRenderContext>) noexcept override;
+    bool Init(std::shared_ptr<IRenderContext>) noexcept override;
     void Shutdown() noexcept override;
 
     std::shared_ptr<graphics::IShader> CreateShader() override;

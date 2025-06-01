@@ -7,8 +7,6 @@
 #include <engine/game_settings.hpp>
 #include <engine/window_events.hpp>
 
-#include <modules/render_context.hpp>
-
 namespace game_engine
 {
 

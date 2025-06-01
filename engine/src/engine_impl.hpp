@@ -5,13 +5,13 @@
 #include <engine/game.hpp>
 
 #include <modules/backend/backend.hpp>
-#include <modules/graphics/renderer.hpp>
 #include <modules/module_locator.hpp>
 
 namespace game_engine
 {
 
 class ResourceManagerImpl;
+class RendererImpl;
 
 class EngineImpl final
     : public IEngine
@@ -57,8 +57,8 @@ private:
     void Render();
 
     std::shared_ptr<backend::IBackendModule> m_backend;
-    std::shared_ptr<graphics::IRendererModule> m_renderer;
 
+    std::shared_ptr<RendererImpl> m_renderer;
     std::shared_ptr<ResourceManagerImpl> m_resource_manager;
     std::shared_ptr<EventSystem> m_event_system;
 

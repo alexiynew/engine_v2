@@ -1,6 +1,5 @@
 #include "resource_manager_impl.hpp"
 
-#include <helpers/hash_helpers.hpp>
 #include <resource_management/loaders/material_loader.hpp>
 #include <resource_management/loaders/mesh_loader.hpp>
 #include <resource_management/loaders/shader_loader.hpp>

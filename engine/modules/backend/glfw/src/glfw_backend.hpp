@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <mutex>
 
 #include <modules/backend/backend.hpp>
@@ -10,29 +11,24 @@
 namespace game_engine::backend
 {
 
-class GLFWBackend final
-    : public IBackendModule
-    , public IRenderContext
-    , public std::enable_shared_from_this<GLFWBackend>
+class GLFWBackend final : public IBackendModule
 {
 public:
+
     GLFWBackend();
     ~GLFWBackend() override;
 
-    // IBackend
+    // IBackend implementation
     bool Init(const GameSettings& settings) noexcept override;
     void Shutdown() noexcept override;
-
-    void PollEvents() override;
-
-    std::shared_ptr<const IRenderContext> GetRenderContext() const override;
 
     void AttachBackendObserver(IBackendObserver& observer) override;
     void DetachBackendObserver(const IBackendObserver& observer) override;
 
-    // IRenderContext
-    void MakeCurrent() const override;
-    void DropCurrent() const override;
+    void PollEvents() const override;
+
+    void MakeContextCurrent() const override;
+    void DropCurrentContext() const override;
     void SwapBuffers() const override;
 
     // Event handling

@@ -5,18 +5,17 @@
 #include <unordered_map>
 
 #include <engine/common_types.hpp>
-#include <engine/graphics/mesh.hpp>
 
 #include <opengl_renderer.hpp>
 
 namespace game_engine::graphics
 {
 
-class OpenGLMesh final : public IMesh
+class OpenGLMesh final
 {
 public:
     explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
-    ~OpenGLMesh() override;
+    ~OpenGLMesh();
 
     OpenGLMesh(const OpenGLMesh&) = delete;
     OpenGLMesh(OpenGLMesh&& other) noexcept;
@@ -24,13 +23,12 @@ public:
     OpenGLMesh& operator=(const OpenGLMesh&) = delete;
     OpenGLMesh& operator=(OpenGLMesh&& other) noexcept;
 
-    // graphics::Mesh
-    void SetMeshData(const MeshData& data) override;
-    bool LoadToGpu() override;
-    void Clear() noexcept override;
-    bool IsValid() const noexcept override;
+    //void SetMeshData(const MeshData& data);
+    //bool LoadToGpu();
+    //void Clear() noexcept;
+    //bool IsValid() const noexcept;
 
-    void Render() const;
+    //void Render() const;
 
 private:
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
@@ -43,7 +41,7 @@ private:
     unsigned int m_vbo = 0;
     unsigned int m_ebo = 0;
 
-    MeshData m_data = {};
+    // MeshData m_data = {};
 };
 
 } // namespace game_engine::graphics

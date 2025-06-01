@@ -5,18 +5,17 @@
 #include <unordered_map>
 
 #include <engine/common_types.hpp>
-#include <engine/graphics/shader.hpp>
 
 #include <opengl_renderer.hpp>
 
 namespace game_engine::graphics
 {
 
-class OpenGLShader final : public IShader
+class OpenGLShader final
 {
 public:
     explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
-    ~OpenGLShader() override;
+    ~OpenGLShader();
 
     OpenGLShader(const OpenGLShader&) = delete;
     OpenGLShader(OpenGLShader&& other) noexcept;
@@ -24,13 +23,12 @@ public:
     OpenGLShader& operator=(const OpenGLShader&) = delete;
     OpenGLShader& operator=(OpenGLShader&& other) noexcept;
 
-    // graphics::Shader
-    void SetSource(const std::string& vertex_source, const std::string& fragment_source) override;
-    bool LoadToGpu() override;
-    void Clear() noexcept override;
-    bool IsValid() const noexcept override;
+    void SetSource(const std::string& vertex_source, const std::string& fragment_source);
+    bool LoadToGpu();
+    void Clear() noexcept;
+    bool IsValid() const noexcept;
 
-    void SetUniform(const Uniform& uniform) const;
+    //void SetProperty(const Property& property) const;
     void Use() const;
 
     void BindAttributeLocation(std::uint32_t location, const std::string& name) const;

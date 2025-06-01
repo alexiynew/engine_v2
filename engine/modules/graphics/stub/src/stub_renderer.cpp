@@ -11,7 +11,7 @@ StubRenderer::StubRenderer()
 
 StubRenderer::~StubRenderer() = default;
 
-bool StubRenderer::Init(std::shared_ptr<const IRenderContext>) noexcept
+bool StubRenderer::Init(std::shared_ptr<IRenderContext>) noexcept
 {
     return true;
 }

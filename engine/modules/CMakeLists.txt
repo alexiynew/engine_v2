@@ -10,9 +10,9 @@ target_sources(modules
     INTERFACE
         include/modules/module_locator.hpp
         include/modules/input_handler.hpp
-        include/modules/render_context.hpp
         include/modules/backend/backend.hpp
         include/modules/graphics/renderer.hpp
+        include/modules/graphics/render_context.hpp
 )
 
 include(backend/backend.cmake)

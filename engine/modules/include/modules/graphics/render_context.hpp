@@ -1,11 +1,12 @@
 #pragma once
 
-namespace game_engine
+namespace game_engine::graphics
 {
 
 class IRenderContext
 {
 public:
+
     virtual ~IRenderContext() = default;
 
     virtual void MakeCurrent() const = 0;
@@ -13,4 +14,4 @@ public:
     virtual void SwapBuffers() const = 0;
 };
 
-} // namespace game_engine
+} // namespace game_engine::graphics

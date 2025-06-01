@@ -8,7 +8,6 @@
 #include <thread>
 
 #include <modules/graphics/renderer.hpp>
-#include <modules/render_context.hpp>
 
 namespace game_engine::graphics
 {
@@ -33,15 +32,15 @@ public:
     OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete;
 
     // Renderer
-    bool Init(std::shared_ptr<const IRenderContext> context) noexcept override;
+    bool Init(std::shared_ptr<IRenderContext> context) noexcept override;
     void Shutdown() noexcept override;
 
-    std::shared_ptr<IShader> CreateShader() override;
-    std::shared_ptr<IMesh> CreateMesh() override;
+    // std::shared_ptr<OpenGLShader> CreateShader();
+    // std::shared_ptr<OpenGLMesh> CreateMesh();
 
-    void AddRenderCommand(const RenderCommand& command) override;
-    void ClearRenderCommands() override;
-    void ExecuteRenderCommands() override;
+    // void AddRenderCommand(const RenderCommand& command);
+    // void ClearRenderCommands();
+    // void ExecuteRenderCommands();
 
     void Submit(Task task);
     std::future<void> SubmitSync(Task task);
@@ -50,7 +49,7 @@ private:
 
     void RenderLoop();
 
-    std::shared_ptr<const IRenderContext> m_context;
+    std::shared_ptr<IRenderContext> m_context;
 
     std::atomic<bool> m_running{false};
     std::thread m_thread;
@@ -65,7 +64,7 @@ private:
     std::vector<std::shared_ptr<OpenGLMesh>> m_meshes;
 
     std::mutex m_commands_mutex;
-    std::deque<RenderCommand> m_commands;
+    //std::deque<RenderCommand> m_commands;
 };
 
 } // namespace game_engine::graphics

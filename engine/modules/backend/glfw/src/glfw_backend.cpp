@@ -100,7 +100,7 @@ GLFWBackend::~GLFWBackend()
     Shutdown();
 }
 
-#pragma region Backend
+#pragma region IBackend implementation
 
 bool GLFWBackend::Init(const GameSettings& settings) noexcept
 {
@@ -159,11 +159,6 @@ void GLFWBackend::Shutdown() noexcept
     glfwTerminate();
 }
 
-void GLFWBackend::PollEvents()
-{
-    glfwPollEvents();
-}
-
 void GLFWBackend::AttachBackendObserver(IBackendObserver& observer)
 {
     m_observers.push_front(observer);
@@ -174,22 +169,18 @@ void GLFWBackend::DetachBackendObserver(const IBackendObserver& observer)
     m_observers.remove_if([&observer](const RefObserver& obj) { return &obj.get() == &observer; });
 }
 
-std::shared_ptr<const IRenderContext> GLFWBackend::GetRenderContext() const
+void GLFWBackend::PollEvents() const
 {
-    return shared_from_this();
+    glfwPollEvents();
 }
 
-#pragma endregion
-
-#pragma region RenderContext
-
-void GLFWBackend::MakeCurrent() const
+void GLFWBackend::MakeContextCurrent() const
 {
     std::lock_guard lock(m_window_mutex);
     glfwMakeContextCurrent(m_window);
 }
 
-void GLFWBackend::DropCurrent() const
+void GLFWBackend::DropCurrentContext() const
 {
     std::lock_guard lock(m_window_mutex);
     glfwMakeContextCurrent(nullptr);

@@ -2,6 +2,7 @@
 
 #include <thread>
 
+#include <graphics/renderer_impl.hpp>
 #include <resource_management/resource_manager_impl.hpp>
 
 #define LOG_ERROR std::cerr
@@ -17,7 +18,7 @@ namespace game_engine
 
 EngineImpl::EngineImpl(const ModuleLocator& locator)
     : m_backend(locator.Get<backend::IBackendModule>())
-    , m_renderer(locator.Get<graphics::IRendererModule>())
+    , m_renderer(std::make_shared<RendererImpl>(locator))
     , m_resource_manager(std::make_shared<ResourceManagerImpl>())
     , m_event_system(std::make_shared<EventSystem>())
     , m_game(locator.Get<IGame>())
@@ -51,7 +52,8 @@ std::shared_ptr<IResourceManager> EngineImpl::GetResourceManager() const
 [[nodiscard]]
 std::shared_ptr<IRenderer> EngineImpl::GetRenderer() const
 {
-    return m_renderer;
+    // Performs an explicit derived-to-base pointer conversion to bypass const correctness.
+    return std::static_pointer_cast<IRenderer>(m_renderer);
 }
 
 [[nodiscard]]
@@ -88,7 +90,7 @@ int EngineImpl::run() noexcept
             return -1;
         }
 
-        if (!m_renderer->Init(m_backend->GetRenderContext())) {
+        if (!m_renderer->Init()) {
             return -1;
         }
 

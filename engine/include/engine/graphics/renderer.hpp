@@ -14,7 +14,7 @@ namespace game_engine
 class IRenderer
 {
 public:
-    virtual ~IRenderer() = 0;
+    virtual ~IRenderer() = default;
 
     virtual void Render(const std::shared_ptr<IMesh>& mesh,
                         const std::shared_ptr<IShader>& shader,
