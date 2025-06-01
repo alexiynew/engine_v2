@@ -19,6 +19,7 @@ class EngineImpl final
     , private IBackendObserver
 {
 public:
+
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
     explicit EngineImpl(const ModuleLocator& locator);
@@ -41,6 +42,7 @@ public:
     ReturnCode run() noexcept;
 
 private:
+
     // BackendEventHandler
     void OnEvent(const KeyboardInputEvent& event) override;
     void OnEvent(const WindowResizeEvent& event) override;

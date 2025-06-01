@@ -15,6 +15,7 @@ namespace game_engine
 class IResourceManager
 {
 public:
+
     virtual ~IResourceManager() = default;
 
     virtual std::shared_ptr<IMesh> LoadMesh(const std::string_view name, const MeshLoadParams& params)             = 0;

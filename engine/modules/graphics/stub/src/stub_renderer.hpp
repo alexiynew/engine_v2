@@ -9,6 +9,7 @@ namespace game_engine::graphics
 class StubRenderer final : public IRenderer
 {
 public:
+
     StubRenderer();
     ~StubRenderer() override;
 

@@ -53,7 +53,7 @@ std::shared_ptr<ITexture> ResourceManagerImpl::LoadTexture(const std::string_vie
 }
 
 std::shared_ptr<IMaterial> ResourceManagerImpl::LoadMaterial(const std::string_view name,
-                                                             const MaterialLoadParams& params)
+const MaterialLoadParams& params)
 {
     if (auto r = m_material_loader->Load(params); r != nullptr) {
         const auto id = m_hasher(name);

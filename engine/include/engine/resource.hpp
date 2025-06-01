@@ -30,6 +30,7 @@ using ResourceId = std::size_t;
 class IResource
 {
 public:
+
     virtual ~IResource() = default;
 
     virtual bool Load()   = 0;

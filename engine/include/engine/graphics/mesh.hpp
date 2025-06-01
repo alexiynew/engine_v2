@@ -18,6 +18,7 @@ struct MeshLoadParams
 class IMesh : public IResource
 {
 public:
+
     ~IMesh() override = default;
 
     virtual void SetMeshData(const MeshData& data)           = 0;

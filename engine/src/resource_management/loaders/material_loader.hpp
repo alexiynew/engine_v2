@@ -10,6 +10,7 @@ namespace game_engine
 class MaterialLoader final
 {
 public:
+
     std::shared_ptr<IMaterial> Load(const MaterialLoadParams& params) const;
 };
 

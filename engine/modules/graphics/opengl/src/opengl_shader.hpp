@@ -14,6 +14,7 @@ namespace game_engine::graphics
 class OpenGLShader final
 {
 public:
+
     explicit OpenGLShader(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
     ~OpenGLShader();
 
@@ -35,6 +36,7 @@ public:
     int GetAttributeLocation(const std::string& name) const;
 
 private:
+
     friend void swap(OpenGLShader& a, OpenGLShader& b) noexcept;
 
     int GetUniformLocation(const std::string& name) const;

@@ -19,8 +19,8 @@ RendererImpl::~RendererImpl() = default;
 #pragma region IRenderer implementation
 
 void RendererImpl::Render(const std::shared_ptr<IMesh>& mesh,
-                          const std::shared_ptr<IShader>& shader,
-                          const std::vector<Property>& properties)
+const std::shared_ptr<IShader>& shader,
+const std::vector<Property>& properties)
 {}
 
 void RendererImpl::Render(const std::shared_ptr<IMesh>& mesh, const std::shared_ptr<IMaterial>& material)

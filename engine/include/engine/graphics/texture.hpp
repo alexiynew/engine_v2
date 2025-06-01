@@ -36,6 +36,7 @@ struct TextureLoadParams
 class ITexture : public IResource
 {
 public:
+
     ~ITexture() override = default;
 };
 

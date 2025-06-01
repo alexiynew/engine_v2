@@ -18,6 +18,7 @@ namespace game_engine
 class IEngine
 {
 public:
+
     using TimePoint  = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
     using ReturnCode = int;
 

@@ -12,6 +12,7 @@ class StubBackend final
     , public std::enable_shared_from_this<StubBackend>
 {
 public:
+
     StubBackend();
     ~StubBackend() override;
 
@@ -31,6 +32,7 @@ public:
     void SwapBuffers() const override;
 
 private:
+
     int m_frames_count        = 0;
     int m_target_frames_count = 100;
 

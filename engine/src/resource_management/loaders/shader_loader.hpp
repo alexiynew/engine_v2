@@ -10,6 +10,7 @@ namespace game_engine
 class ShaderLoader final
 {
 public:
+
     std::shared_ptr<IShader> Load(const ShaderLoadParams& params) const;
 };
 

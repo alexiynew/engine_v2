@@ -20,6 +20,7 @@ class OpenGLRenderer final
     , public std::enable_shared_from_this<OpenGLRenderer>
 {
 public:
+
     using Task = std::function<void()>;
 
     OpenGLRenderer();

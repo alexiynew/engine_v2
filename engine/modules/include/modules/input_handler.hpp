@@ -15,6 +15,7 @@ class IBackendObserver
 
 {
 public:
+
     virtual ~IBackendObserver() = default;
 
     /// @brief Method to handle keyboard input events (e.g., key presses)

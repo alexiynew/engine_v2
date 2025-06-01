@@ -128,10 +128,10 @@ bool GLFWBackend::Init(const GameSettings& settings) noexcept
     ApplyAntiAliasing(settings);
 
     m_window = glfwCreateWindow(settings.resolution_width,
-                                settings.resolution_height,
-                                settings.window_title.c_str(),
-                                nullptr,
-                                nullptr);
+    settings.resolution_height,
+    settings.window_title.c_str(),
+    nullptr,
+    nullptr);
     if (!m_window) {
         LogErrors();
         glfwTerminate();
@@ -257,12 +257,12 @@ void GLFWBackend::ApplyDisplayMode(const GameSettings& settings)
     switch (settings.display_mode) {
         case DisplayMode::Fullscreen:
             glfwSetWindowMonitor(m_window,
-                                 monitor,
-                                 0,
-                                 0,
-                                 settings.resolution_width,
-                                 settings.resolution_height,
-                                 mode->refreshRate);
+            monitor,
+            0,
+            0,
+            settings.resolution_width,
+            settings.resolution_height,
+            mode->refreshRate);
             break;
         case DisplayMode::BorderlessFullscreen:
             glfwSetWindowMonitor(m_window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
@@ -272,12 +272,12 @@ void GLFWBackend::ApplyDisplayMode(const GameSettings& settings)
             const int y_pos = (mode->height - settings.resolution_height) / 2;
 
             glfwSetWindowMonitor(m_window,
-                                 nullptr,
-                                 x_pos,
-                                 y_pos,
-                                 settings.resolution_width,
-                                 settings.resolution_height,
-                                 mode->refreshRate);
+            nullptr,
+            x_pos,
+            y_pos,
+            settings.resolution_width,
+            settings.resolution_height,
+            mode->refreshRate);
         } break;
     }
 }

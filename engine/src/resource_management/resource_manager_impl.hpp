@@ -17,6 +17,7 @@ class MaterialLoader;
 class ResourceManagerImpl final : public IResourceManager
 {
 public:
+
     using ResourceId = std::size_t;
 
     ResourceManagerImpl();
@@ -44,6 +45,7 @@ public:
     void UnloadAll() override;
 
 private:
+
     template <typename T>
     std::shared_ptr<T> GetResource(const std::string_view name) const;
 

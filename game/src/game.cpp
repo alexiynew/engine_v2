@@ -58,20 +58,21 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
     auto rm = m_engine->GetResourceManager();
 
     m_mesh = rm->LoadMesh("cube"sv,
-                          {
-                              .source = "data/3d/cude.obj",
-                              .layout = getVertexLayout(),
-                          });
+    {
+        .source = "data/3d/cude.obj",
+        .layout = getVertexLayout(),
+    });
+
     if (!m_mesh->LoadToGpu()) {
         std::cout << "Failed to load mesh" << std::endl;
     }
 
     m_shader = rm->LoadShader("simple"sv,
-                              {
-                                  .source_files = {
-                                                   {ShaderType::Vertex, "data/shaders/simple.vert"},
-                                                   {ShaderType::Fragment, "data/shaders/simple.frag"},
-                                                   }
+    {
+        .source_files = {
+                         {ShaderType::Vertex, "data/shaders/simple.vert"},
+                         {ShaderType::Fragment, "data/shaders/simple.frag"},
+                         }
     });
 
     if (!m_shader->Link()) {
@@ -132,11 +133,11 @@ void Game::OnDraw()
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
     m_engine->GetRenderer()->Render(m_mesh,
-                                    m_shader,
-                                    {
-                                        Property{     "model",      model},
-                                        Property{      "view",       view},
-                                        Property{"projection", projection},
+    m_shader,
+    {
+        Property{     "model",      model},
+        Property{      "view",       view},
+        Property{"projection", projection},
     });
 }
 

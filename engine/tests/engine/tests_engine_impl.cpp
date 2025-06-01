@@ -11,6 +11,7 @@
 class MockRenderer : public game_engine::graphics::IRendererModule
 {
 public:
+
     MOCK_METHOD(bool, Init, (std::shared_ptr<game_engine::graphics::IRenderContext>), (noexcept, override));
     MOCK_METHOD(void, Shutdown, (), (noexcept, override));
 
@@ -25,6 +26,7 @@ public:
 class MockBackend : public game_engine::backend::IBackendModule
 {
 public:
+
     MOCK_METHOD(bool, Init, (const game_engine::GameSettings&), (noexcept, override));
     MOCK_METHOD(void, Shutdown, (), (noexcept, override));
 
@@ -41,6 +43,7 @@ public:
 class MockGame : public game_engine::IGame
 {
 public:
+
     MOCK_METHOD(bool, Init, (std::shared_ptr<game_engine::IEngine>), (noexcept, override));
     MOCK_METHOD(void, Shutdown, (), (noexcept, override));
 
@@ -53,6 +56,7 @@ public:
 class EngineFixture : public ::testing::Test
 {
 protected:
+
     void SetUp() override
     {
         auto create_module_locator = [&]() {

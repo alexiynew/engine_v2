@@ -16,6 +16,7 @@ struct MaterialLoadParams
 class IMaterial : public IResource
 {
 public:
+
     ~IMaterial() override = default;
 
     virtual void SetProperty(const std::string& name, const PropertyValue& property) = 0;

@@ -15,6 +15,7 @@ namespace game_engine
 class RenderContextImpl final : public graphics::IRenderContext
 {
 public:
+
     explicit RenderContextImpl(std::shared_ptr<backend::IBackendModule> backend);
     ~RenderContextImpl() override;
 
@@ -30,6 +31,7 @@ public:
     void SwapBuffers() const override;
 
 private:
+
     std::shared_ptr<backend::IBackendModule> m_backend;
 };
 

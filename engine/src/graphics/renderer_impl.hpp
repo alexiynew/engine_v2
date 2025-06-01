@@ -24,6 +24,7 @@ namespace game_engine
 class RendererImpl final : public IRenderer
 {
 public:
+
     explicit RendererImpl(const ModuleLocator& locator);
     ~RendererImpl() override;
 
@@ -35,8 +36,8 @@ public:
 
     // IRenderer implementation
     void Render(const std::shared_ptr<IMesh>& mesh,
-                const std::shared_ptr<IShader>& shader,
-                const std::vector<Property>& properties) override;
+    const std::shared_ptr<IShader>& shader,
+    const std::vector<Property>& properties) override;
 
     void Render(const std::shared_ptr<IMesh>& mesh, const std::shared_ptr<IMaterial>& material) override;
 
@@ -49,6 +50,7 @@ public:
     void ExecuteRenderCommands();
 
 private:
+
     std::shared_ptr<RenderContextImpl> m_context;
     std::shared_ptr<graphics::IRendererModule> m_renderer_module;
 };

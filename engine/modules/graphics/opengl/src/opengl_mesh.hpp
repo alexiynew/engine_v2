@@ -14,6 +14,7 @@ namespace game_engine::graphics
 class OpenGLMesh final
 {
 public:
+
     explicit OpenGLMesh(std::shared_ptr<OpenGLRenderer> render_thread) noexcept;
     ~OpenGLMesh();
 
@@ -31,6 +32,7 @@ public:
     //void Render() const;
 
 private:
+
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
 
     bool LoadToGpuImpl();

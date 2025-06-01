@@ -6,6 +6,7 @@
 class EventSystemFixture : public ::testing::Test
 {
 protected:
+
     game_engine::EventSystem m_es;
 };
 
@@ -109,7 +110,7 @@ TEST_F(EventSystemFixture, HandlerPriorityOrder)
 
     auto s1 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(0); }, HandlerPriority::Whenever);
     auto s2 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(1); },
-                                  HandlerPriority::UrgentButCanVibe);
+    HandlerPriority::UrgentButCanVibe);
     auto s3 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::RedPanic);
 
     m_es.ProcessEvent(0);

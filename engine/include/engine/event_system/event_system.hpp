@@ -56,7 +56,7 @@ public:
     template <typename TEvent>
     [[nodiscard]]
     SubscriptionPtr Subscribe(std::function<void(const TEvent&)> handler,
-                              HandlerPriority priority = HandlerPriority::Whenever)
+    HandlerPriority priority = HandlerPriority::Whenever)
     {
         return GetDispatcher<TEvent>()->Subscribe(std::move(handler), priority);
     }
@@ -71,9 +71,11 @@ public:
     }
 
 private:
+
     class IDispatcherBase
     {
     public:
+
         virtual ~IDispatcherBase()                   = default;
         virtual bool HasHandlers() const             = 0;
         virtual std::string GetEventTypeName() const = 0;
@@ -112,6 +114,7 @@ class EventSystem::Dispatcher final
     , public std::enable_shared_from_this<Dispatcher<TEvent>>
 {
 public:
+
     using Handler   = std::function<void(const TEvent&)>;
     using HandlerId = std::size_t;
 
@@ -125,6 +128,7 @@ public:
     class SubscriptionImpl final : public ISubscription
     {
     public:
+
         SubscriptionImpl(std::weak_ptr<Dispatcher> dispatcher, HandlerId id)
             : m_dispatcher(std::move(dispatcher))
             , m_id(id)
@@ -149,6 +153,7 @@ public:
         }
 
     private:
+
         std::weak_ptr<Dispatcher> m_dispatcher;
         HandlerId m_id;
     };
@@ -207,9 +212,9 @@ private:
     auto AddHandler(HandlerNode&& node)
     {
         auto it = std::lower_bound(m_handlers.begin(),
-                                   m_handlers.end(),
-                                   node,
-                                   [](const HandlerNode& a, const HandlerNode& b) {
+        m_handlers.end(),
+        node,
+        [](const HandlerNode& a, const HandlerNode& b) {
             if (a.priority == b.priority) {
                 return a.id < b.id;
             }

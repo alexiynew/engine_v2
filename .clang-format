@@ -3,7 +3,7 @@
 
 AccessModifierOffset: -4
 
-AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: DontAlign
 AlignArrayOfStructures: Right
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: false
@@ -82,7 +82,7 @@ DerivePointerAlignment: false
 
 DisableFormat: false
 
-EmptyLineAfterAccessModifier: Leave
+EmptyLineAfterAccessModifier: Always
 EmptyLineBeforeAccessModifier: LogicalBlock
 
 FixNamespaceComments: true

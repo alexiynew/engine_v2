@@ -19,6 +19,7 @@ concept ModuleInterface = requires {
 class ModuleLocator final
 {
 public:
+
     ModuleLocator()  = default;
     ~ModuleLocator() = default;
 

@@ -27,6 +27,7 @@ struct ShaderLoadParams
 class IShader : public IResource
 {
 public:
+
     ~IShader() override = default;
 
     virtual void SetSource(ShaderType type, const std::string& source) = 0;

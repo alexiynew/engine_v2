@@ -10,6 +10,7 @@ namespace game_engine
 class MeshLoader final
 {
 public:
+
     std::shared_ptr<IMesh> Load(const MeshLoadParams& params) const;
 };
 

@@ -10,6 +10,7 @@ namespace game_engine
 class TextureLoader final
 {
 public:
+
     std::shared_ptr<ITexture> Load(const TextureLoadParams& params) const;
 };
 
