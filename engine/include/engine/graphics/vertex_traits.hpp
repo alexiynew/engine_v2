@@ -57,17 +57,14 @@ constexpr int GetComponentCount() noexcept
 }
 
 template <typename T, typename U>
-std::size_t MemberOffset(U T::* ptr) noexcept
+std::size_t MemberOffset(U T::*ptr) noexcept
 {
     constexpr T* NullObj = nullptr;
     return std::bit_cast<std::size_t>(&(NullObj->*ptr));
 }
 
 template <typename TVertexType, typename TMemberType>
-constexpr VertexAttribute GenerateAttribute(int location,
-const char* name,
-TMemberType(TVertexType::* ptr),
-bool normalized = false) noexcept
+constexpr VertexAttribute GenerateAttribute(int location, const char* name, TMemberType(TVertexType::*ptr), bool normalized = false) noexcept
 {
     static_assert(vertex_traits::SupportedVertexAttribute<TMemberType>, "Unsupported vertex attribute type");
 

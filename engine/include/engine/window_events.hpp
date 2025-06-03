@@ -20,10 +20,8 @@ struct WindowResizeEvent
 
 struct WindowMoveEvent
 {
-    int
-    xpos = 0; ///< The new x-position of the upper-left corner of the content area of the window, in screen coordinates.
-    int
-    ypos = 0; ///< The new y-position of the upper-left corner of the content area of the window, in screen coordinates.
+    int xpos = 0; ///< The new x-position of the upper-left corner of the content area of the window, in screen coordinates.
+    int ypos = 0; ///< The new y-position of the upper-left corner of the content area of the window, in screen coordinates.
 };
 
 struct WindowCloseEvent

@@ -109,8 +109,7 @@ TEST_F(EventSystemFixture, HandlerPriorityOrder)
     std::vector<int> execution_order;
 
     auto s1 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(0); }, HandlerPriority::Whenever);
-    auto s2 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(1); },
-    HandlerPriority::UrgentButCanVibe);
+    auto s2 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(1); }, HandlerPriority::UrgentButCanVibe);
     auto s3 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::RedPanic);
 
     m_es.ProcessEvent(0);

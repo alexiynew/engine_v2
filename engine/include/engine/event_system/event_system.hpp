@@ -55,8 +55,7 @@ public:
     /// @returns           A subscription handle for unsubscribing.
     template <typename TEvent>
     [[nodiscard]]
-    SubscriptionPtr Subscribe(std::function<void(const TEvent&)> handler,
-    HandlerPriority priority = HandlerPriority::Whenever)
+    SubscriptionPtr Subscribe(std::function<void(const TEvent&)> handler, HandlerPriority priority = HandlerPriority::Whenever)
     {
         return GetDispatcher<TEvent>()->Subscribe(std::move(handler), priority);
     }
@@ -211,10 +210,7 @@ private:
 
     auto AddHandler(HandlerNode&& node)
     {
-        auto it = std::lower_bound(m_handlers.begin(),
-        m_handlers.end(),
-        node,
-        [](const HandlerNode& a, const HandlerNode& b) {
+        auto it = std::lower_bound(m_handlers.begin(), m_handlers.end(), node, [](const HandlerNode& a, const HandlerNode& b) {
             if (a.priority == b.priority) {
                 return a.id < b.id;
             }
