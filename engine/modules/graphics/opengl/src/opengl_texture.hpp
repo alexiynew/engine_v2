@@ -2,6 +2,8 @@
 
 #include <engine/graphics/texture.hpp>
 
+#include <glad/glad.h>
+
 namespace game_engine::graphics
 {
 
@@ -25,6 +27,8 @@ public:
 private:
 
     friend void swap(OpenGLTexture& a, OpenGLTexture& b) noexcept;
+
+    GLuint m_texture_id = 0;
 };
 
 } // namespace game_engine::graphics

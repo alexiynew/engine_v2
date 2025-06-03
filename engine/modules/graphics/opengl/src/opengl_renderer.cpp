@@ -20,7 +20,7 @@ OpenGLRenderer::~OpenGLRenderer()
 
 bool OpenGLRenderer::Init()
 {
-    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
+    if (!gladLoadGL() || (GLVersion.major < 3 || (GLVersion.major == 3 && GLVersion.minor < 3))) {
         throw std::runtime_error("Unsupported OpenGL version");
     }
 
@@ -35,12 +35,15 @@ bool OpenGLRenderer::Init()
 
 void OpenGLRenderer::Shutdown() noexcept
 {
-    m_meshes.clear();
-    m_shaders.clear();
+    UnloadAll();
 }
 
 bool OpenGLRenderer::Load(const std::shared_ptr<IMesh>& mesh)
 {
+    if (m_meshes.contains(mesh->GetId())) {
+        return false;
+    }
+
     OpenGLMesh opengl_mesh;
     if (!opengl_mesh.Load(mesh)) {
         throw std::runtime_error("Mesh loading failed");
@@ -53,6 +56,10 @@ bool OpenGLRenderer::Load(const std::shared_ptr<IMesh>& mesh)
 
 bool OpenGLRenderer::Load(const std::shared_ptr<IShader>& shader)
 {
+    if (m_shaders.contains(shader->GetId())) {
+        return false;
+    }
+
     OpenGLShader opengl_shader;
     if (!opengl_shader.Load(shader)) {
         throw std::runtime_error("Shader loading failed");
@@ -65,6 +72,10 @@ bool OpenGLRenderer::Load(const std::shared_ptr<IShader>& shader)
 
 bool OpenGLRenderer::Load(const std::shared_ptr<ITexture>& texture)
 {
+    if (m_textures.contains(texture->GetId())) {
+        return false;
+    }
+
     OpenGLTexture opengl_texture;
     if (!opengl_texture.Load(texture)) {
         throw std::runtime_error("Texture loading failed");
@@ -75,6 +86,24 @@ bool OpenGLRenderer::Load(const std::shared_ptr<ITexture>& texture)
     return inserted;
 }
 
+void OpenGLRenderer::Unload(ResourceType type, ResourceId id)
+{
+    switch (type) {
+        case ResourceType::Mesh:    m_meshes.erase(id); break;
+        case ResourceType::Shader:  m_shaders.erase(id); break;
+        case ResourceType::Texture: m_textures.erase(id); break;
+
+        default: break;
+    }
+}
+
+void OpenGLRenderer::UnloadAll()
+{
+    m_meshes.clear();
+    m_shaders.clear();
+    m_textures.clear();
+}
+
 void OpenGLRenderer::Execute(const BeginFrameCommand& command)
 {
     glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
@@ -82,7 +111,10 @@ void OpenGLRenderer::Execute(const BeginFrameCommand& command)
 }
 
 void OpenGLRenderer::Execute(const EndFrameCommand& command)
-{}
+{
+    // TODO: Implement textures handling
+    // m_next_texture_unit = 0; // Reset textures counter
+}
 
 void OpenGLRenderer::Execute(const RenderCommand& command)
 {
@@ -112,10 +144,11 @@ void OpenGLRenderer::Execute(const RenderCommand& command)
 
     for (const auto& property : command.properties) {
         shader.SetProperty(property);
+        // TODO: move uniform setup here
     }
 
     if (command.instance_count > 1) {
-        // TODO: Implement instancing
+        mesh.RenderInstanced(command.instance_count);
     } else {
         mesh.Render();
     }

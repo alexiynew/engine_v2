@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 
-#include <glad/glad.h>
 #include <opengl_utils.hpp>
 
 namespace game_engine::graphics
@@ -27,7 +26,15 @@ OpenGLTexture& OpenGLTexture::operator=(OpenGLTexture&& other) noexcept
 
 bool OpenGLTexture::Load(const std::shared_ptr<ITexture>& texture)
 {
-    return false;
+    glGenTextures(1, &m_texture_id);
+    glBindTexture(GL_TEXTURE_2D, m_texture_id);
+
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->GetWidth(), texture->GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->GetData());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return true;
 }
 
 bool OpenGLTexture::IsValid() const noexcept

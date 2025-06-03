@@ -229,9 +229,9 @@ void OpenGLShader::SetProperty(const Property& property) const
         } else if constexpr (std::is_same_v<T, Matrix4>) {
             glUniformMatrix4fv(location, 1, GL_FALSE, &arg[0][0]);
         } else if constexpr (std::is_same_v<T, std::shared_ptr<ITexture>>) {
-            // TODO: implement this
-            throw std::runtime_error("Not Implemented");
-            //glUniform1i(location, arg->GetId());
+            //glActiveTexture(GL_TEXTURE0 + m_next_texture_unit);
+            // TODO: bind texture;
+            //glUniform1i(location, m_next_texture_unit++);
         } else {
             static_assert(!std::is_same_v<T, T>, "Unsupported uniform type");
         }

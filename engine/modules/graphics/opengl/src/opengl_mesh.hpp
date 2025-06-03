@@ -1,6 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include <engine/graphics/mesh.hpp>
+
+#include <glad/glad.h>
 
 namespace game_engine::graphics
 {
@@ -23,18 +27,27 @@ public:
     void Clear() noexcept;
 
     void Render() const;
+    void RenderInstanced(GLsizei instance_count) const;
 
 private:
 
+    struct SubMesh
+    {
+        GLsizei count;
+        GLintptr offset;
+        GLenum type;
+    };
+
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
 
-    unsigned int m_primitive_type = 0;
+    std::vector<SubMesh> m_submeshes;
 
-    int m_indices_count = 0;
+    GLint m_vertex_count    = 0;
+    GLenum m_primitive_type = 0;
 
-    unsigned int m_vao = 0;
-    unsigned int m_vbo = 0;
-    unsigned int m_ebo = 0;
+    GLuint m_vao = 0;
+    GLuint m_vbo = 0;
+    GLuint m_ebo = 0;
 };
 
 } // namespace game_engine::graphics

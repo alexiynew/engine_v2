@@ -26,6 +26,9 @@ public:
     virtual bool Load(const std::shared_ptr<IShader>& shader)   = 0;
     virtual bool Load(const std::shared_ptr<ITexture>& texture) = 0;
 
+    virtual void Unload(ResourceType type, ResourceId id) = 0;
+    virtual void UnloadAll()                              = 0;
+
     virtual void Execute(const BeginFrameCommand& command) = 0;
     virtual void Execute(const EndFrameCommand& command)   = 0;
     virtual void Execute(const RenderCommand& command)     = 0;
