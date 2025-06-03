@@ -8,11 +8,13 @@
 namespace game_engine
 {
 
+class TextureResource;
+
 class TextureLoader final
 {
 public:
 
-    std::shared_ptr<ITexture> Load(ResourceId id, std::string_view name, const TextureLoadParams& params) const;
+    std::shared_ptr<TextureResource> Load(ResourceId id, std::string_view name, const TextureLoadParams& params) const;
 };
 
 } // namespace game_engine

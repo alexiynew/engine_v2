@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include <graphics/shader_impl.hpp>
+#include <resource_management/resources/shader_resource.hpp>
 
 namespace fs = std::filesystem;
 
@@ -41,9 +41,9 @@ std::string LoadFile(const fs::path path)
     return content;
 }
 
-std::shared_ptr<IShader> ShaderLoader::Load(ResourceId id, const std::string_view name, const ShaderLoadParams& params) const
+std::shared_ptr<ShaderResource> ShaderLoader::Load(ResourceId id, const std::string_view name, const ShaderLoadParams& params) const
 {
-    auto shader = std::make_shared<ShaderImpl>(id, std::string(name));
+    auto shader = std::make_shared<ShaderResource>(id, std::string(name));
 
     for (auto t : {ShaderType::Vertex,
              ShaderType::Fragment,
@@ -56,8 +56,6 @@ std::shared_ptr<IShader> ShaderLoader::Load(ResourceId id, const std::string_vie
             shader->SetSource(t, LoadFile(it->second));
         }
     }
-
-    shader->Load();
 
     return shader;
 }

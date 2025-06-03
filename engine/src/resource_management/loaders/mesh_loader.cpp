@@ -5,7 +5,7 @@
 #include <engine/common_types.hpp>
 #include <engine/graphics/vertex_traits.hpp>
 
-#include <graphics/mesh_impl.hpp>
+#include <resource_management/resources/mesh_resource.hpp>
 
 namespace
 {
@@ -57,7 +57,7 @@ std::vector<Vertex> vertices = {
 };
 
 std::vector<unsigned int> submesh_indices =
-{0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20};
+    {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20};
 
 } // namespace
 
@@ -66,21 +66,19 @@ namespace game_engine
 
 // https://www.martinreddy.net/gfx/3d/OBJ.spec
 // https://paulbourke.net/dataformats/obj/
-std::shared_ptr<IMesh> MeshLoader::Load(ResourceId id, const std::string_view name, const MeshLoadParams& params) const
+std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, const std::string_view name, const MeshLoadParams& params) const
 {
-    auto mesh = std::make_shared<MeshImpl>(id, std::string(name));
+    auto mesh = std::make_shared<MeshResource>(id, std::string(name));
 
     mesh->SetVertexData(vertex_traits::ConvertToVertexData(vertices,
-    {
-        vertex_traits::GenerateAttribute(0, "position", &Vertex::position),
-        vertex_traits::GenerateAttribute(1, "normal", &Vertex::normal),
-        vertex_traits::GenerateAttribute(2, "uv", &Vertex::uv),
-        vertex_traits::GenerateAttribute(3, "color", &Vertex::color),
-    }));
+        {
+            vertex_traits::GenerateAttribute(0, "position", &Vertex::position),
+            vertex_traits::GenerateAttribute(1, "normal", &Vertex::normal),
+            vertex_traits::GenerateAttribute(2, "uv", &Vertex::uv),
+            vertex_traits::GenerateAttribute(3, "color", &Vertex::color),
+        }));
 
     mesh->AddSubMesh({submesh_indices, nullptr});
-
-    mesh->Load();
 
     return mesh;
 }

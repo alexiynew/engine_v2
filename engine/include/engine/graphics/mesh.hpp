@@ -65,9 +65,9 @@ public:
 
     ~IMesh() override = default;
 
-    virtual void SetVertexData(const VertexData& data) = 0;
-    virtual void AddSubMesh(const SubMesh& submesh)    = 0;
-    virtual void SetPrimitiveType(PrimitiveType type)  = 0;
+    virtual void SetVertexData(VertexData data)       = 0;
+    virtual void AddSubMesh(SubMesh submesh)          = 0;
+    virtual void SetPrimitiveType(PrimitiveType type) = 0;
 
     virtual const VertexData& GetVertexData() const          = 0;
     virtual const std::vector<SubMesh>& GetSubMeshes() const = 0;

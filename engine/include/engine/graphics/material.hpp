@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
+#include <unordered_map>
 
 #include <engine/graphics/property.hpp>
 #include <engine/resource.hpp>
@@ -19,7 +21,8 @@ public:
 
     ~IMaterial() override = default;
 
-    virtual void SetProperty(const std::string& name, const PropertyValue& property) = 0;
+    virtual void SetProperty(const std::string& name, const PropertyValue& property)    = 0;
+    virtual const std::unordered_map<std::string, PropertyValue>& GetProperties() const = 0;
 };
 
 } // namespace game_engine

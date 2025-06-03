@@ -9,6 +9,11 @@
 namespace game_engine
 {
 
+class MeshResource;
+class ShaderResource;
+class TextureResource;
+class MaterialResource;
+
 class MeshLoader;
 class ShaderLoader;
 class TextureLoader;
@@ -48,16 +53,17 @@ private:
 
     ResourceId GetResourceId(const std::string_view name) const;
 
-    template <typename T>
-    std::shared_ptr<T> GetResource(const std::string_view name) const;
+    std::hash<std::string_view> m_hasher;
 
     std::unique_ptr<MeshLoader> m_mesh_loader;
     std::unique_ptr<ShaderLoader> m_shader_loader;
     std::unique_ptr<TextureLoader> m_texture_loader;
     std::unique_ptr<MaterialLoader> m_material_loader;
 
-    std::hash<std::string_view> m_hasher;
-    std::unordered_map<ResourceId, std::shared_ptr<IResource>> m_cache;
+    std::unordered_map<ResourceId, std::shared_ptr<MeshResource>> m_meshes;
+    std::unordered_map<ResourceId, std::shared_ptr<ShaderResource>> m_shaders;
+    std::unordered_map<ResourceId, std::shared_ptr<TextureResource>> m_textures;
+    std::unordered_map<ResourceId, std::shared_ptr<MaterialResource>> m_materials;
 };
 
 } // namespace game_engine

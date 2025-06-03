@@ -142,7 +142,7 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
 
                 glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, current_offset, size, submesh.indices.data());
                 m_submeshes.push_back(
-                {.count = static_cast<GLsizei>(submesh.indices.size()), .offset = current_offset, .type = index_type});
+                    {.count = static_cast<GLsizei>(submesh.indices.size()), .offset = current_offset, .type = index_type});
                 current_offset += size;
             }
         }
@@ -162,17 +162,17 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
 
             if (type == GL_INT || type == GL_UNSIGNED_INT) {
                 glVertexAttribIPointer(attr.location,
-                attr.components,
-                type,
-                static_cast<GLsizei>(data.vertex_size),
-                reinterpret_cast<void*>(attr.offset));
+                    attr.components,
+                    type,
+                    static_cast<GLsizei>(data.vertex_size),
+                    reinterpret_cast<void*>(attr.offset));
             } else if (type == GL_FLOAT) {
                 glVertexAttribPointer(attr.location,
-                attr.components,
-                type,
-                attr.normalized ? GL_TRUE : GL_FALSE,
-                static_cast<GLsizei>(data.vertex_size),
-                reinterpret_cast<void*>(attr.offset));
+                    attr.components,
+                    type,
+                    attr.normalized ? GL_TRUE : GL_FALSE,
+                    static_cast<GLsizei>(data.vertex_size),
+                    reinterpret_cast<void*>(attr.offset));
             }
 
             glEnableVertexAttribArray(attr.location);
