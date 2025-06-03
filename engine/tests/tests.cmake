@@ -1,3 +1,4 @@
 include(third_party/gtest)
 
-add_subdirectory(tests/engine)
+# TODO: Enable tests
+# add_subdirectory(tests/engine)

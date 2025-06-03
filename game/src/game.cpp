@@ -11,30 +11,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 namespace
-{
-
-struct Vertex
-{
-    game_engine::Vector3 position;
-    game_engine::Vector3 normal;
-    game_engine::Vector2 uv;
-    game_engine::Vector4 color;
-};
-
-inline game_engine::VertexLayout getVertexLayout()
-{
-    return {
-        .vertex_size = sizeof(Vertex),
-        .attributes  = {
-                        game_engine::GenerateAttribute(0, "position", &Vertex::position),
-                        game_engine::GenerateAttribute(1, "normal", &Vertex::normal),
-                        game_engine::GenerateAttribute(2, "uv", &Vertex::uv),
-                        game_engine::GenerateAttribute(3, "color", &Vertex::color),
-                        }
-    };
-}
-
-} // namespace
+{} // namespace
 
 Game::Game()
 {
@@ -55,15 +32,15 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 
     std::cout << "Game::onInitialize" << std::endl;
 
-    auto rm = m_engine->GetResourceManager();
+    auto rm       = m_engine->GetResourceManager();
+    auto renderer = m_engine->GetRenderer();
 
     m_mesh = rm->LoadMesh("cube"sv,
     {
-        .source = "data/3d/cude.obj",
-        .layout = getVertexLayout(),
+        .source = "data/3d/cube.obj",
     });
 
-    if (!m_mesh->LoadToGpu()) {
+    if (!renderer->Load(m_mesh)) {
         std::cout << "Failed to load mesh" << std::endl;
     }
 
@@ -75,7 +52,7 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
                          }
     });
 
-    if (!m_shader->Link()) {
+    if (!renderer->Load(m_shader)) {
         std::cout << "Failed to load shader" << std::endl;
     }
 
@@ -96,7 +73,7 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
     //// Рендеринг
     //renderer->Render(characterMesh, metalMaterial);
 
-    subscribeForEvents();
+    SubscribeForEvents();
 
     return true;
 }
@@ -104,10 +81,10 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 void Game::Shutdown() noexcept
 {
     std::cout << "Game::onShutdown" << std::endl;
-    std::cout << " -- updates count: " << m_updatesCount << std::endl;
+    std::cout << " -- updates count: " << m_updates_count << std::endl;
     std::cout << " -- frames count: " << m_frames_count << std::endl;
 
-    unsubscribeFromEvents();
+    UnsubscribeFromEvents();
 
     m_shader.reset();
     m_mesh.reset();
@@ -117,7 +94,7 @@ void Game::Shutdown() noexcept
 
 void Game::OnUpdate(std::chrono::nanoseconds)
 {
-    m_updatesCount++;
+    m_updates_count++;
 }
 
 void Game::OnDraw()
@@ -162,7 +139,7 @@ game_engine::GameSettings Game::GetSettings()
     return settings;
 }
 
-void Game::subscribeForEvents()
+void Game::SubscribeForEvents()
 {
     using namespace game_engine;
 
@@ -173,7 +150,7 @@ void Game::subscribeForEvents()
     }));
 }
 
-void Game::unsubscribeFromEvents()
+void Game::UnsubscribeFromEvents()
 {
     m_subscriptions.clear();
 }

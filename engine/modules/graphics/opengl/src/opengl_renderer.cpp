@@ -3,9 +3,7 @@
 #include <glad/glad.h>
 #include <opengl_mesh.hpp>
 #include <opengl_shader.hpp>
-
-#define LOG_ERROR std::cerr
-#include <iostream>
+#include <opengl_texture.hpp>
 
 namespace game_engine::graphics
 {
@@ -20,208 +18,106 @@ OpenGLRenderer::~OpenGLRenderer()
 
 #pragma region Renderer
 
-bool OpenGLRenderer::Init(std::shared_ptr<IRenderContext> context) noexcept
+bool OpenGLRenderer::Init()
 {
-    try {
-        m_context = std::move(context);
-
-        m_running.store(true, std::memory_order_release);
-        m_thread = std::thread(&OpenGLRenderer::RenderLoop, this);
-
-        // Wait for tread to start
-        m_init_promise.get_future().get();
-
-        //auto result = SubmitSync([this] {
-        //    // m_context->MakeCurrent();
-
-        //    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
-        //        throw std::runtime_error("Unsupported OpenGL version");
-        //    }
-
-        //    glEnable(GL_DEPTH_TEST);
-        //    // TODO: enable antialiasing from settings
-        //    glEnable(GL_MULTISAMPLE);
-        //    glFrontFace(GL_CCW);
-        //    glCullFace(GL_BACK);
-        //});
-
-        //result.get();
-    } catch (std::exception& e) {
-        LOG_ERROR << "Exception: " << e.what() << std::endl;
-        return false;
+    if (gladLoadGL() == 0 || GLVersion.major != 3 || GLVersion.minor != 3) {
+        throw std::runtime_error("Unsupported OpenGL version");
     }
+
+    glEnable(GL_DEPTH_TEST);
+    // TODO: enable antialiasing from settings
+    glEnable(GL_MULTISAMPLE);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
 
     return true;
 }
 
 void OpenGLRenderer::Shutdown() noexcept
 {
-    try {
-        if (m_thread.joinable()) {
-            if (!m_meshes.empty()) {
-                // auto result = SubmitSync([this] {
-                //     // Explicitly call `clear` on each mesh because they may be held by external code and might not be cleared by the destructor.
-                //     //   for (auto& mesh : m_meshes) {
-                //     //       mesh->Clear();
-                //     //   }
-                // });
-                // result.get();
-            }
-
-            if (!m_shaders.empty()) {
-                auto result = SubmitSync([this] {
-                    // Explicitly call `clear` on each shader because they may be held by external code and might not be cleared by the destructor.
-                    for (auto& shader : m_shaders) {
-                        shader->Clear();
-                    }
-                });
-                result.get();
-            }
-
-            {
-                // auto result = SubmitSync([this] { m_context->DropCurrent(); });
-                // result.get();
-            }
-
-            m_running.store(false, std::memory_order_release);
-            m_cv.notify_all();
-            m_thread.join();
-        }
-
-    } catch (std::exception& e) {
-        LOG_ERROR << "Exception: " << e.what() << std::endl;
-    }
-
     m_meshes.clear();
     m_shaders.clear();
-
-    m_context.reset();
 }
 
-// std::shared_ptr<OpenGLShader> OpenGLRenderer::CreateShader()
-// {
-//     m_shaders.push_back(std::make_shared<OpenGLShader>(shared_from_this()));
-//     return m_shaders.back();
-// }
-//
-// std::shared_ptr<OpenGLMesh> OpenGLRenderer::CreateMesh()
-// {
-//     m_meshes.push_back(std::make_shared<OpenGLMesh>(shared_from_this()));
-//     return m_meshes.back();
-// }
-//
-// void OpenGLRenderer::AddRenderCommand(const RenderCommand& command)
-// {
-//     std::lock_guard<std::mutex> lock(m_commands_mutex);
-//     m_commands.push_back(command);
-// }
-//
-// void OpenGLRenderer::ClearRenderCommands()
-// {
-//     std::lock_guard<std::mutex> lock(m_commands_mutex);
-//     m_commands.clear();
-// }
-//
-// // TODO: Add submeshes support with materials
-// void OpenGLRenderer::ExecuteRenderCommands()
-// {
-//     Submit([] {
-//         glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
-//         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//     });
-//
-//     std::deque<RenderCommand> commands;
-//     {
-//         std::lock_guard<std::mutex> lock(m_commands_mutex);
-//         std::swap(m_commands, commands);
-//     }
-//
-//     Submit([commands = std::move(commands)] {
-//         for (const auto& cmd : commands) {
-//             const auto opengl_shader = std::dynamic_pointer_cast<OpenGLShader>(cmd.shader);
-//             if (opengl_shader && opengl_shader->IsValid()) {
-//                 opengl_shader->Use();
-//
-//                 for (const auto& uniform : cmd.properties) {
-//                     opengl_shader->SetProperty(uniform);
-//                 }
-//             }
-//
-//             const auto opengl_mesh = std::dynamic_pointer_cast<OpenGLMesh>(cmd.mesh);
-//             if (opengl_mesh && opengl_mesh->IsValid()) {
-//                 if (cmd.instance_count > 1) {
-//                     // TODO: Implement instancing
-//                 } else {
-//                     opengl_mesh->Render();
-//                 }
-//             }
-//         }
-//     });
-//
-//     Submit([this] {
-//         // --
-//         m_context->SwapBuffers();
-//     });
-// }
-
-#pragma endregion
-
-#pragma region OpenGLRenderer private
-
-void OpenGLRenderer::Submit(Task task)
+bool OpenGLRenderer::Load(const std::shared_ptr<IMesh>& mesh)
 {
-    std::packaged_task<void()> packaged_task(std::move(task));
-
-    {
-        std::lock_guard lock(m_mutex);
-        m_tasks.push_back(std::move(packaged_task));
+    OpenGLMesh opengl_mesh;
+    if (!opengl_mesh.Load(mesh)) {
+        throw std::runtime_error("Mesh loading failed");
     }
 
-    m_cv.notify_one();
+    const auto [_, inserted] = m_meshes.emplace(mesh->GetId(), std::move(opengl_mesh));
+
+    return inserted;
 }
 
-std::future<void> OpenGLRenderer::SubmitSync(Task task)
+bool OpenGLRenderer::Load(const std::shared_ptr<IShader>& shader)
 {
-    std::packaged_task<void()> packaged_task(std::move(task));
-    auto future = packaged_task.get_future();
-
-    {
-        std::lock_guard lock(m_mutex);
-        m_tasks.push_back(std::move(packaged_task));
+    OpenGLShader opengl_shader;
+    if (!opengl_shader.Load(shader)) {
+        throw std::runtime_error("Shader loading failed");
     }
 
-    m_cv.notify_one();
-    return future;
+    const auto [_, inserted] = m_shaders.emplace(shader->GetId(), std::move(opengl_shader));
+
+    return inserted;
 }
 
-void OpenGLRenderer::RenderLoop()
+bool OpenGLRenderer::Load(const std::shared_ptr<ITexture>& texture)
 {
-    // Signal tread start
-    m_init_promise.set_value();
+    OpenGLTexture opengl_texture;
+    if (!opengl_texture.Load(texture)) {
+        throw std::runtime_error("Texture loading failed");
+    }
 
-    while (m_running.load(std::memory_order_acquire)) {
-        std::deque<std::packaged_task<void()>> tasks;
+    const auto& [_, inserted] = m_textures.emplace(texture->GetId(), std::move(opengl_texture));
 
-        {
-            std::unique_lock lock(m_mutex);
-            m_cv.wait(lock, [this] { return !m_running.load(std::memory_order_acquire) || !m_tasks.empty(); });
+    return inserted;
+}
 
-            if (!m_running) {
-                break;
-            }
+void OpenGLRenderer::Execute(const BeginFrameCommand& command)
+{
+    glClearColor(0.3f, 0.3f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
-            swap(tasks, m_tasks);
-        }
+void OpenGLRenderer::Execute(const EndFrameCommand& command)
+{}
 
-        try {
-            for (auto& task : tasks) {
-                task();
-            }
+void OpenGLRenderer::Execute(const RenderCommand& command)
+{
+    const auto shader_it = m_shaders.find(command.shader);
+    if (shader_it == m_shaders.end()) {
+        throw std::runtime_error("Shader not found");
+    }
 
-        } catch (...) {
-            // TODO report error to backend;
-            // report error
-        }
+    const auto& shader = shader_it->second;
+
+    if (!shader.IsValid()) {
+        throw std::runtime_error("Shader not valid");
+    }
+
+    const auto mesh_it = m_meshes.find(command.mesh);
+    if (mesh_it == m_meshes.end()) {
+        throw std::runtime_error("Mesh not found");
+    }
+
+    const auto& mesh = mesh_it->second;
+
+    if (!mesh.IsValid()) {
+        throw std::runtime_error("Mesh not valid");
+    }
+
+    shader.Use();
+
+    for (const auto& property : command.properties) {
+        shader.SetProperty(property);
+    }
+
+    if (command.instance_count > 1) {
+        // TODO: Implement instancing
+    } else {
+        mesh.Render();
     }
 }
 

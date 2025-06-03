@@ -3,17 +3,12 @@ project(opengl_graphics VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(opengl_graphics STATIC)
 
+
+file(GLOB_RECURSE GRAPHICS_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/**.hpp" "src/**.cpp")
+
 target_sources(opengl_graphics
     PRIVATE
-        src/graphics_create.cpp
-        src/opengl_mesh.cpp
-        src/opengl_mesh.hpp
-        src/opengl_shader.cpp
-        src/opengl_shader.hpp
-        src/opengl_utils.cpp
-        src/opengl_utils.hpp
-        src/opengl_renderer.cpp
-        src/opengl_renderer.hpp
+        ${GRAPHICS_SOURCES}
 )
 
 target_include_directories(opengl_graphics 

@@ -205,7 +205,7 @@ void EngineImpl::mainLoop()
         // Run the required number of updates
         updatesDeltaTime += frameDuration;
         while (updatesDeltaTime >= m_targetUpdateTime) {
-            update(m_targetUpdateTime);
+            Update(m_targetUpdateTime);
             m_updates++;
             updatesDeltaTime -= m_targetUpdateTime;
         }
@@ -234,7 +234,7 @@ void EngineImpl::mainLoop()
     }
 }
 
-void EngineImpl::update(std::chrono::nanoseconds elapsedTime)
+void EngineImpl::Update(std::chrono::nanoseconds elapsedTime)
 {
     m_game->OnUpdate(elapsedTime);
 }
@@ -243,8 +243,7 @@ void EngineImpl::Render()
 {
     m_game->OnDraw();
 
-    m_renderer->ExecuteRenderCommands();
-    m_renderer->ClearRenderCommands();
+    m_renderer->EndFrame();
 }
 
 #pragma endregion

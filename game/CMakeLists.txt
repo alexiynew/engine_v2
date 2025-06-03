@@ -33,3 +33,14 @@ set_target_properties(game PROPERTIES
     # It is necessary to get the executable type from the engine in order to set the main\WinMain entry point correctly.
     WIN32_EXECUTABLE $<TARGET_PROPERTY:engine,WIN32_EXECUTABLE>
 )
+
+# Copy resources
+file(GLOB_RECURSE DATA_FILES CONFIGURE_DEPENDS "data/*")
+
+add_custom_target(copy_data ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_BINARY_DIR}/data
+    DEPENDS ${DATA_FILES}
+    COMMENT "Синхронизация ресурсов с build-директорией"
+)

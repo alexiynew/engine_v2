@@ -4,8 +4,8 @@
 
 #include <engine/game.hpp>
 
-#include <modules/backend/backend.hpp>
-#include <modules/graphics/renderer.hpp>
+#include <modules/backend/backend_module.hpp>
+#include <modules/graphics/renderer_module.hpp>
 
 #include <engine_impl.hpp>
 

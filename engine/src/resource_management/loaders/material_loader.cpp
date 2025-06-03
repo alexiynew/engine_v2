@@ -3,7 +3,7 @@
 namespace game_engine
 {
 
-std::shared_ptr<IMaterial> MaterialLoader::Load(const MaterialLoadParams& params) const
+std::shared_ptr<IMaterial> MaterialLoader::Load(ResourceId id, const std::string_view name, const MaterialLoadParams& params) const
 {
     return nullptr;
 }

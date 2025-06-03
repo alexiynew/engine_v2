@@ -1,10 +1,16 @@
 #pragma once
 
+#include <condition_variable>
+#include <deque>
+#include <functional>
+#include <future>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 #include <engine/graphics/renderer.hpp>
 
-#include <graphics/render_command.hpp>
+#include <modules/graphics/render_command.hpp>
 
 // Forward declarations
 namespace game_engine
@@ -29,30 +35,52 @@ public:
     ~RendererImpl() override;
 
     RendererImpl(const RendererImpl&) = delete;
-    RendererImpl(RendererImpl&&)      = default;
+    RendererImpl(RendererImpl&&)      = delete;
 
     RendererImpl& operator=(const RendererImpl&) = delete;
-    RendererImpl& operator=(RendererImpl&&)      = default;
+    RendererImpl& operator=(RendererImpl&&)      = delete;
 
     // IRenderer implementation
-    void Render(const std::shared_ptr<IMesh>& mesh,
-    const std::shared_ptr<IShader>& shader,
-    const std::vector<Property>& properties) override;
+    bool Load(const std::shared_ptr<IMesh>& mesh) override;
+    bool Load(const std::shared_ptr<IShader>& shader) override;
+    bool Load(const std::shared_ptr<ITexture>& texture) override;
 
+    void Render(const std::shared_ptr<IMesh>& mesh, const std::shared_ptr<IShader>& shader, std::vector<Property> properties) override;
     void Render(const std::shared_ptr<IMesh>& mesh, const std::shared_ptr<IMaterial>& material) override;
 
-    // RendererImpl methods
-    bool Init() noexcept;
-    void Shutdown() noexcept;
+    void EndFrame() override;
 
-    void AddRenderCommand(const RenderCommand& command);
-    void ClearRenderCommands();
-    void ExecuteRenderCommands();
+    // RendererImpl methods
+    bool Init();
+    void Shutdown();
 
 private:
 
+    using Task = std::function<void()>;
+
+    void Submit(Task task);
+
+    template <typename TResult>
+    [[nodiscard]]
+    std::future<TResult> SubmitWithResult(std::function<TResult()> task);
+
+    void RenderLoop();
+
     std::shared_ptr<RenderContextImpl> m_context;
+
     std::shared_ptr<graphics::IRendererModule> m_renderer_module;
+
+    std::atomic<bool> m_running = false;
+    std::thread m_thread;
+
+    std::deque<Task> m_tasks;
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+
+    std::promise<void> m_init_promise;
+
+    std::mutex m_commands_mutex;
+    std::deque<graphics::RenderCommand> m_commands;
 };
 
 } // namespace game_engine

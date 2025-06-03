@@ -3,7 +3,7 @@
 namespace game_engine
 {
 
-std::shared_ptr<ITexture> TextureLoader::Load(const TextureLoadParams& params) const
+std::shared_ptr<ITexture> TextureLoader::Load(ResourceId id, std::string_view name, const TextureLoadParams& params) const
 {
     return nullptr;
 }

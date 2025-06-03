@@ -24,8 +24,8 @@ ResourceManagerImpl::~ResourceManagerImpl()
 
 std::shared_ptr<IMesh> ResourceManagerImpl::LoadMesh(const std::string_view name, const MeshLoadParams& params)
 {
-    if (auto r = m_mesh_loader->Load(params); r != nullptr) {
-        const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
+    if (auto r = m_mesh_loader->Load(id, name, params); r != nullptr) {
         m_cache.emplace(id, std::move(r));
     }
 
@@ -34,8 +34,8 @@ std::shared_ptr<IMesh> ResourceManagerImpl::LoadMesh(const std::string_view name
 
 std::shared_ptr<IShader> ResourceManagerImpl::LoadShader(const std::string_view name, const ShaderLoadParams& params)
 {
-    if (auto r = m_shader_loader->Load(params); r != nullptr) {
-        const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
+    if (auto r = m_shader_loader->Load(id, name, params); r != nullptr) {
         m_cache.emplace(id, std::move(r));
     }
 
@@ -44,19 +44,18 @@ std::shared_ptr<IShader> ResourceManagerImpl::LoadShader(const std::string_view 
 
 std::shared_ptr<ITexture> ResourceManagerImpl::LoadTexture(const std::string_view name, const TextureLoadParams& params)
 {
-    if (auto r = m_texture_loader->Load(params); r != nullptr) {
-        const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
+    if (auto r = m_texture_loader->Load(id, name, params); r != nullptr) {
         m_cache.emplace(id, std::move(r));
     }
 
     return GetResource<ITexture>(name);
 }
 
-std::shared_ptr<IMaterial> ResourceManagerImpl::LoadMaterial(const std::string_view name,
-const MaterialLoadParams& params)
+std::shared_ptr<IMaterial> ResourceManagerImpl::LoadMaterial(const std::string_view name, const MaterialLoadParams& params)
 {
-    if (auto r = m_material_loader->Load(params); r != nullptr) {
-        const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
+    if (auto r = m_material_loader->Load(id, name, params); r != nullptr) {
         m_cache.emplace(id, std::move(r));
     }
 
@@ -85,7 +84,7 @@ std::shared_ptr<IMaterial> ResourceManagerImpl::GetMaterial(const std::string_vi
 
 bool ResourceManagerImpl::IsLoaded(const std::string_view name) const
 {
-    const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
     if (auto it = m_cache.find(id); it != m_cache.end()) {
         return it->second->IsReady();
     }
@@ -95,7 +94,7 @@ bool ResourceManagerImpl::IsLoaded(const std::string_view name) const
 
 void ResourceManagerImpl::Unload(const std::string_view name)
 {
-    const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
     if (auto it = m_cache.find(id); it != m_cache.end()) {
         it->second->Unload();
         m_cache.erase(it);
@@ -115,10 +114,16 @@ void ResourceManagerImpl::UnloadAll()
 
 #pragma region ResourceManagerImpl private
 
+ResourceManagerImpl::ResourceId ResourceManagerImpl::GetResourceId(const std::string_view name) const
+{
+    // TODO: Solve hash collisions
+    return m_hasher(name);
+}
+
 template <typename T>
 std::shared_ptr<T> ResourceManagerImpl::GetResource(const std::string_view name) const
 {
-    const auto id = m_hasher(name);
+    const auto id = GetResourceId(name);
     if (auto it = m_cache.find(id); it != m_cache.end()) {
         return std::dynamic_pointer_cast<T>(it->second);
     }

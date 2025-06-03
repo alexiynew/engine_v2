@@ -6,13 +6,11 @@ target_include_directories(modules
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+file(GLOB_RECURSE MODULES_HEADERS CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "include/modules/**.hpp")
+
 target_sources(modules 
     INTERFACE
-        include/modules/module_locator.hpp
-        include/modules/input_handler.hpp
-        include/modules/backend/backend.hpp
-        include/modules/graphics/renderer.hpp
-        include/modules/graphics/render_context.hpp
+        ${MODULES_HEADERS}
 )
 
 include(backend/backend.cmake)

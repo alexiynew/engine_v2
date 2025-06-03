@@ -46,6 +46,8 @@ public:
 
 private:
 
+    ResourceId GetResourceId(const std::string_view name) const;
+
     template <typename T>
     std::shared_ptr<T> GetResource(const std::string_view name) const;
 

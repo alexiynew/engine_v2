@@ -4,7 +4,7 @@
 #include <engine/engine.hpp>
 #include <engine/game.hpp>
 
-#include <modules/backend/backend.hpp>
+#include <modules/backend/backend_module.hpp>
 #include <modules/module_locator.hpp>
 
 namespace game_engine
@@ -55,7 +55,7 @@ private:
     void setupFrameRate(const GameSettings& settings);
     void mainLoop();
 
-    void update(std::chrono::nanoseconds elapsedTime);
+    void Update(std::chrono::nanoseconds elapsedTime);
     void Render();
 
     std::shared_ptr<backend::IBackendModule> m_backend;

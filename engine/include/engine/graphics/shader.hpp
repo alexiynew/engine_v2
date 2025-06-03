@@ -16,7 +16,7 @@ enum class ShaderType
     Geometry,
     TessControl,
     TessEvaluation,
-    Compute
+    Compute,
 };
 
 struct ShaderLoadParams
@@ -31,7 +31,7 @@ public:
     ~IShader() override = default;
 
     virtual void SetSource(ShaderType type, const std::string& source) = 0;
-    virtual bool Link()                                                = 0;
+    virtual const std::string& GetSource(ShaderType type)              = 0;
 };
 
 } // namespace game_engine

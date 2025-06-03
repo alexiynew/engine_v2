@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 #include <engine/graphics/texture.hpp>
 
@@ -11,7 +12,7 @@ class TextureLoader final
 {
 public:
 
-    std::shared_ptr<ITexture> Load(const TextureLoadParams& params) const;
+    std::shared_ptr<ITexture> Load(ResourceId id, std::string_view name, const TextureLoadParams& params) const;
 };
 
 } // namespace game_engine

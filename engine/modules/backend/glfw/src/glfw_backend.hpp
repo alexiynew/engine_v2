@@ -3,7 +3,7 @@
 #include <list>
 #include <mutex>
 
-#include <modules/backend/backend.hpp>
+#include <modules/backend/backend_module.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

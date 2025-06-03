@@ -1,7 +1,7 @@
 
 #include "render_context_impl.hpp"
 
-#include <modules/backend/backend.hpp>
+#include <modules/backend/backend_module.hpp>
 
 namespace game_engine
 {

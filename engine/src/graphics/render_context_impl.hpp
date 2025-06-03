@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <modules/graphics/render_context.hpp>
+#include <graphics/render_context.hpp>
 
 namespace game_engine::backend
 {

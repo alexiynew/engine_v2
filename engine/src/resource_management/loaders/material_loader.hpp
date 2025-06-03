@@ -11,7 +11,7 @@ class MaterialLoader final
 {
 public:
 
-    std::shared_ptr<IMaterial> Load(const MaterialLoadParams& params) const;
+    std::shared_ptr<IMaterial> Load(ResourceId id, const std::string_view name, const MaterialLoadParams& params) const;
 };
 
 } // namespace game_engine

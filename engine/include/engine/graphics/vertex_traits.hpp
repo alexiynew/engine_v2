@@ -4,29 +4,25 @@
 #include <cstring>
 #include <type_traits>
 
-#include <engine/graphics/mesh_data.hpp>
+#include <engine/graphics/mesh.hpp>
 
-namespace game_engine
-{
-
-namespace vertex_traits
+namespace game_engine::vertex_traits
 {
 
 template <typename T>
-inline constexpr bool IsFloatVertexAttribute = std::is_same_v<T, float> || std::is_same_v<T, Vector2> ||
-                                               std::is_same_v<T, Vector3> || std::is_same_v<T, Vector4>;
+inline constexpr bool IsFloatVertexAttribute = std::is_same_v<T, float> || std::is_same_v<T, Vector2> || std::is_same_v<T, Vector3> ||
+                                               std::is_same_v<T, Vector4>;
 
 template <typename T>
-inline constexpr bool IsIntVertexAttribute = std::is_same_v<T, int> || std::is_same_v<T, Vector2i> ||
-                                             std::is_same_v<T, Vector3i> || std::is_same_v<T, Vector4i>;
+inline constexpr bool IsIntVertexAttribute = std::is_same_v<T, int> || std::is_same_v<T, Vector2i> || std::is_same_v<T, Vector3i> ||
+                                             std::is_same_v<T, Vector4i>;
 
 template <typename T>
 inline constexpr bool IsUIntVertexAttribute = std::is_same_v<T, unsigned int> || std::is_same_v<T, Vector2u> ||
                                               std::is_same_v<T, Vector3u> || std::is_same_v<T, Vector4u>;
 
 template <typename T>
-inline constexpr bool SupportedVertexAttribute = IsFloatVertexAttribute<T> || IsIntVertexAttribute<T> ||
-                                                 IsUIntVertexAttribute<T>;
+inline constexpr bool SupportedVertexAttribute = IsFloatVertexAttribute<T> || IsIntVertexAttribute<T> || IsUIntVertexAttribute<T>;
 
 template <typename T>
 constexpr VertexAttributeType GetAttributeType() noexcept
@@ -61,18 +57,16 @@ constexpr int GetComponentCount() noexcept
 }
 
 template <typename T, typename U>
-std::size_t MemberOffset(U T::*ptr) noexcept
+std::size_t MemberOffset(U T::* ptr) noexcept
 {
     constexpr T* NullObj = nullptr;
     return std::bit_cast<std::size_t>(&(NullObj->*ptr));
 }
 
-} // namespace vertex_traits
-
 template <typename TVertexType, typename TMemberType>
 constexpr VertexAttribute GenerateAttribute(int location,
 const char* name,
-TMemberType(TVertexType::*ptr),
+TMemberType(TVertexType::* ptr),
 bool normalized = false) noexcept
 {
     static_assert(vertex_traits::SupportedVertexAttribute<TMemberType>, "Unsupported vertex attribute type");
@@ -99,24 +93,21 @@ constexpr VertexAttribute GenerateAttribute(int location, const char* name, bool
 }
 
 template <typename TVertexType>
-MeshData CreateMeshData(const std::vector<TVertexType>& vertices,
-const std::vector<SubMesh>& submeshes,
-PrimitiveType primitive_type,
-VertexLayout&& layout)
+VertexData ConvertToVertexData(const std::vector<TVertexType>& vertices, const std::vector<VertexAttribute>& attributes)
 {
     static_assert(std::is_standard_layout_v<TVertexType>, "Vertex type must be standard layout");
 
-    MeshData data = {.vertex_data = {},
-        .vertex_count             = vertices.size(),
-        .submeshes                = submeshes,
-        .instances                = {},
-        .primitive_type           = primitive_type,
-        .layout                   = std::move(layout)};
+    VertexData vertex_data{
+        .vertex_count = vertices.size(),
+        .vertex_size  = sizeof(TVertexType),
+        .attributes   = attributes,
+        .data         = {},
+    };
 
-    data.vertex_data.resize(vertices.size() * sizeof(TVertexType));
-    std::memcpy(data.vertex_data.data(), vertices.data(), data.vertex_data.size());
+    vertex_data.data.resize(vertices.size() * sizeof(TVertexType));
+    std::memcpy(vertex_data.data.data(), vertices.data(), vertex_data.data.size());
 
-    return data;
+    return vertex_data;
 }
 
-} // namespace game_engine
+} // namespace game_engine::vertex_traits
