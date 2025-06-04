@@ -3,9 +3,9 @@
 #include <chrono>
 #include <memory>
 
-#include <engine/event_system/event_system.hpp>
+#include <engine/events/event_system.hpp>
 #include <engine/graphics/renderer.hpp>
-#include <engine/resource_manager.hpp>
+#include <engine/resource_management/resource_manager.hpp>
 
 namespace game_engine
 {

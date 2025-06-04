@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/keyboard.hpp>
+#include <engine/input/keyboard.hpp>
 
 namespace game_engine::backend
 {

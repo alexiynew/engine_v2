@@ -2,10 +2,9 @@
 
 #include <iostream>
 
-#include <engine/event_system/event_system.hpp>
+#include <engine/events/window_events.hpp>
 #include <engine/graphics/renderer.hpp>
-#include <engine/resource_manager.hpp>
-#include <engine/window_events.hpp>
+#include <engine/resource_management/resource_manager.hpp>
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -36,20 +35,20 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
     auto renderer = m_engine->GetRenderer();
 
     m_mesh = rm->LoadMesh("cube"sv,
-    {
-        .source = "data/3d/cube.obj",
-    });
+        {
+            .source = "data/3d/cube.obj",
+        });
 
     if (!renderer->Load(m_mesh)) {
         std::cout << "Failed to load mesh" << std::endl;
     }
 
     m_shader = rm->LoadShader("simple"sv,
-    {
-        .source_files = {
-                         {ShaderType::Vertex, "data/shaders/simple.vert"},
-                         {ShaderType::Fragment, "data/shaders/simple.frag"},
-                         }
+        {
+            .source_files = {
+                             {ShaderType::Vertex, "data/shaders/simple.vert"},
+                             {ShaderType::Fragment, "data/shaders/simple.frag"},
+                             }
     });
 
     if (!renderer->Load(m_shader)) {
@@ -110,11 +109,11 @@ void Game::OnDraw()
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
     m_engine->GetRenderer()->Render(m_mesh,
-    m_shader,
-    {
-        Property{     "model",      model},
-        Property{      "view",       view},
-        Property{"projection", projection},
+        m_shader,
+        {
+            Property{     "model",      model},
+            Property{      "view",       view},
+            Property{"projection", projection},
     });
 }
 

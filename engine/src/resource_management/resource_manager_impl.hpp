@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <engine/resource_manager.hpp>
+#include <engine/resource_management/resource_manager.hpp>
 
 namespace game_engine
 {

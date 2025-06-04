@@ -1,7 +1,7 @@
 #pragma once
 
 #include <engine/graphics/material.hpp>
-#include <engine/resource.hpp>
+#include <engine/resource_management/resource.hpp>
 
 namespace game_engine
 {

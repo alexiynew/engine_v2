@@ -2,8 +2,8 @@
 
 #include <memory>
 
+#include <engine/events/window_events.hpp>
 #include <engine/game_settings.hpp>
-#include <engine/window_events.hpp>
 
 #include <modules/input_handler.hpp>
 

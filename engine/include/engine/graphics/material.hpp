@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include <engine/graphics/property.hpp>
-#include <engine/resource.hpp>
+#include <engine/resource_management/resource.hpp>
 
 namespace game_engine
 {

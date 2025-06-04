@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
+#include <engine/events/window_events.hpp>
 #include <engine/game_settings.hpp>
-#include <engine/window_events.hpp>
 
 namespace game_engine
 {

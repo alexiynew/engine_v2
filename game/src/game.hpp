@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/event_system/event_system.hpp>
+#include <engine/events/event_system.hpp>
 #include <engine/game.hpp>
 
 class Game final : public game_engine::IGame

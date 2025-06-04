@@ -1,6 +1,6 @@
 #include <vector>
 
-#include <engine/event_system/event_system.hpp>
+#include <engine/events/event_system.hpp>
 
 #define LOG_ERROR std::cerr
 #include <iostream>

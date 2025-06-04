@@ -7,7 +7,6 @@
 #include <engine/graphics/mesh.hpp>
 #include <engine/graphics/shader.hpp>
 #include <engine/graphics/texture.hpp>
-#include <engine/resource.hpp>
 
 namespace game_engine
 {
