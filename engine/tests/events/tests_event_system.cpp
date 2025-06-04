@@ -1,5 +1,6 @@
 #include <engine/events/event_system.hpp>
 
+#include <events/event_system_impl.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -7,7 +8,12 @@ class EventSystemFixture : public ::testing::Test
 {
 protected:
 
-    game_engine::EventSystem m_es;
+    void SetUp() override
+    {
+        m_es = std::make_shared<game_engine::EventSystemImpl>();
+    }
+
+    std::shared_ptr<game_engine::IEventSystem> m_es;
 };
 
 TEST_F(EventSystemFixture, BasicSubscription)
@@ -19,8 +25,8 @@ TEST_F(EventSystemFixture, BasicSubscription)
 
     int handled_value = 0;
 
-    auto sub = m_es.Subscribe<Event>([&](const Event& event) { handled_value = event.value; });
-    m_es.ProcessEvent(Event{42});
+    auto sub = m_es->Subscribe<Event>([&](const Event& event) { handled_value = event.value; });
+    m_es->ProcessEvent(Event{42});
 
     EXPECT_EQ(handled_value, 42);
 }
@@ -68,27 +74,27 @@ TEST_F(EventSystemFixture, SubscriptionDifferentEvents)
     int handled_value8 = 0;
     int handled_value9 = 0;
 
-    auto sub0 = m_es.Subscribe<Event0>([&](const auto& event) { handled_value0++; });
-    auto sub1 = m_es.Subscribe<Event1>([&](const auto& event) { handled_value1++; });
-    auto sub2 = m_es.Subscribe<Event2>([&](const auto& event) { handled_value2++; });
-    auto sub3 = m_es.Subscribe<Event3>([&](const auto& event) { handled_value3++; });
-    auto sub4 = m_es.Subscribe<Event4>([&](const auto& event) { handled_value4++; });
-    auto sub5 = m_es.Subscribe<Event5>([&](const auto& event) { handled_value5++; });
-    auto sub6 = m_es.Subscribe<Event6>([&](const auto& event) { handled_value6++; });
-    auto sub7 = m_es.Subscribe<Event7>([&](const auto& event) { handled_value7++; });
-    auto sub8 = m_es.Subscribe<Event8>([&](const auto& event) { handled_value8++; });
-    auto sub9 = m_es.Subscribe<Event9>([&](const auto& event) { handled_value9++; });
+    auto sub0 = m_es->Subscribe<Event0>([&](const auto& event) { handled_value0++; });
+    auto sub1 = m_es->Subscribe<Event1>([&](const auto& event) { handled_value1++; });
+    auto sub2 = m_es->Subscribe<Event2>([&](const auto& event) { handled_value2++; });
+    auto sub3 = m_es->Subscribe<Event3>([&](const auto& event) { handled_value3++; });
+    auto sub4 = m_es->Subscribe<Event4>([&](const auto& event) { handled_value4++; });
+    auto sub5 = m_es->Subscribe<Event5>([&](const auto& event) { handled_value5++; });
+    auto sub6 = m_es->Subscribe<Event6>([&](const auto& event) { handled_value6++; });
+    auto sub7 = m_es->Subscribe<Event7>([&](const auto& event) { handled_value7++; });
+    auto sub8 = m_es->Subscribe<Event8>([&](const auto& event) { handled_value8++; });
+    auto sub9 = m_es->Subscribe<Event9>([&](const auto& event) { handled_value9++; });
 
-    m_es.ProcessEvent(Event0{});
-    m_es.ProcessEvent(Event1{});
-    m_es.ProcessEvent(Event2{});
-    m_es.ProcessEvent(Event3{});
-    m_es.ProcessEvent(Event4{});
-    m_es.ProcessEvent(Event5{});
-    m_es.ProcessEvent(Event6{});
-    m_es.ProcessEvent(Event7{});
-    m_es.ProcessEvent(Event8{});
-    m_es.ProcessEvent(Event9{});
+    m_es->ProcessEvent(Event0{});
+    m_es->ProcessEvent(Event1{});
+    m_es->ProcessEvent(Event2{});
+    m_es->ProcessEvent(Event3{});
+    m_es->ProcessEvent(Event4{});
+    m_es->ProcessEvent(Event5{});
+    m_es->ProcessEvent(Event6{});
+    m_es->ProcessEvent(Event7{});
+    m_es->ProcessEvent(Event8{});
+    m_es->ProcessEvent(Event9{});
 
     EXPECT_EQ(handled_value0, 1);
     EXPECT_EQ(handled_value1, 1);
@@ -108,11 +114,11 @@ TEST_F(EventSystemFixture, HandlerPriorityOrder)
 
     std::vector<int> execution_order;
 
-    auto s1 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(0); }, HandlerPriority::Whenever);
-    auto s2 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(1); }, HandlerPriority::UrgentButCanVibe);
-    auto s3 = m_es.Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::RedPanic);
+    auto s1 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(0); }, HandlerPriority::Whenever);
+    auto s2 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(1); }, HandlerPriority::UrgentButCanVibe);
+    auto s3 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::RedPanic);
 
-    m_es.ProcessEvent(0);
+    m_es->ProcessEvent(0);
 
     ASSERT_EQ(execution_order.size(), 3);
     EXPECT_EQ(execution_order[0], 2);
@@ -124,10 +130,10 @@ TEST_F(EventSystemFixture, ManualUnsubscription)
 {
     int counter = 0;
 
-    auto sub = m_es.Subscribe<int>([&](const auto&) { counter++; });
+    auto sub = m_es->Subscribe<int>([&](const auto&) { counter++; });
     sub->Unsubscribe();
 
-    m_es.ProcessEvent(0);
+    m_es->ProcessEvent(0);
 
     EXPECT_EQ(counter, 0);
 }
@@ -135,15 +141,15 @@ TEST_F(EventSystemFixture, ManualUnsubscription)
 TEST_F(EventSystemFixture, SelfUnsubscriptionInHandler)
 {
     int counter = 0;
-    game_engine::EventSystem::SubscriptionPtr self_sub;
+    game_engine::IEventSystem::SubscriptionPtr self_sub;
 
-    self_sub = m_es.Subscribe<int>([&](const auto&) {
+    self_sub = m_es->Subscribe<int>([&](const auto&) {
         counter++;
         self_sub->Unsubscribe();
     });
 
-    m_es.ProcessEvent(0); // Must be called once
-    m_es.ProcessEvent(0); // No effect
+    m_es->ProcessEvent(0); // Must be called once
+    m_es->ProcessEvent(0); // No effect
 
     EXPECT_EQ(counter, 1);
 }
@@ -156,12 +162,12 @@ TEST_F(EventSystemFixture, MultithreadedProcessing)
     std::atomic<int> counter{0};
     std::vector<std::thread> threads;
 
-    auto sub = m_es.Subscribe<int>([&](const auto&) { counter++; });
+    auto sub = m_es->Subscribe<int>([&](const auto&) { counter++; });
 
     for (int i = 0; i < ThreadsCount; ++i) {
         threads.emplace_back([&] {
             for (int j = 0; j < EventsPerThread; ++j) {
-                m_es.ProcessEvent(42);
+                m_es->ProcessEvent(42);
             }
         });
     }
@@ -184,7 +190,7 @@ TEST_F(EventSystemFixture, MultithreadedSubscription)
 
     for (int i = 0; i < ThreadsCount; ++i) {
         threads.emplace_back([&] {
-            auto sub = m_es.Subscribe<int>([&](const auto&) { counter++; });
+            auto sub = m_es->Subscribe<int>([&](const auto&) { counter++; });
             while (running) {
                 // Wait for processing
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -196,7 +202,7 @@ TEST_F(EventSystemFixture, MultithreadedSubscription)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     for (int j = 0; j < EventsPerThread; ++j) {
-        m_es.ProcessEvent(0);
+        m_es->ProcessEvent(0);
     }
 
     // Stop threads

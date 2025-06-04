@@ -10,8 +10,9 @@
 namespace game_engine
 {
 
-class ResourceManagerImpl;
 class RendererImpl;
+class EventSystemImpl;
+class ResourceManagerImpl;
 
 class EngineImpl final
     : public IEngine
@@ -37,7 +38,7 @@ public:
     std::shared_ptr<IRenderer> GetRenderer() const override;
 
     [[nodiscard]]
-    std::shared_ptr<EventSystem> GetEventSystem() const override;
+    std::shared_ptr<IEventSystem> GetEventSystem() const override;
 
     ReturnCode Run() noexcept;
 
@@ -61,8 +62,8 @@ private:
     std::shared_ptr<backend::IBackendModule> m_backend;
 
     std::shared_ptr<RendererImpl> m_renderer;
+    std::shared_ptr<EventSystemImpl> m_event_system;
     std::shared_ptr<ResourceManagerImpl> m_resource_manager;
-    std::shared_ptr<EventSystem> m_event_system;
 
     std::shared_ptr<IGame> m_game;
 

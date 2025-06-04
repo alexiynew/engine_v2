@@ -26,7 +26,7 @@ private:
 
     std::shared_ptr<game_engine::IEngine> m_engine;
 
-    std::vector<game_engine::EventSystem::SubscriptionPtr> m_subscriptions;
+    std::vector<game_engine::IEventSystem::SubscriptionPtr> m_subscriptions;
 
     std::shared_ptr<game_engine::IShader> m_shader;
     std::shared_ptr<game_engine::IMesh> m_mesh;

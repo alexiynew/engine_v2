@@ -2,6 +2,7 @@
 
 #include <thread>
 
+#include <events/event_system_impl.hpp>
 #include <graphics/renderer_impl.hpp>
 #include <resource_management/resource_manager_impl.hpp>
 
@@ -19,8 +20,8 @@ namespace game_engine
 EngineImpl::EngineImpl(const ModuleLocator& locator)
     : m_backend(locator.Get<backend::IBackendModule>())
     , m_renderer(std::make_shared<RendererImpl>(locator))
+    , m_event_system(std::make_shared<EventSystemImpl>())
     , m_resource_manager(std::make_shared<ResourceManagerImpl>())
-    , m_event_system(std::make_shared<EventSystem>())
     , m_game(locator.Get<IGame>())
 {}
 
@@ -57,7 +58,7 @@ std::shared_ptr<IRenderer> EngineImpl::GetRenderer() const
 }
 
 [[nodiscard]]
-std::shared_ptr<EventSystem> EngineImpl::GetEventSystem() const
+std::shared_ptr<IEventSystem> EngineImpl::GetEventSystem() const
 {
     return m_event_system;
 }

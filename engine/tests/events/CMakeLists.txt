@@ -9,6 +9,7 @@ target_sources(events_test
 target_include_directories(events_test
     PRIVATE
         $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
+        ../../src
 )
 
 target_link_libraries(events_test

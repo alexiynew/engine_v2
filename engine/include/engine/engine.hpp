@@ -42,7 +42,7 @@ public:
     virtual std::shared_ptr<IRenderer> GetRenderer() const = 0;
 
     [[nodiscard]]
-    virtual std::shared_ptr<EventSystem> GetEventSystem() const = 0;
+    virtual std::shared_ptr<IEventSystem> GetEventSystem() const = 0;
 };
 
 } // namespace game_engine
