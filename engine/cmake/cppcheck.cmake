@@ -2,6 +2,8 @@
 
 find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
+    execute_process(COMMAND cppcheck --version OUTPUT_VARIABLE CPPCHECK_VERSION)  
+    
     add_custom_target(cppcheck
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/build/cppcheck
         COMMAND ${CPPCHECK}   
@@ -15,6 +17,7 @@ if(CPPCHECK)
                 --inconclusive
                 --suppress=missingIncludeSystem:*
                 --suppress=checkersReport
+                --check-level=exhaustive
                 --checkers-report=${CMAKE_SOURCE_DIR}/build/cppcheck/checkers_report.txt
                 --cppcheck-build-dir=${CMAKE_SOURCE_DIR}/build/cppcheck
         COMMAND_EXPAND_LISTS

@@ -1,5 +1,6 @@
 #include "opengl_mesh.hpp"
 
+#include <numeric>
 #include <stdexcept>
 
 #include <opengl_utils.hpp>
@@ -35,12 +36,11 @@ GLenum ToGLPrimitiveType(game_engine::PrimitiveType primitive_type)
 
 GLsizeiptr GetIndicesDataSize(const std::vector<game_engine::SubMesh>& submeshes)
 {
-    GLsizeiptr size = 0;
-    for (const auto& submesh : submeshes) {
-        size += submesh.indices.size() * sizeof(submesh.indices[0]);
-    }
+    const auto size = std::accumulate(submeshes.begin(), submeshes.end(), 0, [](std::size_t size_sum, const auto& submesh) {
+        return size_sum + submesh.indices.size() * sizeof(submesh.indices[0]);
+    });
 
-    return size;
+    return static_cast<GLsizeiptr>(size);
 }
 
 template <typename T>

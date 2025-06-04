@@ -20,7 +20,7 @@ public:
     OpenGLTexture& operator=(const OpenGLTexture&) = delete;
     OpenGLTexture& operator=(OpenGLTexture&& other) noexcept;
 
-    bool Load(const std::shared_ptr<ITexture>& mesh);
+    bool Load(const std::shared_ptr<ITexture>& texture);
     bool IsValid() const noexcept;
     void Clear() noexcept;
 

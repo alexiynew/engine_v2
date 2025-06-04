@@ -237,7 +237,7 @@ void RendererImpl::RenderLoop()
         }
 
         try {
-            for (auto& task : tasks) {
+            for (const auto& task : tasks) {
                 task();
             }
 

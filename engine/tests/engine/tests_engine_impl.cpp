@@ -84,8 +84,6 @@ protected:
     std::shared_ptr<MockRenderer> m_mock_renderer;
     std::shared_ptr<MockGame> m_mock_game;
 
-    game_engine::ModuleLocator m_locator;
-
     std::shared_ptr<game_engine::EngineImpl> m_engine;
 };
 

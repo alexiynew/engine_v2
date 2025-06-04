@@ -1,6 +1,9 @@
 # Custom target to run clang-tidy
+
 find_program(CLANG_TIDY clang-tidy)
 if(CLANG_TIDY)
+    execute_process(COMMAND CLANG_TIDY --version OUTPUT_VARIABLE CLANG_TIDY_VERSION)  
+
     file(GLOB_RECURSE SOURCES 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/**.[ch]pp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/**.hpp
