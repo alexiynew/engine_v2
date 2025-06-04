@@ -1,10 +1,10 @@
 
 file(GLOB_RECURSE SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.[ch]pp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/**/*.[ch]pp
-    ${CMAKE_CURRENT_SOURCE_DIR}/entry_point/**/*.[ch]pp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/**.[ch]pp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/**.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/**.[ch]pp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entry_point/**.[ch]pp
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/**.[ch]pp
 )
 
 # string(JOIN "\n" SOURCES_STRING ${SOURCES})

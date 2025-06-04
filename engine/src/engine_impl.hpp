@@ -4,12 +4,14 @@
 #include <engine/engine.hpp>
 #include <engine/game.hpp>
 
-#include <modules/backend/backend.hpp>
-#include <modules/graphics/renderer.hpp>
+#include <modules/backend/backend_module.hpp>
 #include <modules/module_locator.hpp>
 
 namespace game_engine
 {
+
+class ResourceManagerImpl;
+class RendererImpl;
 
 class EngineImpl final
     : public IEngine
@@ -17,6 +19,7 @@ class EngineImpl final
     , private IBackendObserver
 {
 public:
+
     using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
     explicit EngineImpl(const ModuleLocator& locator);
@@ -26,18 +29,20 @@ public:
     TimePoint GetTime() const noexcept override;
     bool ShouldStop() const noexcept override;
     void SetShouldStopFlag() noexcept override;
-    std::shared_ptr<graphics::IMesh> CreateMesh() override;
-    std::shared_ptr<graphics::IShader> CreateShader() override;
-    void Render(const std::shared_ptr<graphics::IMesh>& mesh,
-                const std::shared_ptr<graphics::IShader>& shader,
-                const std::vector<graphics::Uniform>& uniforms) override;
 
     [[nodiscard]]
-    EventSystem& GetEventSystem() const override;
+    std::shared_ptr<IResourceManager> GetResourceManager() const override;
+
+    [[nodiscard]]
+    std::shared_ptr<IRenderer> GetRenderer() const override;
+
+    [[nodiscard]]
+    std::shared_ptr<EventSystem> GetEventSystem() const override;
 
     ReturnCode run() noexcept;
 
 private:
+
     // BackendEventHandler
     void OnEvent(const KeyboardInputEvent& event) override;
     void OnEvent(const WindowResizeEvent& event) override;
@@ -47,16 +52,17 @@ private:
     void OnEvent(const WindowIconifyEvent& event) override;
     void OnEvent(const WindowMaximizeEvent& event) override;
 
-    void setupFrameRate(const GameSettings& settings);
-    void mainLoop();
+    void SetupFrameRate(const GameSettings& settings);
+    void MainLoop();
 
-    void update(std::chrono::nanoseconds elapsedTime);
+    void Update(std::chrono::nanoseconds elapsedTime);
     void Render();
 
-    std::shared_ptr<backend::IBackend> m_backend;
-    std::shared_ptr<graphics::IRenderer> m_renderer;
+    std::shared_ptr<backend::IBackendModule> m_backend;
 
-    std::shared_ptr<EventSystem> m_eventSystem;
+    std::shared_ptr<RendererImpl> m_renderer;
+    std::shared_ptr<ResourceManagerImpl> m_resource_manager;
+    std::shared_ptr<EventSystem> m_event_system;
 
     std::shared_ptr<IGame> m_game;
 

@@ -4,8 +4,8 @@
 
 #include <engine/game.hpp>
 
-#include <modules/backend/backend.hpp>
-#include <modules/graphics/renderer.hpp>
+#include <modules/backend/backend_module.hpp>
+#include <modules/graphics/renderer_module.hpp>
 
 #include <engine_impl.hpp>
 
@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
         auto create_module_locator = []() {
             ModuleLocator ml;
 
-            ml.SetImplementation(backend::IBackend::Create());
-            ml.SetImplementation(graphics::IRenderer::Create());
+            ml.SetImplementation(backend::IBackendModule::Create());
+            ml.SetImplementation(graphics::IRendererModule::Create());
             ml.SetImplementation(IGame::Create());
 
             return ml;

@@ -2,6 +2,9 @@
 
 #include <thread>
 
+#include <graphics/renderer_impl.hpp>
+#include <resource_management/resource_manager_impl.hpp>
+
 #define LOG_ERROR std::cerr
 #include <iostream>
 
@@ -14,9 +17,10 @@ namespace game_engine
 {
 
 EngineImpl::EngineImpl(const ModuleLocator& locator)
-    : m_backend(locator.Get<backend::IBackend>())
-    , m_renderer(locator.Get<graphics::IRenderer>())
-    , m_eventSystem(std::make_shared<EventSystem>())
+    : m_backend(locator.Get<backend::IBackendModule>())
+    , m_renderer(std::make_shared<RendererImpl>(locator))
+    , m_resource_manager(std::make_shared<ResourceManagerImpl>())
+    , m_event_system(std::make_shared<EventSystem>())
     , m_game(locator.Get<IGame>())
 {}
 
@@ -39,34 +43,37 @@ void EngineImpl::SetShouldStopFlag() noexcept
     m_shouldStop = true;
 }
 
-std::shared_ptr<graphics::IMesh> EngineImpl::CreateMesh()
+[[nodiscard]]
+std::shared_ptr<IResourceManager> EngineImpl::GetResourceManager() const
 {
-    return m_renderer->CreateMesh();
-}
-
-std::shared_ptr<graphics::IShader> EngineImpl::CreateShader()
-{
-    return m_renderer->CreateShader();
-}
-
-void EngineImpl::Render(const std::shared_ptr<graphics::IMesh>& mesh,
-                        const std::shared_ptr<graphics::IShader>& shader,
-                        const std::vector<graphics::Uniform>& uniforms)
-{
-    graphics::RenderCommand cmd;
-    cmd.mesh           = mesh;
-    cmd.shader         = shader;
-    cmd.uniforms       = uniforms;
-    cmd.instance_count = 1;
-
-    m_renderer->AddRenderCommand(cmd);
+    return m_resource_manager;
 }
 
 [[nodiscard]]
-EventSystem& EngineImpl::GetEventSystem() const
+std::shared_ptr<IRenderer> EngineImpl::GetRenderer() const
 {
-    return *m_eventSystem;
+    // Performs an explicit derived-to-base pointer conversion to bypass const correctness.
+    return std::static_pointer_cast<IRenderer>(m_renderer);
 }
+
+[[nodiscard]]
+std::shared_ptr<EventSystem> EngineImpl::GetEventSystem() const
+{
+    return m_event_system;
+}
+
+//void EngineImpl::Render(const std::shared_ptr<graphics::IMesh>& mesh,
+//                        const std::shared_ptr<graphics::IShader>& shader,
+//                        const std::vector<graphics::Uniform>& uniforms)
+//{
+//    graphics::RenderCommand cmd;
+//    cmd.mesh           = mesh;
+//    cmd.shader         = shader;
+//    cmd.uniforms       = uniforms;
+//    cmd.instance_count = 1;
+//
+//    m_renderer->AddRenderCommand(cmd);
+//}
 
 #pragma endregion
 
@@ -83,7 +90,7 @@ int EngineImpl::run() noexcept
             return -1;
         }
 
-        if (!m_renderer->Init(m_backend->GetRenderContext())) {
+        if (!m_renderer->Init()) {
             return -1;
         }
 
@@ -91,11 +98,11 @@ int EngineImpl::run() noexcept
             return -1;
         }
 
-        setupFrameRate(settings);
+        SetupFrameRate(settings);
 
         m_backend->AttachBackendObserver(*this);
 
-        mainLoop();
+        MainLoop();
 
         m_backend->DetachBackendObserver(*this);
 
@@ -132,24 +139,24 @@ int EngineImpl::run() noexcept
 
 void EngineImpl::OnEvent(const KeyboardInputEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 }
 
 // TODO: Handle window events
 // TODO: Save view aspect ratio on window resize
 void EngineImpl::OnEvent(const WindowResizeEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 }
 
 void EngineImpl::OnEvent(const WindowMoveEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 }
 
 void EngineImpl::OnEvent(const WindowCloseEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 
     if (m_game->OnShouldClose()) {
         SetShouldStopFlag();
@@ -158,30 +165,30 @@ void EngineImpl::OnEvent(const WindowCloseEvent& event)
 
 void EngineImpl::OnEvent(const WindowFocusEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 }
 
 void EngineImpl::OnEvent(const WindowIconifyEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 }
 
 void EngineImpl::OnEvent(const WindowMaximizeEvent& event)
 {
-    m_eventSystem->ProcessEvent(event);
+    m_event_system->ProcessEvent(event);
 }
 
 #pragma endregion
 
 #pragma region EngineImpl private
 
-void EngineImpl::setupFrameRate(const GameSettings& settings)
+void EngineImpl::SetupFrameRate(const GameSettings& settings)
 {
     m_targetUpdateTime = Second / settings.update_rate;
     m_targetFrameTime  = Second / settings.frame_rate;
 }
 
-void EngineImpl::mainLoop()
+void EngineImpl::MainLoop()
 {
     TimePoint lastTime       = GetTime();
     TimePoint fpsCounterTime = lastTime;
@@ -198,7 +205,7 @@ void EngineImpl::mainLoop()
         // Run the required number of updates
         updatesDeltaTime += frameDuration;
         while (updatesDeltaTime >= m_targetUpdateTime) {
-            update(m_targetUpdateTime);
+            Update(m_targetUpdateTime);
             m_updates++;
             updatesDeltaTime -= m_targetUpdateTime;
         }
@@ -227,7 +234,7 @@ void EngineImpl::mainLoop()
     }
 }
 
-void EngineImpl::update(std::chrono::nanoseconds elapsedTime)
+void EngineImpl::Update(std::chrono::nanoseconds elapsedTime)
 {
     m_game->OnUpdate(elapsedTime);
 }
@@ -236,8 +243,7 @@ void EngineImpl::Render()
 {
     m_game->OnDraw();
 
-    m_renderer->ExecuteRenderCommands();
-    m_renderer->ClearRenderCommands();
+    m_renderer->EndFrame();
 }
 
 #pragma endregion

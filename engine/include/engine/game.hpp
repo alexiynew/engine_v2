@@ -12,6 +12,7 @@ namespace game_engine
 class IGame
 {
 public:
+
     static std::shared_ptr<IGame> Create();
 
     virtual ~IGame() = default;
