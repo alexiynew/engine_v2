@@ -52,8 +52,8 @@ private:
     void OnEvent(const WindowIconifyEvent& event) override;
     void OnEvent(const WindowMaximizeEvent& event) override;
 
-    void setupFrameRate(const GameSettings& settings);
-    void mainLoop();
+    void SetupFrameRate(const GameSettings& settings);
+    void MainLoop();
 
     void Update(std::chrono::nanoseconds elapsedTime);
     void Render();

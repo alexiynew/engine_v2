@@ -4,7 +4,6 @@ target_sources(engine_test
     PRIVATE
         main.cpp
         tests_engine_impl.cpp
-        tests_event_system.cpp
 )
 
 target_include_directories(engine_test
@@ -22,6 +21,6 @@ target_link_libraries(engine_test
         third_party::gmock
 )
 
-set_target_properties(engine_test PROPERTIES FOLDER "engine/tests")
+set_target_properties(engine_test PROPERTIES FOLDER "engine/tests/engine")
 
 add_test(NAME engine_test COMMAND engine_test)

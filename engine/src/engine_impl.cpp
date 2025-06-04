@@ -98,11 +98,11 @@ int EngineImpl::run() noexcept
             return -1;
         }
 
-        setupFrameRate(settings);
+        SetupFrameRate(settings);
 
         m_backend->AttachBackendObserver(*this);
 
-        mainLoop();
+        MainLoop();
 
         m_backend->DetachBackendObserver(*this);
 
@@ -182,13 +182,13 @@ void EngineImpl::OnEvent(const WindowMaximizeEvent& event)
 
 #pragma region EngineImpl private
 
-void EngineImpl::setupFrameRate(const GameSettings& settings)
+void EngineImpl::SetupFrameRate(const GameSettings& settings)
 {
     m_targetUpdateTime = Second / settings.update_rate;
     m_targetFrameTime  = Second / settings.frame_rate;
 }
 
-void EngineImpl::mainLoop()
+void EngineImpl::MainLoop()
 {
     TimePoint lastTime       = GetTime();
     TimePoint fpsCounterTime = lastTime;
