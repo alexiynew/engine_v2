@@ -17,6 +17,8 @@ public:
     EventSystemImpl();
     ~EventSystemImpl() override;
 
+    void UnsubscribeFromAll() noexcept override;
+
 private:
 
     // IEventSystem implementation

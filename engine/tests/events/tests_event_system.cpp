@@ -115,15 +115,27 @@ TEST_F(EventSystemFixture, HandlerPriorityOrder)
     std::vector<int> execution_order;
 
     auto s1 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(0); }, HandlerPriority::Whenever);
-    auto s2 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(1); }, HandlerPriority::UrgentButCanVibe);
-    auto s3 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::RedPanic);
+    auto s2 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(1); }, HandlerPriority::Whenever);
+    auto s3 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(2); }, HandlerPriority::Whenever);
+    auto s4 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(3); }, HandlerPriority::UrgentButCanVibe);
+    auto s5 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(4); }, HandlerPriority::UrgentButCanVibe);
+    auto s6 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(5); }, HandlerPriority::UrgentButCanVibe);
+    auto s7 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(6); }, HandlerPriority::RedPanic);
+    auto s8 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(7); }, HandlerPriority::RedPanic);
+    auto s9 = m_es->Subscribe<int>([&](const auto&) { execution_order.push_back(8); }, HandlerPriority::RedPanic);
 
     m_es->ProcessEvent(0);
 
-    ASSERT_EQ(execution_order.size(), 3);
-    EXPECT_EQ(execution_order[0], 2);
-    EXPECT_EQ(execution_order[1], 1);
-    EXPECT_EQ(execution_order[2], 0);
+    ASSERT_EQ(execution_order.size(), 9);
+    EXPECT_EQ(execution_order[0], 6);
+    EXPECT_EQ(execution_order[1], 7);
+    EXPECT_EQ(execution_order[2], 8);
+    EXPECT_EQ(execution_order[3], 3);
+    EXPECT_EQ(execution_order[4], 4);
+    EXPECT_EQ(execution_order[5], 5);
+    EXPECT_EQ(execution_order[6], 0);
+    EXPECT_EQ(execution_order[7], 1);
+    EXPECT_EQ(execution_order[8], 2);
 }
 
 TEST_F(EventSystemFixture, ManualUnsubscription)
@@ -133,6 +145,20 @@ TEST_F(EventSystemFixture, ManualUnsubscription)
     auto sub = m_es->Subscribe<int>([&](const auto&) { counter++; });
     sub->Unsubscribe();
 
+    m_es->ProcessEvent(0);
+
+    EXPECT_EQ(counter, 0);
+}
+
+TEST_F(EventSystemFixture, UnsubscribeFromAll)
+{
+    int counter = 0;
+
+    auto s1 = m_es->Subscribe<int>([&](const auto&) { counter++; });
+    auto s2 = m_es->Subscribe<int>([&](const auto&) { counter++; });
+    auto s3 = m_es->Subscribe<int>([&](const auto&) { counter++; });
+
+    m_es->UnsubscribeFromAll();
     m_es->ProcessEvent(0);
 
     EXPECT_EQ(counter, 0);

@@ -15,12 +15,15 @@ public:
 
     using HandlerId       = std::size_t;
     using SubscriptionPtr = IEventSystem::SubscriptionPtr;
-    using GenericHandler  = std::function<void(const void*)>;
+    using GenericHandler  = IEventSystem::GenericHandler;
+
+    EventDispatcher();
+    ~EventDispatcher();
 
     SubscriptionPtr Subscribe(GenericHandler handler, HandlerPriority priority);
     void ProcessEvent(const void* event);
     void Unsubscribe(HandlerId id) noexcept;
-    bool HasHandlers() const noexcept;
+    bool IsEmpty() const noexcept;
 
 private:
 

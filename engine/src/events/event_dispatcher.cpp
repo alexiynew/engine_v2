@@ -4,6 +4,15 @@
 
 namespace game_engine
 {
+#pragma region HandlerPriority
+
+inline auto operator<=>(HandlerPriority a, HandlerPriority b) noexcept
+{
+    using EnumType = std::underlying_type_t<HandlerPriority>;
+    return static_cast<EnumType>(a) <=> static_cast<EnumType>(b);
+}
+
+#pragma endregion
 
 #pragma region SubscriptionImpl
 
@@ -38,6 +47,10 @@ private:
 
 #pragma region EventDispatcher
 
+EventDispatcher::EventDispatcher() = default;
+
+EventDispatcher::~EventDispatcher() = default;
+
 EventDispatcher::SubscriptionPtr EventDispatcher::Subscribe(GenericHandler handler, HandlerPriority priority)
 {
     std::lock_guard lock(m_mutex);
@@ -50,14 +63,17 @@ EventDispatcher::SubscriptionPtr EventDispatcher::Subscribe(GenericHandler handl
 
 void EventDispatcher::ProcessEvent(const void* event)
 {
-    std::list<HandlerNode> handlers;
+    std::vector<GenericHandler> handlers;
     {
         std::lock_guard lock(m_mutex);
-        handlers = m_handlers;
+        handlers.reserve(m_handlers.size());
+        for (const auto& node : m_handlers) {
+            handlers.push_back(node.handler);
+        }
     }
 
-    for (const auto& node : handlers) {
-        node.handler(event);
+    for (const auto& h : handlers) {
+        h(event);
     }
 }
 
@@ -70,17 +86,20 @@ void EventDispatcher::Unsubscribe(HandlerId id) noexcept
     }
 }
 
-bool EventDispatcher::HasHandlers() const noexcept
+bool EventDispatcher::IsEmpty() const noexcept
 {
-    return !m_handlers.empty();
+    std::lock_guard lock(m_mutex);
+    return m_handlers.empty();
 }
 
 void EventDispatcher::InsertHandler(HandlerNode&& node)
 {
-    auto comp = [](const HandlerNode& a, const HandlerNode& b) { return a.priority > b.priority; };
-
-    auto it = std::lower_bound(m_handlers.begin(), m_handlers.end(), node, comp);
-
+    auto it = m_handlers.begin();
+    while (it != m_handlers.end() && it->priority >= node.priority) {
+        if (it->priority == node.priority && it->id > node.id)
+            break;
+        ++it;
+    }
     auto inserted = m_handlers.insert(it, std::move(node));
     m_handler_map.emplace(inserted->id, inserted);
 }

@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <typeindex>
 
 namespace game_engine
@@ -29,29 +30,33 @@ class IEventSystem
 public:
 
     using SubscriptionPtr = std::unique_ptr<ISubscription>;
-    template <typename T>
-    using EventHandler = std::function<void(const T&)>;
+    using GenericHandler  = std::function<void(const void*)>;
 
     virtual ~IEventSystem() = default;
 
     template <typename TEvent>
     [[nodiscard]]
-    SubscriptionPtr Subscribe(EventHandler<TEvent> handler, HandlerPriority priority = HandlerPriority::Whenever)
+    SubscriptionPtr Subscribe(std::function<void(const TEvent&)> handler, HandlerPriority priority = HandlerPriority::Whenever)
     {
+        if (!handler) {
+            throw std::invalid_argument("Handler cannot be null");
+        }
+
         return SubscribeImpl(typeid(TEvent), [h = std::move(handler)](const void* event) {
             h(*static_cast<const TEvent*>(event));
         }, priority);
     }
 
     template <typename TEvent>
-    void ProcessEvent(const TEvent& event)
+    void ProcessEvent(TEvent&& event)
     {
-        ProcessEventImpl(typeid(TEvent), &event);
+        using EventType = std::decay_t<TEvent>;
+        ProcessEventImpl(typeid(EventType), &event);
     }
 
-protected:
+    virtual void UnsubscribeFromAll() noexcept = 0;
 
-    using GenericHandler = std::function<void(const void*)>;
+protected:
 
     virtual SubscriptionPtr SubscribeImpl(std::type_index event_type, GenericHandler handler, HandlerPriority priority) = 0;
     virtual void ProcessEventImpl(std::type_index event_type, const void* event)                                        = 0;
