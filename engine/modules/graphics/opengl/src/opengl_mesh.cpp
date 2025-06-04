@@ -125,8 +125,6 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
     // Load indices
     {
         // TODO: Implement instancing
-        const auto& data = mesh->GetVertexData();
-
         const GLsizeiptr index_data_size = GetIndicesDataSize(mesh->GetSubMeshes());
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);

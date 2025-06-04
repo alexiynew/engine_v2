@@ -38,9 +38,8 @@ set_target_properties(game PROPERTIES
 file(GLOB_RECURSE DATA_FILES CONFIGURE_DEPENDS "data/*")
 
 add_custom_target(copy_data ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/data
-        ${CMAKE_CURRENT_BINARY_DIR}/data
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/data $<TARGET_FILE_DIR:game>/data
     DEPENDS ${DATA_FILES}
-    COMMENT "Синхронизация ресурсов с build-директорией"
+    COMMENT "Copy game resources"
 )
+add_dependencies(game copy_data)

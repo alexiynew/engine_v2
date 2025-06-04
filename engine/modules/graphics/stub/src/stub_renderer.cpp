@@ -1,8 +1,5 @@
 #include "stub_renderer.hpp"
 
-#include <stub_mesh.hpp>
-#include <stub_shader.hpp>
-
 namespace game_engine::graphics
 {
 
@@ -11,7 +8,9 @@ StubRenderer::StubRenderer()
 
 StubRenderer::~StubRenderer() = default;
 
-bool StubRenderer::Init(std::shared_ptr<IRenderContext>) noexcept
+#pragma region IRendererModule implementation
+
+bool StubRenderer::Init()
 {
     return true;
 }
@@ -19,24 +18,37 @@ bool StubRenderer::Init(std::shared_ptr<IRenderContext>) noexcept
 void StubRenderer::Shutdown() noexcept
 {}
 
-std::shared_ptr<graphics::IShader> StubRenderer::CreateShader()
+bool StubRenderer::Load(const std::shared_ptr<IMesh>& mesh)
 {
-    return std::make_shared<StubShader>();
+    return true;
 }
 
-std::shared_ptr<graphics::IMesh> StubRenderer::CreateMesh()
+bool StubRenderer::Load(const std::shared_ptr<IShader>& shader)
 {
-    return std::make_shared<StubMesh>();
+    return true;
 }
 
-void StubRenderer::AddRenderCommand(const RenderCommand& command)
+bool StubRenderer::Load(const std::shared_ptr<ITexture>& texture)
+{
+    return true;
+}
+
+void StubRenderer::Unload(ResourceType type, ResourceId id)
 {}
 
-void StubRenderer::ClearRenderCommands()
+void StubRenderer::UnloadAll()
 {}
 
-void StubRenderer::ExecuteRenderCommands()
+void StubRenderer::Execute(const BeginFrameCommand& command)
 {}
+
+void StubRenderer::Execute(const EndFrameCommand& command)
+{}
+
+void StubRenderer::Execute(const RenderCommand& command)
+{}
+
+#pragma endregion
 
 } // namespace game_engine::graphics
 

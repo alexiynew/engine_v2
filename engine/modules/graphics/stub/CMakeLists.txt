@@ -3,15 +3,10 @@ project(stub_graphics VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(stub_graphics STATIC)
 
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/**.hpp" "src/**.cpp")
 target_sources(stub_graphics
     PRIVATE
-        src/graphics_create.cpp
-        src/stub_mesh.cpp
-        src/stub_mesh.hpp
-        src/stub_shader.cpp
-        src/stub_shader.hpp
-        src/stub_renderer.cpp
-        src/stub_renderer.hpp
+        ${SOURCES}
 )
 
 target_include_directories(stub_graphics 

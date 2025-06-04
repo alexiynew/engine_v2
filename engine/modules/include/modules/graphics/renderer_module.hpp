@@ -2,11 +2,14 @@
 
 #include <memory>
 
-#include <engine/graphics/mesh.hpp>
-#include <engine/graphics/shader.hpp>
-#include <engine/graphics/texture.hpp>
-
 #include <modules/graphics/render_command.hpp>
+
+namespace game_engine
+{
+class IMesh;
+class IShader;
+class ITexture;
+} // namespace game_engine
 
 namespace game_engine::graphics
 {

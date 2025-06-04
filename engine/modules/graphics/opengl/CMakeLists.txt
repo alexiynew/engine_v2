@@ -4,11 +4,10 @@ project(opengl_graphics VERSION 1.0.0 LANGUAGES CXX)
 add_library(opengl_graphics STATIC)
 
 
-file(GLOB_RECURSE GRAPHICS_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/**.hpp" "src/**.cpp")
-
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/**.hpp" "src/**.cpp")
 target_sources(opengl_graphics
     PRIVATE
-        ${GRAPHICS_SOURCES}
+        ${SOURCES}
 )
 
 target_include_directories(opengl_graphics 

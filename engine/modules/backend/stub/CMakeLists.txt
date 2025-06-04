@@ -3,11 +3,11 @@ project(stub_backend VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(stub_backend STATIC)
 
+
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/**.hpp" "src/**.cpp")
 target_sources(stub_backend
     PRIVATE
-        src/backend_create.cpp
-        src/stub_backend.hpp
-        src/stub_backend.cpp
+        ${SOURCES}
 )
 
 target_include_directories(stub_backend 

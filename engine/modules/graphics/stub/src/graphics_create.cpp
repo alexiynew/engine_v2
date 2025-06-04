@@ -3,7 +3,7 @@
 namespace game_engine::graphics
 {
 
-std::shared_ptr<IRenderer> IRenderer::Create()
+std::shared_ptr<IRendererModule> IRendererModule::Create()
 {
     return std::make_shared<StubRenderer>();
 }
