@@ -66,7 +66,7 @@ namespace game_engine
 
 // https://www.martinreddy.net/gfx/3d/OBJ.spec
 // https://paulbourke.net/dataformats/obj/
-std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, const std::string_view name, const MeshLoadParams& params) const
+std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, std::string_view name, const MeshLoadParams& params) const
 {
     auto mesh = std::make_shared<MeshResource>(id, std::string(name));
 

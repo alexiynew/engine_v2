@@ -1,7 +1,7 @@
 # https://releases.llvm.org/18.1.8/tools/clang/tools/extra/docs/clang-tidy/checks/list.html
 
 ---
-Checks: '-*,readability-*,-readability-identifier-length,-readability-function-cognitive-complexity'
+Checks: '-*,readability-*,-readability-identifier-length,-readability-function-cognitive-complexity,-readability-uppercase-literal-suffix'
 
 CheckOptions:
   - key: readability-uniqueptr-delete-release.PreferResetCall

@@ -39,7 +39,7 @@ public:
     [[nodiscard]]
     std::shared_ptr<EventSystem> GetEventSystem() const override;
 
-    ReturnCode run() noexcept;
+    ReturnCode Run() noexcept;
 
 private:
 
@@ -55,7 +55,7 @@ private:
     void SetupFrameRate(const GameSettings& settings);
     void MainLoop();
 
-    void Update(std::chrono::nanoseconds elapsedTime);
+    void Update(std::chrono::nanoseconds elapsed_time);
     void Render();
 
     std::shared_ptr<backend::IBackendModule> m_backend;
@@ -66,17 +66,17 @@ private:
 
     std::shared_ptr<IGame> m_game;
 
-    TimePoint m_engineStartTime;
-    bool m_shouldStop = false;
+    TimePoint m_engine_start_time;
+    bool m_should_stop = false;
 
-    std::chrono::nanoseconds m_targetUpdateTime{};
-    std::chrono::nanoseconds m_targetFrameTime{};
+    std::chrono::nanoseconds m_target_update_time{};
+    std::chrono::nanoseconds m_target_frame_time{};
 
-    std::size_t m_updates          = 0;
-    std::size_t m_frames           = 0;
-    std::size_t m_updatesPerSecond = 0;
-    std::size_t m_framesPerSecond  = 0;
-    std::size_t m_totalFrames      = 0;
+    std::size_t m_updates            = 0;
+    std::size_t m_frames             = 0;
+    std::size_t m_updates_per_second = 0;
+    std::size_t m_frames_per_second  = 0;
+    std::size_t m_total_frames       = 0;
 };
 
 } // namespace game_engine

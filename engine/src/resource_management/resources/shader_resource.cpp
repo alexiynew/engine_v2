@@ -14,8 +14,8 @@ bool ShaderResource::IsValid() const noexcept
 {
     bool is_valid = true;
 
-    is_valid &= m_sources.count(ShaderType::Vertex) > 0;
-    is_valid &= m_sources.count(ShaderType::Fragment) > 0;
+    is_valid &= m_sources.contains(ShaderType::Vertex);
+    is_valid &= m_sources.contains(ShaderType::Fragment);
     is_valid &= m_state != ResourceState::Error;
 
     return is_valid;

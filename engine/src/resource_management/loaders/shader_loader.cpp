@@ -32,7 +32,7 @@ std::string LoadFile(const fs::path path)
 
     if (file_size > 0) {
         file.seekg(0, std::ios::beg);
-        file.read(&content[0], file_size);
+        file.read(content.data(), file_size);
         if (!file) {
             throw std::runtime_error("Failed to read file contents: " + abs_path.string());
         }
@@ -41,7 +41,7 @@ std::string LoadFile(const fs::path path)
     return content;
 }
 
-std::shared_ptr<ShaderResource> ShaderLoader::Load(ResourceId id, const std::string_view name, const ShaderLoadParams& params) const
+std::shared_ptr<ShaderResource> ShaderLoader::Load(ResourceId id, std::string_view name, const ShaderLoadParams& params) const
 {
     auto shader = std::make_shared<ShaderResource>(id, std::string(name));
 

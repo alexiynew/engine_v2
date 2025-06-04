@@ -22,19 +22,19 @@ std::strong_ordering operator<=>(HandlerPriority a, HandlerPriority b) noexcept
 
 EventSystem::~EventSystem()
 {
-    std::vector<std::string> leakedEvents;
+    std::vector<std::string> leaked_events;
     {
         std::lock_guard lock(m_mutex);
         for (const auto& [type, dispatcher] : m_dispatchers) {
             if (dispatcher->HasHandlers()) {
-                leakedEvents.push_back(dispatcher->GetEventTypeName());
+                leaked_events.push_back(dispatcher->GetEventTypeName());
             }
         }
     }
 
-    if (!leakedEvents.empty()) {
+    if (!leaked_events.empty()) {
         LOG_ERROR << "[EVENT SYSTEM LEAK] Detected leaked subscriptions for events:\n";
-        for (const auto& name : leakedEvents) {
+        for (const auto& name : leaked_events) {
             LOG_ERROR << " - " << name << "\n";
         }
     }

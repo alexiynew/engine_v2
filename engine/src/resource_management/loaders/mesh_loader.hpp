@@ -14,7 +14,7 @@ class MeshLoader final
 {
 public:
 
-    std::shared_ptr<MeshResource> Load(ResourceId id, const std::string_view name, const MeshLoadParams& params) const;
+    std::shared_ptr<MeshResource> Load(ResourceId id, std::string_view name, const MeshLoadParams& params) const;
 };
 
 } // namespace game_engine

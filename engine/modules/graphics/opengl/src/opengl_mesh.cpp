@@ -44,7 +44,7 @@ GLsizeiptr GetIndicesDataSize(const std::vector<game_engine::SubMesh>& submeshes
 }
 
 template <typename T>
-GLenum GetIndicesType(const std::vector<T>&)
+GLenum GetIndicesType(const std::vector<T>& /*unused*/)
 {
     if constexpr (std::is_same_v<T, unsigned int>) {
         return GL_UNSIGNED_INT;

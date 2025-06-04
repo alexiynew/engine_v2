@@ -35,12 +35,12 @@ EngineImpl::TimePoint EngineImpl::GetTime() const noexcept
 
 bool EngineImpl::ShouldStop() const noexcept
 {
-    return m_shouldStop;
+    return m_should_stop;
 }
 
 void EngineImpl::SetShouldStopFlag() noexcept
 {
-    m_shouldStop = true;
+    m_should_stop = true;
 }
 
 [[nodiscard]]
@@ -79,10 +79,10 @@ std::shared_ptr<EventSystem> EngineImpl::GetEventSystem() const
 
 #pragma region EngineImpl public
 
-int EngineImpl::run() noexcept
+int EngineImpl::Run() noexcept
 {
-    m_engineStartTime = GetTime();
-    std::cout << "EngineImpl::EngineImpl time:" << m_engineStartTime.time_since_epoch().count() << std::endl;
+    m_engine_start_time = GetTime();
+    std::cout << "EngineImpl::EngineImpl time:" << m_engine_start_time.time_since_epoch().count() << std::endl;
 
     try {
         const GameSettings& settings = m_game->GetSettings();
@@ -184,59 +184,59 @@ void EngineImpl::OnEvent(const WindowMaximizeEvent& event)
 
 void EngineImpl::SetupFrameRate(const GameSettings& settings)
 {
-    m_targetUpdateTime = Second / settings.update_rate;
-    m_targetFrameTime  = Second / settings.frame_rate;
+    m_target_update_time = Second / settings.update_rate;
+    m_target_frame_time  = Second / settings.frame_rate;
 }
 
 void EngineImpl::MainLoop()
 {
-    TimePoint lastTime       = GetTime();
-    TimePoint fpsCounterTime = lastTime;
+    TimePoint last_time        = GetTime();
+    TimePoint fps_counter_time = last_time;
 
-    std::chrono::nanoseconds updatesDeltaTime{0};
-    std::chrono::nanoseconds framesDeltaTime{0};
+    std::chrono::nanoseconds updates_delta_time{0};
+    std::chrono::nanoseconds frames_delta_time{0};
 
     while (!ShouldStop()) {
         m_backend->PollEvents();
 
-        const TimePoint nowTime = GetTime();
-        auto frameDuration      = (nowTime - lastTime);
+        const TimePoint now_time = GetTime();
+        auto frame_duration      = (now_time - last_time);
 
         // Run the required number of updates
-        updatesDeltaTime += frameDuration;
-        while (updatesDeltaTime >= m_targetUpdateTime) {
-            Update(m_targetUpdateTime);
+        updates_delta_time += frame_duration;
+        while (updates_delta_time >= m_target_update_time) {
+            Update(m_target_update_time);
             m_updates++;
-            updatesDeltaTime -= m_targetUpdateTime;
+            updates_delta_time -= m_target_update_time;
         }
 
         // Render one frame
-        framesDeltaTime += frameDuration;
-        if (framesDeltaTime >= m_targetFrameTime) {
+        frames_delta_time += frame_duration;
+        if (frames_delta_time >= m_target_frame_time) {
             Render();
             m_frames++;
-            m_totalFrames++;
-            framesDeltaTime -= m_targetFrameTime;
+            m_total_frames++;
+            frames_delta_time -= m_target_frame_time;
         }
 
-        lastTime = nowTime;
+        last_time = now_time;
 
         // Count fps and ups for one second
-        if (nowTime - fpsCounterTime > std::chrono::seconds(1)) {
-            fpsCounterTime     = nowTime;
-            m_updatesPerSecond = m_updates;
-            m_framesPerSecond  = m_frames;
-            m_updates          = 0;
-            m_frames           = 0;
+        if (now_time - fps_counter_time > std::chrono::seconds(1)) {
+            fps_counter_time     = now_time;
+            m_updates_per_second = m_updates;
+            m_frames_per_second  = m_frames;
+            m_updates            = 0;
+            m_frames             = 0;
         }
 
         std::this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
 }
 
-void EngineImpl::Update(std::chrono::nanoseconds elapsedTime)
+void EngineImpl::Update(std::chrono::nanoseconds elapsed_time)
 {
-    m_game->OnUpdate(elapsedTime);
+    m_game->OnUpdate(elapsed_time);
 }
 
 void EngineImpl::Render()

@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
         };
 
         auto engine = std::make_shared<EngineImpl>(create_module_locator());
-        return engine->run();
+        return engine->Run();
 
     } catch (std::exception& e) {
         LOG_ERROR << e.what() << std::endl;

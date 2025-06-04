@@ -9,7 +9,7 @@ StubBackend::~StubBackend() = default;
 
 #pragma region IBackendModule implementation
 
-bool StubBackend::Init(const GameSettings&) noexcept
+bool StubBackend::Init(const GameSettings& /*settings*/) noexcept
 {
     return true;
 }

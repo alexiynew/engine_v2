@@ -35,23 +35,23 @@ public:
     ResourceManagerImpl& operator=(ResourceManagerImpl&&)      = default;
 
     // IResourceManager
-    std::shared_ptr<IMesh> LoadMesh(const std::string_view name, const MeshLoadParams& params) override;
-    std::shared_ptr<IShader> LoadShader(const std::string_view name, const ShaderLoadParams& params) override;
-    std::shared_ptr<ITexture> LoadTexture(const std::string_view name, const TextureLoadParams& params) override;
-    std::shared_ptr<IMaterial> LoadMaterial(const std::string_view name, const MaterialLoadParams& params) override;
+    std::shared_ptr<IMesh> LoadMesh(std::string_view name, const MeshLoadParams& params) override;
+    std::shared_ptr<IShader> LoadShader(std::string_view name, const ShaderLoadParams& params) override;
+    std::shared_ptr<ITexture> LoadTexture(std::string_view name, const TextureLoadParams& params) override;
+    std::shared_ptr<IMaterial> LoadMaterial(std::string_view name, const MaterialLoadParams& params) override;
 
-    std::shared_ptr<IMesh> GetMesh(const std::string_view name) const override;
-    std::shared_ptr<IShader> GetShader(const std::string_view name) const override;
-    std::shared_ptr<ITexture> GetTexture(const std::string_view name) const override;
-    std::shared_ptr<IMaterial> GetMaterial(const std::string_view name) const override;
+    std::shared_ptr<IMesh> GetMesh(std::string_view name) const override;
+    std::shared_ptr<IShader> GetShader(std::string_view name) const override;
+    std::shared_ptr<ITexture> GetTexture(std::string_view name) const override;
+    std::shared_ptr<IMaterial> GetMaterial(std::string_view name) const override;
 
-    bool IsLoaded(const std::string_view name) const override;
-    void Unload(const std::string_view name) override;
+    bool IsLoaded(std::string_view name) const override;
+    void Unload(std::string_view name) override;
     void UnloadAll() override;
 
 private:
 
-    ResourceId GetResourceId(const std::string_view name) const;
+    ResourceId GetResourceId(std::string_view name) const;
 
     std::hash<std::string_view> m_hasher;
 

@@ -27,7 +27,7 @@ inline std::shared_ptr<T> GetResource(game_engine::ResourceId id, const Resource
 
 template <typename T, typename TLoaderType, typename TLoadParams>
 inline std::shared_ptr<T> LoadResource(game_engine::ResourceId id,
-    const std::string_view name,
+    std::string_view name,
     const TLoaderType& loader,
     const TLoadParams& params,
     ResourceMap<T>& container)
@@ -63,58 +63,58 @@ ResourceManagerImpl::~ResourceManagerImpl()
 
 #pragma region IResourceManager
 
-std::shared_ptr<IMesh> ResourceManagerImpl::LoadMesh(const std::string_view name, const MeshLoadParams& params)
+std::shared_ptr<IMesh> ResourceManagerImpl::LoadMesh(std::string_view name, const MeshLoadParams& params)
 {
     const auto id = GetResourceId(name);
     return LoadResource<MeshResource>(id, name, m_mesh_loader, params, m_meshes);
 }
 
-std::shared_ptr<IShader> ResourceManagerImpl::LoadShader(const std::string_view name, const ShaderLoadParams& params)
+std::shared_ptr<IShader> ResourceManagerImpl::LoadShader(std::string_view name, const ShaderLoadParams& params)
 {
     const auto id = GetResourceId(name);
     return LoadResource<ShaderResource>(id, name, m_shader_loader, params, m_shaders);
 }
 
-std::shared_ptr<ITexture> ResourceManagerImpl::LoadTexture(const std::string_view name, const TextureLoadParams& params)
+std::shared_ptr<ITexture> ResourceManagerImpl::LoadTexture(std::string_view name, const TextureLoadParams& params)
 {
     const auto id = GetResourceId(name);
     return LoadResource<TextureResource>(id, name, m_texture_loader, params, m_textures);
 }
 
-std::shared_ptr<IMaterial> ResourceManagerImpl::LoadMaterial(const std::string_view name, const MaterialLoadParams& params)
+std::shared_ptr<IMaterial> ResourceManagerImpl::LoadMaterial(std::string_view name, const MaterialLoadParams& params)
 {
     const auto id = GetResourceId(name);
     return LoadResource<MaterialResource>(id, name, m_material_loader, params, m_materials);
 }
 
-std::shared_ptr<IMesh> ResourceManagerImpl::GetMesh(const std::string_view name) const
+std::shared_ptr<IMesh> ResourceManagerImpl::GetMesh(std::string_view name) const
 {
     return GetResource<MeshResource>(GetResourceId(name), m_meshes);
 }
 
-std::shared_ptr<IShader> ResourceManagerImpl::GetShader(const std::string_view name) const
+std::shared_ptr<IShader> ResourceManagerImpl::GetShader(std::string_view name) const
 {
     return GetResource<ShaderResource>(GetResourceId(name), m_shaders);
 }
 
-std::shared_ptr<ITexture> ResourceManagerImpl::GetTexture(const std::string_view name) const
+std::shared_ptr<ITexture> ResourceManagerImpl::GetTexture(std::string_view name) const
 {
     return GetResource<TextureResource>(GetResourceId(name), m_textures);
 }
 
-std::shared_ptr<IMaterial> ResourceManagerImpl::GetMaterial(const std::string_view name) const
+std::shared_ptr<IMaterial> ResourceManagerImpl::GetMaterial(std::string_view name) const
 {
     return GetResource<MaterialResource>(GetResourceId(name), m_materials);
 }
 
-bool ResourceManagerImpl::IsLoaded(const std::string_view name) const
+bool ResourceManagerImpl::IsLoaded(std::string_view name) const
 {
     const auto id = GetResourceId(name);
     return m_meshes.find(id) != m_meshes.end() || m_shaders.find(id) != m_shaders.end() || m_textures.find(id) != m_textures.end() ||
            m_materials.find(id) != m_materials.end();
 }
 
-void ResourceManagerImpl::Unload(const std::string_view name)
+void ResourceManagerImpl::Unload(std::string_view name)
 {
     const auto id = GetResourceId(name);
 
@@ -170,7 +170,7 @@ void ResourceManagerImpl::UnloadAll()
 
 #pragma region ResourceManagerImpl private
 
-ResourceManagerImpl::ResourceId ResourceManagerImpl::GetResourceId(const std::string_view name) const
+ResourceManagerImpl::ResourceId ResourceManagerImpl::GetResourceId(std::string_view name) const
 {
     return m_hasher(name);
 }

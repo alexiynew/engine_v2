@@ -133,7 +133,7 @@ TEST_F(EngineFixture, MainLoopExecution)
 
     std::atomic<bool> stop_flag{false};
     std::thread runner([&] {
-        m_engine->run();
+        m_engine->Run();
         stop_flag.store(true);
     });
 
