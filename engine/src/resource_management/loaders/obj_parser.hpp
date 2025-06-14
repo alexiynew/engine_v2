@@ -1,12 +1,11 @@
 #pragma once
 
+#include <array>
+#include <limits>
 #include <string>
 #include <string_view>
-#include <tuple>
 #include <unordered_map>
 #include <vector>
-
-#include <engine/graphics/mesh.hpp>
 
 namespace game_engine
 {
@@ -15,26 +14,23 @@ class ObjParser final
 {
 public:
 
-    ObjParser();
-    ~ObjParser();
-
-    std::tuple<VertexData, std::vector<SubMesh>> Parse(std::string source);
-
-private:
-
     struct Vertex
     {
         float x = 0.0f;
         float y = 0.0f;
         float z = 0.0f;
-        float w = 1.0f;
+        float w = 1.0f; // optional
+
+        friend bool operator==(const Vertex&, const Vertex&) = default;
     };
 
     struct Point
     {
         float u = 0.0f;
         float v = 0.0f;
-        float w = 1.0f;
+        float w = 1.0f; // optional
+
+        friend bool operator==(const Point&, const Point&) = default;
     };
 
     struct Normal
@@ -42,14 +38,39 @@ private:
         float i = 0.0f;
         float j = 0.0f;
         float k = 0.0f;
+
+        friend bool operator==(const Normal&, const Normal&) = default;
     };
 
     struct TextureVertex
     {
         float u = 0.0f;
-        float v = 0.0f;
-        float w = 0.0f;
+        float v = 0.0f; // optional
+        float w = 0.0f; // optional
+
+        friend bool operator==(const TextureVertex&, const TextureVertex&) = default;
     };
+
+    using IndexType = std::uint32_t;
+    using Triplet   = std::array<IndexType, 3>; // [vertex index, texture_vertex index, normal index], 0-based index or InvalidIndex
+
+    static constexpr IndexType InvalidIndex = std::numeric_limits<IndexType>::max();
+
+    using Face = std::vector<Triplet>;
+
+    ObjParser();
+    ~ObjParser();
+
+    bool Parse(std::string source);
+
+    const std::vector<Vertex>& GetVertices() const;
+    const std::vector<Point>& GetPoints() const;
+    const std::vector<Normal>& GetNormals() const;
+    const std::vector<TextureVertex>& GetTextureVertices() const;
+
+    const std::vector<Face>& GetFaces() const;
+
+private:
 
     using ParserFunction = void (ObjParser::*)(const std::vector<std::string_view>&);
     using ParsersMap     = std::unordered_map<std::string_view, ParserFunction>;
@@ -71,9 +92,8 @@ private:
     std::vector<Point> m_points;
     std::vector<Normal> m_normals;
     std::vector<TextureVertex> m_texture_vertices;
-    std::vector<SubMesh> m_submeshes;
 
-    SubMesh m_current_submesh;
+    std::vector<Face> m_faces;
 };
 
 } // namespace game_engine

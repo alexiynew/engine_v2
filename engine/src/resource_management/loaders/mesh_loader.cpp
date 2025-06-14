@@ -19,13 +19,11 @@ std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, std::string_view n
     }
 
     ObjParser parser;
-    const auto& [vertices, submeshes] = parser.Parse(fs::LoadFile(params.source));
+    if (!parser.Parse(fs::LoadFile(params.source))) {
+        throw std::runtime_error("Failed to parse the " + std::string(name) + " data");
+    }
 
     auto mesh = std::make_shared<MeshResource>(id, std::string(name));
-    mesh->SetVertexData(vertices);
-    for (const auto& s : submeshes) {
-        mesh->AddSubMesh(s);
-    }
 
     return mesh;
 }

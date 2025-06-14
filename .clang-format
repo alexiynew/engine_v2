@@ -62,6 +62,7 @@ BraceWrapping:
     
 BracedInitializerIndentWidth: 4 
 
+BreakArrays: false
 BreakAdjacentStringLiterals: false
 BreakAfterAttributes: Always
 BreakBeforeBinaryOperators: None

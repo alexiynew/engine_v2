@@ -1,15 +1,14 @@
 #include "obj_parser.hpp"
 
+#include <array>
 #include <regex>
 #include <sstream>
 #include <string_view>
 
-#include <engine/graphics/vertex_traits.hpp>
-
 namespace
 {
 
-inline std::vector<std::string_view> SplitToTokens(const std::string& line)
+std::vector<std::string_view> SplitToTokens(const std::string& line)
 {
     std::vector<std::string_view> tokens;
     std::size_t begin = 0;
@@ -41,6 +40,57 @@ inline bool ParseValue(std::string_view s, T& value)
     return (result.ec == std::errc() && result.ptr == s.data() + s.size());
 }
 
+template <typename T>
+requires(std::same_as<T, int> || std::same_as<T, float>)
+bool ParseTriplet(std::string_view str, std::array<T, 3>& triplet)
+{
+    std::size_t slash1 = str.find('/');
+    std::size_t slash2 = str.find('/', slash1 + 1);
+
+    std::array<T, 3> tmp = {0, 0, 0};
+
+    // No slashes - 1 value
+    if (slash1 == str.npos) {
+        if (!ParseValue<T>(str, tmp[0])) {
+            return false;
+        }
+    }
+
+    // One slash - 2 values
+    if (slash1 != str.npos && slash2 == str.npos) {
+        auto part1 = str.substr(0, slash1);
+        auto part2 = str.substr(slash1 + 1);
+
+        if (!ParseValue<T>(part1, tmp[0]) || !ParseValue<T>(part2, tmp[1])) {
+            return false;
+        }
+    }
+
+    // Two slashes - 2 or 3 values
+    if (slash1 != str.npos && slash2 != str.npos) {
+        auto part1 = str.substr(0, slash1);
+        auto part2 = str.substr(slash1 + 1, slash2 - slash1 - 1);
+        auto part3 = str.substr(slash2 + 1);
+
+        if (part2.size() == 0) {
+            // Two values
+            if (!ParseValue<T>(part1, tmp[0]) || !ParseValue<T>(part3, tmp[2])) {
+                return false;
+            }
+
+        } else {
+            // Three values
+            if (!ParseValue<T>(part1, tmp[0]) || !ParseValue<T>(part2, tmp[1]) || !ParseValue<T>(part3, tmp[2])) {
+                return false;
+            }
+        }
+    }
+
+    triplet = tmp;
+
+    return true;
+}
+
 } // namespace
 
 namespace game_engine
@@ -53,7 +103,7 @@ ObjParser::~ObjParser() = default;
 // https://www.fileformat.info/format/material/
 // https://www.martinreddy.net/gfx/3d/OBJ.spec
 // https://paulbourke.net/dataformats/obj/
-std::tuple<VertexData, std::vector<SubMesh>> ObjParser::Parse(std::string source)
+bool ObjParser::Parse(std::string source)
 {
     // Canonical line endings
     source = std::regex_replace(source, std::regex(R"~((\r\n))~"), "\n");
@@ -81,22 +131,33 @@ std::tuple<VertexData, std::vector<SubMesh>> ObjParser::Parse(std::string source
         }
     }
 
-    if (!m_current_submesh.indices.empty()) {
-        m_submeshes.push_back(std::move(m_current_submesh));
-    }
+    return true;
+}
 
-    std::tuple<VertexData, std::vector<SubMesh>> result = std::make_tuple(vertex_traits::ConvertToVertexData(m_vertices,
-                                                                              {
-                                                                                  {0, 4, 0, VertexAttributeType::Float, false, "position"}
-    }),
-        std::move(m_submeshes)
+const std::vector<ObjParser::Vertex>& ObjParser::GetVertices() const
+{
+    return m_vertices;
+}
 
-    );
+const std::vector<ObjParser::Point>& ObjParser::GetPoints() const
+{
+    return m_points;
+}
 
-    Cleanup();
+const std::vector<ObjParser::Normal>& ObjParser::GetNormals() const
+{
+    return m_normals;
+}
 
-    return result;
-} // namespace game_engine
+const std::vector<ObjParser::TextureVertex>& ObjParser::GetTextureVertices() const
+{
+    return m_texture_vertices;
+}
+
+const std::vector<ObjParser::Face>& ObjParser::GetFaces() const
+{
+    return m_faces;
+}
 
 const ObjParser::ParsersMap& ObjParser::GetParsers()
 {
@@ -163,9 +224,8 @@ void ObjParser::Cleanup()
     m_points.clear();
     m_normals.clear();
     m_texture_vertices.clear();
-    m_submeshes.clear();
 
-    m_current_submesh = {};
+    m_faces.clear();
 }
 
 void ObjParser::ParseVertex(const std::vector<std::string_view>& tokens)
@@ -253,35 +313,56 @@ void ObjParser::ParseFace(const std::vector<std::string_view>& tokens)
     // Specifies a face element and its vertex reference number.
 
     if (tokens.size() < 4) {
-        throw std::runtime_error("TextureVertex data invalid format");
+        throw std::runtime_error("Face requires at last 3 vertices, got " + std::to_string(tokens.size() - 1));
     }
 
-    if (tokens.size() > 5) {
-        throw std::runtime_error("Using n-gons in your 3d model? You deserve a slap in the face with a tuna for that!");
-    }
-
-    std::vector<int> indices;
+    Face face;
+    face.reserve(tokens.size() - 1);
 
     for (std::size_t i = 1; i < tokens.size(); ++i) {
-        std::string_view token = tokens[i];
-
-        int v;
-        if (!ParseValue<int>(token, v)) {
-            throw std::runtime_error("Vertex index value parsing error");
+        std::array<int, 3> triplet;
+        if (!ParseTriplet(tokens[i], triplet)) {
+            throw std::runtime_error("Invalid face element format: " + std::string(tokens[i]));
         }
 
-        indices.push_back(v);
+        const int vertex_count     = static_cast<int>(m_vertices.size());
+        const int tex_vertex_count = static_cast<int>(m_texture_vertices.size());
+        const int normals_count    = static_cast<int>(m_normals.size());
+
+        const auto& [v_index, tv_index, n_index] = triplet;
+
+        // Vertex index is required
+        if (v_index == 0 || std::abs(v_index) > vertex_count) {
+            throw std::out_of_range(
+                "Vertex index out of range [" + std::to_string(v_index) + "]. Valid range: 1 to " + std::to_string(vertex_count));
+        }
+
+        // Texture vertex index is optional
+        if (tv_index != 0 && std::abs(tv_index) > tex_vertex_count) {
+            throw std::out_of_range("Texture vertex index out of range [" + std::to_string(tv_index) + "]. Valid range: 1 to " +
+                                    std::to_string(tex_vertex_count));
+        }
+
+        // Normal index is optional
+        if (n_index != 0 && std::abs(n_index) > normals_count) {
+            throw std::out_of_range(
+                "Normals index out of range [" + std::to_string(n_index) + "]. Valid range: 1 to " + std::to_string(normals_count));
+        }
+
+        // Convert to 0-based index
+        const int v  = v_index > 0 ? v_index - 1 : vertex_count + v_index;
+        const int tv = tv_index > 0 ? tv_index - 1 : tex_vertex_count + tv_index;
+        const int n  = n_index > 0 ? n_index - 1 : normals_count + n_index;
+
+        // Add triplet
+        face.push_back({
+            (v_index == 0 ? InvalidIndex : static_cast<IndexType>(v)),
+            (tv_index == 0 ? InvalidIndex : static_cast<IndexType>(tv)),
+            (n_index == 0 ? InvalidIndex : static_cast<IndexType>(n)),
+        });
     }
 
-    m_current_submesh.indices.push_back(indices[0] - 1);
-    m_current_submesh.indices.push_back(indices[1] - 1);
-    m_current_submesh.indices.push_back(indices[2] - 1);
-
-    if (indices.size() == 4) {
-        m_current_submesh.indices.push_back(indices[2] - 1);
-        m_current_submesh.indices.push_back(indices[3] - 1);
-        m_current_submesh.indices.push_back(indices[0] - 1);
-    }
+    m_faces.push_back(face);
 }
 
 void ObjParser::NotImplementedStub(const std::vector<std::string_view>& tokens)

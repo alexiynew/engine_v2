@@ -37,7 +37,7 @@ struct VertexAttribute
     std::size_t offset       = 0;                          ///< Offset in bytes from the start of the vertex.
     VertexAttributeType type = VertexAttributeType::Float; ///< Data type of attribute.
     bool normalized          = false;                      ///< Whether the attribute should be normalized.
-    const char* name         = nullptr;                    ///< Name of the attribute (e.g., "position", "normal").
+    std::string_view name;                                 ///< Name of the attribute (e.g., "position", "normal").
 };
 
 /// @brief Represents a submesh with indices and material.

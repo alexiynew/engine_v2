@@ -9,8 +9,8 @@ target_sources(engine_test
 target_include_directories(engine_test
     PRIVATE
         $<TARGET_PROPERTY:engine,INTERFACE_INCLUDE_DIRECTORIES>
+        ${ENGINE_SOURCE_DIR}
         ../../modules/include
-        ../../src
 )
 
 target_link_libraries(engine_test
