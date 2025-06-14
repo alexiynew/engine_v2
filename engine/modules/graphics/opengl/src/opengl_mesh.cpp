@@ -124,7 +124,7 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
 
     // Load indices
     {
-        // TODO: Implement instancing
+        // TODO: Implement instancing. Load instancing data here
         const GLsizeiptr index_data_size = GetIndicesDataSize(mesh->GetSubMeshes());
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
@@ -139,8 +139,11 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
                 const GLenum index_type = GetIndicesType(submesh.indices);
 
                 glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, current_offset, size, submesh.indices.data());
-                m_submeshes.push_back(
-                    {.count = static_cast<GLsizei>(submesh.indices.size()), .offset = current_offset, .type = index_type});
+
+                m_submeshes.push_back({.indices_count = static_cast<GLsizei>(submesh.indices.size()),
+                    .indices_offset                   = current_offset,
+                    .indices_type                     = index_type,
+                    .primitive_type                   = ToGLPrimitiveType(submesh.primitive_type)});
                 current_offset += size;
             }
         }
@@ -177,8 +180,6 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
         }
     }
 
-    m_primitive_type = ToGLPrimitiveType(mesh->GetPrimitiveType());
-
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
@@ -192,7 +193,7 @@ bool OpenGLMesh::Load(const std::shared_ptr<IMesh>& mesh)
 
 bool OpenGLMesh::IsValid() const noexcept
 {
-    return m_vao != 0 && m_vbo != 0 && m_ebo != 0 && m_vertex_count > 0 && m_primitive_type != 0;
+    return m_vao != 0 && m_vbo != 0 && m_ebo != 0 && m_vertex_count > 0 && !m_submeshes.empty();
 }
 
 void OpenGLMesh::Clear() noexcept
@@ -211,8 +212,7 @@ void OpenGLMesh::Clear() noexcept
 
     m_submeshes.clear();
 
-    m_vertex_count   = 0;
-    m_primitive_type = 0;
+    m_vertex_count = 0;
 
     m_vao = 0;
     m_vbo = 0;
@@ -225,10 +225,11 @@ void OpenGLMesh::Render() const
 
     if (!m_submeshes.empty()) {
         for (const auto& submesh : m_submeshes) {
-            glDrawElements(m_primitive_type, submesh.count, submesh.type, reinterpret_cast<void*>(submesh.offset));
+            glDrawElements(submesh.primitive_type,
+                submesh.indices_count,
+                submesh.indices_type,
+                reinterpret_cast<void*>(submesh.indices_offset));
         }
-    } else {
-        glDrawArrays(m_primitive_type, 0, m_vertex_count);
     }
 }
 
@@ -236,10 +237,12 @@ void OpenGLMesh::RenderInstanced(GLsizei instance_count) const
 {
     if (!m_submeshes.empty()) {
         for (const auto& submesh : m_submeshes) {
-            glDrawElementsInstanced(m_primitive_type, submesh.count, submesh.type, reinterpret_cast<void*>(submesh.offset), instance_count);
+            glDrawElementsInstanced(submesh.primitive_type,
+                submesh.indices_count,
+                submesh.indices_type,
+                reinterpret_cast<void*>(submesh.indices_offset),
+                instance_count);
         }
-    } else {
-        glDrawArraysInstanced(m_primitive_type, 0, m_vertex_count, instance_count);
     }
 }
 
@@ -249,7 +252,6 @@ void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept
 
     swap(a.m_submeshes, b.m_submeshes);
     swap(a.m_vertex_count, b.m_vertex_count);
-    swap(a.m_primitive_type, b.m_primitive_type);
     swap(a.m_vao, b.m_vao);
     swap(a.m_vbo, b.m_vbo);
     swap(a.m_ebo, b.m_ebo);

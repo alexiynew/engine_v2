@@ -22,6 +22,11 @@ public:
     virtual std::shared_ptr<ITexture> LoadTexture(std::string_view name, const TextureLoadParams& params)    = 0;
     virtual std::shared_ptr<IMaterial> LoadMaterial(std::string_view name, const MaterialLoadParams& params) = 0;
 
+    virtual std::shared_ptr<IMesh> CreateEmptyMesh(std::string_view name)         = 0;
+    virtual std::shared_ptr<IShader> CreateEmptyShader(std::string_view name)     = 0;
+    virtual std::shared_ptr<ITexture> CreateEmptyTexture(std::string_view name)   = 0;
+    virtual std::shared_ptr<IMaterial> CreateEmptyMaterial(std::string_view name) = 0;
+
     virtual std::shared_ptr<IMesh> GetMesh(std::string_view name) const         = 0;
     virtual std::shared_ptr<IShader> GetShader(std::string_view name) const     = 0;
     virtual std::shared_ptr<ITexture> GetTexture(std::string_view name) const   = 0;

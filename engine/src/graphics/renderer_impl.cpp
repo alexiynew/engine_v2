@@ -38,6 +38,8 @@ bool RendererImpl::Load(const std::shared_ptr<IMesh>& mesh)
         auto result = SubmitWithResult<bool>([this, &mesh] { return m_renderer_module->Load(mesh); });
         result.get();
 
+        // TODO: Set new resource state
+
     } catch (std::exception& e) {
         LOG_ERROR << "Exception: " << e.what() << std::endl;
         return false;
@@ -56,6 +58,8 @@ bool RendererImpl::Load(const std::shared_ptr<IShader>& shader)
     try {
         auto result = SubmitWithResult<bool>([this, &shader] { return m_renderer_module->Load(shader); });
         result.get();
+
+        // TODO: Set new resource state
 
     } catch (std::exception& e) {
         LOG_ERROR << "Exception: " << e.what() << std::endl;
@@ -76,6 +80,8 @@ bool RendererImpl::Load(const std::shared_ptr<ITexture>& texture)
         auto result = SubmitWithResult<bool>([this, &texture] { return m_renderer_module->Load(texture); });
         result.get();
 
+        // TODO: Set new resource state
+
     } catch (std::exception& e) {
         LOG_ERROR << "Exception: " << e.what() << std::endl;
         return false;
@@ -91,6 +97,7 @@ void RendererImpl::Render(const std::shared_ptr<IMesh>& mesh, const std::shared_
         .shader         = shader->GetId(),
         .properties     = std::move(properties),
         .instance_count = 1,
+        .wireframe      = mesh->IsWireframeMode(),
     };
 
     std::lock_guard<std::mutex> lock(m_commands_mutex);

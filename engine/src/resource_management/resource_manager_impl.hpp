@@ -34,11 +34,16 @@ public:
     ResourceManagerImpl& operator=(const ResourceManagerImpl&) = delete;
     ResourceManagerImpl& operator=(ResourceManagerImpl&&)      = default;
 
-    // IResourceManager
+    // IResourceManager implementation
     std::shared_ptr<IMesh> LoadMesh(std::string_view name, const MeshLoadParams& params) override;
     std::shared_ptr<IShader> LoadShader(std::string_view name, const ShaderLoadParams& params) override;
     std::shared_ptr<ITexture> LoadTexture(std::string_view name, const TextureLoadParams& params) override;
     std::shared_ptr<IMaterial> LoadMaterial(std::string_view name, const MaterialLoadParams& params) override;
+
+    std::shared_ptr<IMesh> CreateEmptyMesh(std::string_view name) override;
+    std::shared_ptr<IShader> CreateEmptyShader(std::string_view name) override;
+    std::shared_ptr<ITexture> CreateEmptyTexture(std::string_view name) override;
+    std::shared_ptr<IMaterial> CreateEmptyMaterial(std::string_view name) override;
 
     std::shared_ptr<IMesh> GetMesh(std::string_view name) const override;
     std::shared_ptr<IShader> GetShader(std::string_view name) const override;

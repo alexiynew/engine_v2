@@ -33,17 +33,17 @@ private:
 
     struct SubMesh
     {
-        GLsizei count;
-        GLintptr offset;
-        GLenum type;
+        GLsizei indices_count;
+        GLintptr indices_offset;
+        GLenum indices_type;
+        GLenum primitive_type;
     };
 
     friend void swap(OpenGLMesh& a, OpenGLMesh& b) noexcept;
 
     std::vector<SubMesh> m_submeshes;
 
-    GLint m_vertex_count    = 0;
-    GLenum m_primitive_type = 0;
+    GLint m_vertex_count = 0;
 
     GLuint m_vao = 0;
     GLuint m_vbo = 0;

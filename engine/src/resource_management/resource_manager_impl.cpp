@@ -9,6 +9,9 @@
 #include <resource_management/resources/shader_resource.hpp>
 #include <resource_management/resources/texture_resource.hpp>
 
+#define LOG_ERROR std::cerr
+#include <iostream>
+
 namespace
 {
 
@@ -36,11 +39,35 @@ inline std::shared_ptr<T> LoadResource(game_engine::ResourceId id,
         return nullptr; // Resource already loaded
     }
 
-    if (auto r = loader->Load(id, name, params); r != nullptr) {
+    try {
+        if (auto r = loader->Load(id, name, params); r != nullptr) {
+            r->SetState(game_engine::ResourceState::LoadedInRAM);
+            container.emplace(id, r);
+            return r;
+        }
+    } catch (std::exception& e) {
+        LOG_ERROR << "Load exception: " << e.what() << std::endl;
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+inline std::shared_ptr<T> CreateEmpty(game_engine::ResourceId id, std::string_view name, ResourceMap<T>& container)
+{
+    if (container.find(id) != container.end()) {
+        return nullptr; // Resource already exists
+    }
+
+    try {
+        auto r = std::make_shared<T>(id, std::string(name));
         r->SetState(game_engine::ResourceState::LoadedInRAM);
         container.emplace(id, r);
         return r;
+    } catch (std::exception& e) {
+        LOG_ERROR << "Exception: " << e.what() << std::endl;
     }
+
     return nullptr;
 }
 
@@ -61,7 +88,7 @@ ResourceManagerImpl::~ResourceManagerImpl()
     UnloadAll();
 }
 
-#pragma region IResourceManager
+#pragma region IResourceManager implementation
 
 std::shared_ptr<IMesh> ResourceManagerImpl::LoadMesh(std::string_view name, const MeshLoadParams& params)
 {
@@ -85,6 +112,30 @@ std::shared_ptr<IMaterial> ResourceManagerImpl::LoadMaterial(std::string_view na
 {
     const auto id = GetResourceId(name);
     return LoadResource<MaterialResource>(id, name, m_material_loader, params, m_materials);
+}
+
+std::shared_ptr<IMesh> ResourceManagerImpl::CreateEmptyMesh(std::string_view name)
+{
+    const auto id = GetResourceId(name);
+    return CreateEmpty<MeshResource>(id, name, m_meshes);
+}
+
+std::shared_ptr<IShader> ResourceManagerImpl::CreateEmptyShader(std::string_view name)
+{
+    const auto id = GetResourceId(name);
+    return CreateEmpty<ShaderResource>(id, name, m_shaders);
+}
+
+std::shared_ptr<ITexture> ResourceManagerImpl::CreateEmptyTexture(std::string_view name)
+{
+    const auto id = GetResourceId(name);
+    return CreateEmpty<TextureResource>(id, name, m_textures);
+}
+
+std::shared_ptr<IMaterial> ResourceManagerImpl::CreateEmptyMaterial(std::string_view name)
+{
+    const auto id = GetResourceId(name);
+    return CreateEmpty<MaterialResource>(id, name, m_materials);
 }
 
 std::shared_ptr<IMesh> ResourceManagerImpl::GetMesh(std::string_view name) const

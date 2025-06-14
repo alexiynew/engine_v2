@@ -147,6 +147,9 @@ void OpenGLRenderer::Execute(const RenderCommand& command)
         // TODO: move uniform setup here
     }
 
+    const GLenum polygon_mode = command.wireframe ? GL_LINE : GL_FILL;
+    glPolygonMode(GL_FRONT_AND_BACK, polygon_mode);
+
     if (command.instance_count > 1) {
         mesh.RenderInstanced(command.instance_count);
     } else {

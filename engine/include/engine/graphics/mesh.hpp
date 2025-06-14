@@ -1,5 +1,8 @@
 #pragma once
 
+#include <filesystem>
+#include <vector>
+
 #include <engine/graphics/material.hpp>
 #include <engine/resource_management/resource.hpp>
 
@@ -40,15 +43,15 @@ struct VertexAttribute
 /// @brief Represents a submesh with indices and material.
 struct SubMesh
 {
-    std::vector<unsigned int> indices;   ///< Indices for this submesh.
-    std::shared_ptr<IMaterial> material; ///< Material applied to this submesh.
+    std::vector<unsigned int> indices;
+    std::shared_ptr<IMaterial> material;
+    PrimitiveType primitive_type = PrimitiveType::Triangles;
 };
 
 struct MeshLoadParams
 {
-    std::string source;
+    std::filesystem::path source;
     std::vector<std::string> additional_files;
-    PrimitiveType primitive_type = PrimitiveType::Triangles;
 };
 
 struct VertexData
@@ -65,13 +68,13 @@ public:
 
     ~IMesh() override = default;
 
-    virtual void SetVertexData(VertexData data)       = 0;
-    virtual void AddSubMesh(SubMesh submesh)          = 0;
-    virtual void SetPrimitiveType(PrimitiveType type) = 0;
+    virtual void SetVertexData(VertexData data) = 0;
+    virtual void AddSubMesh(SubMesh submesh)    = 0;
+    virtual void SetWireframeMode(bool enabled) = 0;
 
     virtual const VertexData& GetVertexData() const          = 0;
     virtual const std::vector<SubMesh>& GetSubMeshes() const = 0;
-    virtual PrimitiveType GetPrimitiveType() const           = 0;
+    virtual bool IsWireframeMode() const                     = 0;
 };
 
 } // namespace game_engine

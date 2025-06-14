@@ -21,6 +21,7 @@ struct RenderCommand
     ResourceId shader;
     std::vector<Property> properties;
     std::uint32_t instance_count = 1;
+    bool wireframe               = false;
 };
 
 } // namespace game_engine::graphics

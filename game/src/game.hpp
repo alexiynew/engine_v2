@@ -31,6 +31,8 @@ private:
     std::shared_ptr<game_engine::IShader> m_shader;
     std::shared_ptr<game_engine::IMesh> m_mesh;
 
+    std::shared_ptr<game_engine::IMesh> m_axis;
+
     std::size_t m_updates_count = 0;
     std::size_t m_frames_count  = 0;
 };

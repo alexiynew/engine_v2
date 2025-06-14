@@ -26,11 +26,11 @@ public:
     // IMesh implementation
     void SetVertexData(VertexData data) override;
     void AddSubMesh(SubMesh submesh) override;
-    void SetPrimitiveType(PrimitiveType type) override;
+    void SetWireframeMode(bool enabled) override;
 
     const VertexData& GetVertexData() const override;
     const std::vector<SubMesh>& GetSubMeshes() const override;
-    PrimitiveType GetPrimitiveType() const override;
+    bool IsWireframeMode() const override;
 
     // MeshResource methods
     void SetState(ResourceState state) noexcept;
@@ -43,7 +43,8 @@ private:
 
     VertexData m_vertex_data;
     std::vector<SubMesh> m_submeshes;
-    PrimitiveType m_primitive_type = PrimitiveType::Triangles;
+
+    bool m_wireframe = false;
 };
 
 } // namespace game_engine

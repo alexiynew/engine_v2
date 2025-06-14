@@ -66,9 +66,9 @@ void MeshResource::AddSubMesh(SubMesh submesh)
     m_submeshes.push_back(std::move(submesh));
 }
 
-void MeshResource::SetPrimitiveType(PrimitiveType type)
+void MeshResource::SetWireframeMode(bool enabled)
 {
-    m_primitive_type = type;
+    m_wireframe = enabled;
 }
 
 const VertexData& MeshResource::GetVertexData() const
@@ -81,9 +81,9 @@ const std::vector<SubMesh>& MeshResource::GetSubMeshes() const
     return m_submeshes;
 }
 
-PrimitiveType MeshResource::GetPrimitiveType() const
+bool MeshResource::IsWireframeMode() const
 {
-    return m_primitive_type;
+    return m_wireframe;
 }
 
 #pragma endregion
