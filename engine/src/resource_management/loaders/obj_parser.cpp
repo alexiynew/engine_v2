@@ -356,9 +356,10 @@ void ObjParser::ParseFace(const std::vector<std::string_view>& tokens)
 
         // Add triplet
         face.push_back({
-            (v_index == 0 ? InvalidIndex : static_cast<IndexType>(v)),
-            (tv_index == 0 ? InvalidIndex : static_cast<IndexType>(tv)),
-            (n_index == 0 ? InvalidIndex : static_cast<IndexType>(n)),
+            .vertex         = (v_index == 0 ? InvalidIndex : static_cast<IndexType>(v)),
+            .texture_vertex = (tv_index == 0 ? InvalidIndex : static_cast<IndexType>(tv)),
+            .normal         = (n_index == 0 ? InvalidIndex : static_cast<IndexType>(n)),
+            .hash           = std::hash<std::string_view>{}(tokens[i]),
         });
     }
 

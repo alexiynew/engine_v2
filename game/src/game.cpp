@@ -55,7 +55,7 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 
     m_mesh = rm->LoadMesh("cube"sv,
         {
-            .source = "data/3d/full_attributes.obj",
+            .source = "data/3d/normals.obj",
         });
 
     if (!renderer->Load(m_mesh)) {

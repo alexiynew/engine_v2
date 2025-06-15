@@ -52,9 +52,20 @@ public:
     };
 
     using IndexType = std::uint32_t;
-    using Triplet   = std::array<IndexType, 3>; // [vertex index, texture_vertex index, normal index], 0-based index or InvalidIndex
 
     static constexpr IndexType InvalidIndex = std::numeric_limits<IndexType>::max();
+
+    // 0-based index or InvalidIndex
+    struct Triplet
+    {
+        IndexType vertex         = InvalidIndex;
+        IndexType texture_vertex = InvalidIndex;
+        IndexType normal         = InvalidIndex;
+
+        std::size_t hash = 0;
+
+        friend bool operator==(const Triplet&, const Triplet&) = default;
+    };
 
     using Face = std::vector<Triplet>;
 
