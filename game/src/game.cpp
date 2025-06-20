@@ -55,7 +55,9 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 
     m_mesh = rm->LoadMesh("cube"sv,
         {
-            .source = "data/3d/normals.obj",
+            //.source = "data/3d/normals.obj",
+            .source = "data/3d/spider_banshee.obj",
+            //.source = "data/3d/4listogoblin.obj",
         });
 
     if (!renderer->Load(m_mesh)) {

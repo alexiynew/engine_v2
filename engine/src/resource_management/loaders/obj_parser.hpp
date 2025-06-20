@@ -62,8 +62,6 @@ public:
         IndexType texture_vertex = InvalidIndex;
         IndexType normal         = InvalidIndex;
 
-        std::size_t hash = 0;
-
         friend bool operator==(const Triplet&, const Triplet&) = default;
     };
 
@@ -72,7 +70,7 @@ public:
     ObjParser();
     ~ObjParser();
 
-    bool Parse(std::string source);
+    bool Parse(const std::string& source);
 
     const std::vector<Vertex>& GetVertices() const;
     const std::vector<Point>& GetPoints() const;
@@ -80,6 +78,8 @@ public:
     const std::vector<TextureVertex>& GetTextureVertices() const;
 
     const std::vector<Face>& GetFaces() const;
+
+    const std::vector<std::string>& GetMaterialLibrary() const;
 
 private:
 
@@ -96,6 +96,7 @@ private:
     void ParseTextureVertex(const std::vector<std::string_view>& tokens);
 
     void ParseFace(const std::vector<std::string_view>& tokens);
+    void ParseMaterialLibrary(const std::vector<std::string_view>& tokens);
 
     void NotImplementedStub(const std::vector<std::string_view>& tokens);
 
@@ -105,6 +106,8 @@ private:
     std::vector<TextureVertex> m_texture_vertices;
 
     std::vector<Face> m_faces;
+
+    std::vector<std::string> m_material_library;
 };
 
 } // namespace game_engine

@@ -5,37 +5,35 @@
 #include <sstream>
 #include <string_view>
 
+#include <tracy/Tracy.hpp>
+
 namespace
 {
 
-std::vector<std::string_view> SplitToTokens(const std::string& line)
+std::vector<std::string_view> SplitToTokens(const std::string& str)
 {
-    std::vector<std::string_view> tokens;
-    std::size_t begin = 0;
+    ZoneScopedN("SplitToTokens");
 
-    while (begin < line.size()) {
-        begin = line.find_first_not_of(" \t", begin);
-        if (begin == std::string_view::npos) {
-            break;
-        }
+    std::vector<std::string_view> result;
 
-        std::size_t end = line.find_first_of(" \t", begin);
-        if (end == std::string_view::npos) {
-            end = line.size();
-        }
-
-        tokens.push_back({&line[begin], end - begin});
-
-        begin = end;
+    std::size_t pos = 0;
+    std::size_t sp  = str.find(' ', pos);
+    while (sp != std::string::npos) {
+        result.emplace_back(str.data() + pos, sp - pos);
+        pos = sp + 1;
+        sp  = str.find(' ', pos);
     }
+    result.emplace_back(str.data() + pos);
 
-    return tokens;
+    return result;
 }
 
 template <typename T>
 requires(std::same_as<T, int> || std::same_as<T, float>)
 inline bool ParseValue(std::string_view s, T& value)
 {
+    ZoneScopedN("ParseValue");
+
     auto result = std::from_chars(s.data(), s.data() + s.size(), value);
     return (result.ec == std::errc() && result.ptr == s.data() + s.size());
 }
@@ -44,6 +42,8 @@ template <typename T>
 requires(std::same_as<T, int> || std::same_as<T, float>)
 bool ParseTriplet(std::string_view str, std::array<T, 3>& triplet)
 {
+    ZoneScopedN("ParseTriplet");
+
     std::size_t slash1 = str.find('/');
     std::size_t slash2 = str.find('/', slash1 + 1);
 
@@ -91,6 +91,114 @@ bool ParseTriplet(std::string_view str, std::array<T, 3>& triplet)
     return true;
 }
 
+inline void Ltrim(std::string& s)
+{
+    ZoneScopedN("LTrim");
+    s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
+}
+
+inline void Rtrim(std::string& s)
+{
+    ZoneScopedN("RTrim");
+    auto end = s.find_last_not_of(" \t\n\r\f\v");
+    if (end != std::string::npos) {
+        s.erase(end + 1);
+    } else {
+        s.clear();
+    }
+}
+
+inline void Trim(std::string& s)
+{
+    ZoneScopedN("Trim");
+    Ltrim(s);
+    Rtrim(s);
+}
+
+inline void CompressSpaces(std::string& s)
+{
+    ZoneScopedN("CompressSpaces");
+
+    if (s.empty()) {
+        return;
+    }
+
+    char* read_ptr  = s.data();
+    char* write_ptr = s.data();
+    const char* end = s.data() + s.size();
+    bool in_space   = false;
+
+    while (read_ptr < end) {
+        if (std::isspace(*read_ptr)) {
+            if (!in_space) {
+                *write_ptr++ = ' ';
+                in_space     = true;
+            }
+        } else {
+            *write_ptr++ = *read_ptr;
+            in_space     = false;
+        }
+        ++read_ptr;
+    }
+
+    s.resize(write_ptr - s.data());
+}
+
+bool GetNextLine(std::istream& iss, std::string& out_str)
+{
+    ZoneScopedN("GetNextLine");
+
+    std::string result;
+
+    bool need_continuation = false;
+    std::string line;
+    while (std::getline(iss, line)) {
+        {
+            ZoneScopedN("Loop 1");
+            // Remove comments
+            if (auto pos = line.find('#'); pos != std::string::npos) {
+                line.resize(pos);
+            }
+
+            // Fast trim
+            Trim(line);
+            if (line.empty()) {
+                continue;
+            }
+        }
+
+        // Process backslash continuation
+        const bool has_backslash = line.back() == '\\';
+        if (has_backslash) {
+            line.pop_back();
+        }
+
+        if (line.empty()) {
+            continue;
+        }
+
+        {
+            ZoneScopedN("Loop 2");
+            // Append to result
+            if (need_continuation && result.back() != ' ') {
+                result += ' ';
+            }
+            result += std::move(line);
+        }
+
+        need_continuation = has_backslash;
+        if (!need_continuation) {
+            break;
+        }
+    }
+
+    Rtrim(result);
+    CompressSpaces(result);
+
+    out_str = std::move(result);
+    return iss || !out_str.empty();
+}
+
 } // namespace
 
 namespace game_engine
@@ -103,22 +211,21 @@ ObjParser::~ObjParser() = default;
 // https://www.fileformat.info/format/material/
 // https://www.martinreddy.net/gfx/3d/OBJ.spec
 // https://paulbourke.net/dataformats/obj/
-bool ObjParser::Parse(std::string source)
+bool ObjParser::Parse(const std::string& source)
 {
-    // Canonical line endings
-    source = std::regex_replace(source, std::regex(R"~((\r\n))~"), "\n");
-    // Remove comments
-    source = std::regex_replace(source, std::regex(R"~((\s*#.*))~"), "");
-    // Concat lines with continuation
-    source = std::regex_replace(source, std::regex(R"~((\s*\\\s*\n))~"), "");
+    {
+        FrameMark;
+
+        ZoneScopedN("Parse Cleanup");
+        Cleanup();
+    }
 
     std::istringstream iss_source(source);
 
     std::string line;
-    while (std::getline(iss_source, line)) {
-        if (line.empty()) {
-            continue;
-        }
+    while (GetNextLine(iss_source, line)) {
+        ZoneScopedN("Parse Loop");
+
         const auto tokens = SplitToTokens(line);
         if (tokens.empty()) {
             continue;
@@ -129,6 +236,7 @@ bool ObjParser::Parse(std::string source)
             auto ptr = it->second;
             (this->*ptr)(tokens);
         }
+        FrameMark;
     }
 
     return true;
@@ -159,59 +267,64 @@ const std::vector<ObjParser::Face>& ObjParser::GetFaces() const
     return m_faces;
 }
 
+const std::vector<std::string>& ObjParser::GetMaterialLibrary() const
+{
+    return m_material_library;
+}
+
 const ObjParser::ParsersMap& ObjParser::GetParsers()
 {
     static const ParsersMap map = []() -> ParsersMap {
         return {
             // Vertex data
-            {         "v",        &ObjParser::ParseVertex},
-            {        "vp",         &ObjParser::ParsePoint},
-            {        "vn",        &ObjParser::ParseNormal},
-            {        "vt", &ObjParser::ParseTextureVertex},
+            {         "v",          &ObjParser::ParseVertex},
+            {        "vp",           &ObjParser::ParsePoint},
+            {        "vn",          &ObjParser::ParseNormal},
+            {        "vt",   &ObjParser::ParseTextureVertex},
 
-            {    "cstype", &ObjParser::NotImplementedStub},
-            {       "deg", &ObjParser::NotImplementedStub},
-            {      "bmat", &ObjParser::NotImplementedStub},
-            {      "step", &ObjParser::NotImplementedStub},
+            {    "cstype",   &ObjParser::NotImplementedStub},
+            {       "deg",   &ObjParser::NotImplementedStub},
+            {      "bmat",   &ObjParser::NotImplementedStub},
+            {      "step",   &ObjParser::NotImplementedStub},
 
             // Elements
-            {         "p", &ObjParser::NotImplementedStub},
-            {         "l", &ObjParser::NotImplementedStub},
-            {         "f",          &ObjParser::ParseFace},
-            {      "curv", &ObjParser::NotImplementedStub},
-            {     "curv2", &ObjParser::NotImplementedStub},
-            {      "surf", &ObjParser::NotImplementedStub},
+            {         "p",   &ObjParser::NotImplementedStub},
+            {         "l",   &ObjParser::NotImplementedStub},
+            {         "f",            &ObjParser::ParseFace},
+            {      "curv",   &ObjParser::NotImplementedStub},
+            {     "curv2",   &ObjParser::NotImplementedStub},
+            {      "surf",   &ObjParser::NotImplementedStub},
 
             // Free-form curve/surface body statements
-            {      "parm", &ObjParser::NotImplementedStub},
-            {      "trim", &ObjParser::NotImplementedStub},
-            {      "hole", &ObjParser::NotImplementedStub},
-            {      "scrv", &ObjParser::NotImplementedStub},
-            {        "sp", &ObjParser::NotImplementedStub},
-            {       "end", &ObjParser::NotImplementedStub},
+            {      "parm",   &ObjParser::NotImplementedStub},
+            {      "trim",   &ObjParser::NotImplementedStub},
+            {      "hole",   &ObjParser::NotImplementedStub},
+            {      "scrv",   &ObjParser::NotImplementedStub},
+            {        "sp",   &ObjParser::NotImplementedStub},
+            {       "end",   &ObjParser::NotImplementedStub},
 
             // Connectivity between free-form surfaces
-            {       "con", &ObjParser::NotImplementedStub},
+            {       "con",   &ObjParser::NotImplementedStub},
 
             // Grouping
-            {         "g", &ObjParser::NotImplementedStub},
-            {         "s", &ObjParser::NotImplementedStub},
-            {        "mg", &ObjParser::NotImplementedStub},
-            {         "o", &ObjParser::NotImplementedStub},
+            {         "g",   &ObjParser::NotImplementedStub},
+            {         "s",   &ObjParser::NotImplementedStub},
+            {        "mg",   &ObjParser::NotImplementedStub},
+            {         "o",   &ObjParser::NotImplementedStub},
 
             // Display/render attributes
-            {     "bevel", &ObjParser::NotImplementedStub},
-            {  "c_interp", &ObjParser::NotImplementedStub},
-            {  "d_interp", &ObjParser::NotImplementedStub},
-            {       "lod", &ObjParser::NotImplementedStub},
-            {    "maplib", &ObjParser::NotImplementedStub},
-            {    "usemap", &ObjParser::NotImplementedStub},
-            {    "usemtl", &ObjParser::NotImplementedStub},
-            {    "mtllib", &ObjParser::NotImplementedStub},
-            {"shadow_obj", &ObjParser::NotImplementedStub},
-            { "trace_obj", &ObjParser::NotImplementedStub},
-            {     "ctech", &ObjParser::NotImplementedStub},
-            {     "stech", &ObjParser::NotImplementedStub},
+            {     "bevel",   &ObjParser::NotImplementedStub},
+            {  "c_interp",   &ObjParser::NotImplementedStub},
+            {  "d_interp",   &ObjParser::NotImplementedStub},
+            {       "lod",   &ObjParser::NotImplementedStub},
+            {    "maplib",   &ObjParser::NotImplementedStub},
+            {    "usemap",   &ObjParser::NotImplementedStub},
+            {    "usemtl",   &ObjParser::NotImplementedStub},
+            {    "mtllib", &ObjParser::ParseMaterialLibrary},
+            {"shadow_obj",   &ObjParser::NotImplementedStub},
+            { "trace_obj",   &ObjParser::NotImplementedStub},
+            {     "ctech",   &ObjParser::NotImplementedStub},
+            {     "stech",   &ObjParser::NotImplementedStub},
         };
     }();
 
@@ -226,11 +339,14 @@ void ObjParser::Cleanup()
     m_texture_vertices.clear();
 
     m_faces.clear();
+
+    m_material_library.clear();
 }
 
 void ObjParser::ParseVertex(const std::vector<std::string_view>& tokens)
 {
     // Specifies a geometric vertex and its x y z coordinates.
+    ZoneScopedN("ParseVertex");
 
     if (tokens.size() < 4) {
         throw std::runtime_error("Vertex data invalid format");
@@ -272,6 +388,8 @@ void ObjParser::ParseNormal(const std::vector<std::string_view>& tokens)
 {
     // Specifies a normal vector with components i, j, and k.
 
+    ZoneScopedN("ParseNormal");
+
     if (tokens.size() < 4) {
         throw std::runtime_error("Normal data invalid format");
     }
@@ -287,6 +405,7 @@ void ObjParser::ParseNormal(const std::vector<std::string_view>& tokens)
 void ObjParser::ParseTextureVertex(const std::vector<std::string_view>& tokens)
 {
     // Specifies a texture vertex and its coordinates.
+    ZoneScopedN("ParseTextureVertex");
 
     if (tokens.size() < 2) {
         throw std::runtime_error("TextureVertex data invalid format");
@@ -311,6 +430,7 @@ void ObjParser::ParseTextureVertex(const std::vector<std::string_view>& tokens)
 void ObjParser::ParseFace(const std::vector<std::string_view>& tokens)
 {
     // Specifies a face element and its vertex reference number.
+    ZoneScopedN("ParseFace");
 
     if (tokens.size() < 4) {
         throw std::runtime_error("Face requires at last 3 vertices, got " + std::to_string(tokens.size() - 1));
@@ -359,16 +479,28 @@ void ObjParser::ParseFace(const std::vector<std::string_view>& tokens)
             .vertex         = (v_index == 0 ? InvalidIndex : static_cast<IndexType>(v)),
             .texture_vertex = (tv_index == 0 ? InvalidIndex : static_cast<IndexType>(tv)),
             .normal         = (n_index == 0 ? InvalidIndex : static_cast<IndexType>(n)),
-            .hash           = std::hash<std::string_view>{}(tokens[i]),
         });
     }
 
     m_faces.push_back(face);
 }
 
+void ObjParser::ParseMaterialLibrary(const std::vector<std::string_view>& tokens)
+{
+    // Specifies the material library file for the material definitions set with the usemtl statement.
+
+    if (tokens.size() < 2) {
+        throw std::runtime_error("Material library requires at last 1 filename");
+    }
+
+    for (std::size_t i = 1; i < tokens.size(); ++i) {
+        m_material_library.push_back(std::string(tokens[i]));
+    }
+}
+
 void ObjParser::NotImplementedStub(const std::vector<std::string_view>& tokens)
 {
-    throw std::runtime_error("Not implemented");
+    //throw std::runtime_error("Not implemented");
 }
 
 } // namespace game_engine

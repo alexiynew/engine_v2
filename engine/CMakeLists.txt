@@ -9,6 +9,8 @@ option(ENABLE_TESTING "Enable the building of the test" ON)
 # TODO: Implement address sanitazer build
 option(ENABLE_ASAN "Build with address sanitazer" OFF)
 
+option(ENABLE_TRACY "Build with tracy profiler" OFF)
+
 # TODO: Implement documentation generation
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 
@@ -90,6 +92,16 @@ target_link_libraries(engine
         engine::compile_options
         engine::modules
 )
+
+# Tracy
+if (ENABLE_TRACY)
+    include(third_party/tracy)
+
+    target_link_libraries(engine
+        PRIVATE
+            third_party::tracy
+    )
+endif ()
 
 # Tests
 if (ENABLE_TESTING)

@@ -14,6 +14,7 @@
                 "BUILD_PRESET_NAME": "${presetName}",
                 "ENABLE_TESTING": "ON",
                 "ENABLE_ASAN": "OFF",
+                "ENABLE_TRACY": "ON",
                 "BUILD_DOCUMENTATION": "OFF",
                 "USE_STUB_BACKEND": "OFF",
                 "USE_STUB_RENDERER": "OFF"

@@ -48,7 +48,7 @@ TEST(ObjParserTest, Empty)
     using game_engine::ObjParser;
 
     const std::string Empty = R"(
-        # Just empty 
+        # Just empty
         # v 0 0 0
     )";
 
@@ -60,6 +60,53 @@ TEST(ObjParserTest, Empty)
     ASSERT_EQ(parser.GetNormals().size(), 0);
     ASSERT_EQ(parser.GetTextureVertices().size(), 0);
     ASSERT_EQ(parser.GetFaces().size(), 0);
+}
+
+TEST(ObjParserTest, LineContinuation)
+{
+    using game_engine::ObjParser;
+
+    constexpr auto Inv = ObjParser::InvalidIndex;
+
+    const std::string LineContinuation = R"(
+        v 0\ 
+       0  \
+     0
+        v 1 0 \
+        # 0
+        0
+
+        v \ 
+        0\
+\
+        \
+         1 \
+         0
+        f 1 2 3
+    )";
+
+    ObjParser parser;
+    ASSERT_TRUE(parser.Parse(LineContinuation));
+
+    const std::vector<ObjParser::Vertex> vertices = {
+        {0.0f, 0.0f, 0.0f, 1.0f},
+        {1.0f, 0.0f, 0.0f, 1.0f},
+        {0.0f, 1.0f, 0.0f, 1.0f},
+    };
+
+    const std::vector<ObjParser::Face> faces = {
+        {
+         {0, Inv, Inv},
+         {1, Inv, Inv},
+         {2, Inv, Inv},
+         }
+    };
+
+    ASSERT_EQ(parser.GetVertices(), vertices);
+    ASSERT_EQ(parser.GetPoints().size(), 0);
+    ASSERT_EQ(parser.GetNormals().size(), 0);
+    ASSERT_EQ(parser.GetTextureVertices().size(), 0);
+    ASSERT_EQ(parser.GetFaces(), faces);
 }
 
 TEST(ObjParserTest, SimpleFace)

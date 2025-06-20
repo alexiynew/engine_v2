@@ -54,13 +54,16 @@ std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, std::string_view n
                 const ObjParser::Triplet* triangles[] = {&face[0], &face[i], &face[i + 1]};
 
                 for (const auto* triplet_ptr : triangles) {
-                    const auto& [v, tv, n, hash] = *triplet_ptr;
+                    const auto& [v, tv, n] = *triplet_ptr;
 
-                    if (auto it = vertex_map.find(hash); it != vertex_map.end()) {
+                    // TODO: Calc hash
+                    const std::size_t key = 0;
+
+                    if (auto it = vertex_map.find(key); it != vertex_map.end()) {
                         indices.push_back(it->second);
                     } else {
                         const std::uint32_t new_index = static_cast<std::uint32_t>(vertex_map.size());
-                        vertex_map[hash]              = new_index;
+                        vertex_map[key]               = new_index;
                         indices.push_back(new_index);
 
                         // Add position to vertex data
