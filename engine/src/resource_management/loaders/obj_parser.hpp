@@ -111,3 +111,15 @@ private:
 };
 
 } // namespace game_engine
+
+// Hash specialization
+namespace std
+{
+
+template <>
+struct hash<game_engine::ObjParser::Triplet>
+{
+    std::size_t operator()(const game_engine::ObjParser::Triplet& t) const noexcept;
+};
+
+} // namespace std

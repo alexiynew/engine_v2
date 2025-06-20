@@ -55,9 +55,8 @@ bool Game::Init(std::shared_ptr<game_engine::IEngine> engine) noexcept
 
     m_mesh = rm->LoadMesh("cube"sv,
         {
-            //.source = "data/3d/normals.obj",
-            .source = "data/3d/spider_banshee.obj",
-            //.source = "data/3d/4listogoblin.obj",
+            //.source = "data/3d/spider_banshee.obj",
+            .source = "data/3d/full_attributes.obj",
         });
 
     if (!renderer->Load(m_mesh)) {
@@ -142,32 +141,38 @@ void Game::OnDraw()
 
     float time = (static_cast<float>(m_frames_count) * 3.14f) / 180.0f;
 
-    const auto model = Matrix4(1.0f); // glm::rotate(Matrix4(1.0f), time, Vector3(0.5f, 1.0f, 0.0f));
-
     auto view = Matrix4(1.0f);
-    view      = glm::translate(view, Vector3(0.0f, 0.0f, -10.0f));
-    view      = glm::rotate(view, time / 2, Vector3(0.0f, 1.0f, 0.0f));
+    view      = glm::translate(view, Vector3(0.0f, 0.0f, -5.0f));
+    // view      = glm::rotate(view, time / 2, Vector3(0.0f, 1.0f, 0.0f));
 
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     //const auto projection = glm::ortho(-20, 20, -20, 20, 10, -10);
 
-    m_engine->GetRenderer()->Render(m_mesh,
-        m_shader,
-        {
-            Property{        "model",      model},
-            Property{         "view",       view},
-            Property{   "projection", projection},
-            Property{"color_enabled",      false},
-    });
+    {
+        auto model = Matrix4(1.0f);
+        model      = glm::rotate(model, time / 2, Vector3(0.0f, 1.0f, 0.0f));
 
-    m_engine->GetRenderer()->Render(m_axis,
-        m_shader,
-        {
-            Property{        "model", Matrix4(1.0f)},
-            Property{         "view",          view},
-            Property{   "projection",    projection},
-            Property{"color_enabled",          true},
-    });
+        m_engine->GetRenderer()->Render(m_mesh,
+            m_shader,
+            {
+                Property{        "model",      model},
+                Property{         "view",       view},
+                Property{   "projection", projection},
+                Property{"color_enabled",      false},
+        });
+    }
+
+    {
+        auto model = Matrix4(1.0f);
+        m_engine->GetRenderer()->Render(m_axis,
+            m_shader,
+            {
+                Property{        "model", Matrix4(1.0f)},
+                Property{         "view",          view},
+                Property{   "projection",    projection},
+                Property{"color_enabled",          true},
+        });
+    }
 }
 
 bool Game::OnShouldClose()

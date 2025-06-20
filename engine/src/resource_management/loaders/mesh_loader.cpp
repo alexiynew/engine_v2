@@ -54,10 +54,8 @@ std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, std::string_view n
                 const ObjParser::Triplet* triangles[] = {&face[0], &face[i], &face[i + 1]};
 
                 for (const auto* triplet_ptr : triangles) {
+                    const std::size_t key  = std::hash<ObjParser::Triplet>{}(*triplet_ptr);
                     const auto& [v, tv, n] = *triplet_ptr;
-
-                    // TODO: Calc hash
-                    const std::size_t key = 0;
 
                     if (auto it = vertex_map.find(key); it != vertex_map.end()) {
                         indices.push_back(it->second);
@@ -135,7 +133,7 @@ std::shared_ptr<MeshResource> MeshLoader::Load(ResourceId id, std::string_view n
                 .name                                            = "texCoord"});
         }
 
-        // Создание подмеша
+        // Create submesh
         SubMesh submesh;
         submesh.indices        = std::move(indices);
         submesh.primitive_type = PrimitiveType::Triangles;

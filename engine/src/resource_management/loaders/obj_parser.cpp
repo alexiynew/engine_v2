@@ -475,3 +475,32 @@ void ObjParser::NotImplementedStub(const std::vector<std::string_view>& tokens)
 }
 
 } // namespace game_engine
+
+#pragma region Hash specialization
+
+namespace std
+{
+
+std::size_t hash<game_engine::ObjParser::Triplet>::operator()(const game_engine::ObjParser::Triplet& t) const noexcept
+{
+    const std::size_t h1 = hash<game_engine::ObjParser::IndexType>{}(t.vertex);
+    const std::size_t h2 = hash<game_engine::ObjParser::IndexType>{}(t.texture_vertex);
+    const std::size_t h3 = hash<game_engine::ObjParser::IndexType>{}(t.normal);
+
+    static constexpr std::size_t prime = [] {
+        if constexpr (sizeof(std::size_t) == 8) {
+            return 11400714819323198485ULL; // 2^64 / φ
+        } else {
+            return 2654435761U; // 2^32 / φ
+        }
+    }();
+
+    std::size_t seed = h1;
+    seed             = seed * prime + h2;
+    seed             = seed * prime + h3;
+    return seed;
+}
+
+} // namespace std
+
+#pragma endregion
