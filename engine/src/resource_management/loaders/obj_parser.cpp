@@ -5,15 +5,11 @@
 #include <sstream>
 #include <string_view>
 
-#include <tracy/Tracy.hpp>
-
 namespace
 {
 
 std::vector<std::string_view> SplitToTokens(const std::string& str)
 {
-    ZoneScopedN("SplitToTokens");
-
     std::vector<std::string_view> result;
 
     std::size_t pos = 0;
@@ -32,8 +28,6 @@ template <typename T>
 requires(std::same_as<T, int> || std::same_as<T, float>)
 inline bool ParseValue(std::string_view s, T& value)
 {
-    ZoneScopedN("ParseValue");
-
     auto result = std::from_chars(s.data(), s.data() + s.size(), value);
     return (result.ec == std::errc() && result.ptr == s.data() + s.size());
 }
@@ -42,8 +36,6 @@ template <typename T>
 requires(std::same_as<T, int> || std::same_as<T, float>)
 bool ParseTriplet(std::string_view str, std::array<T, 3>& triplet)
 {
-    ZoneScopedN("ParseTriplet");
-
     std::size_t slash1 = str.find('/');
     std::size_t slash2 = str.find('/', slash1 + 1);
 
@@ -93,13 +85,11 @@ bool ParseTriplet(std::string_view str, std::array<T, 3>& triplet)
 
 inline void Ltrim(std::string& s)
 {
-    ZoneScopedN("LTrim");
     s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
 }
 
 inline void Rtrim(std::string& s)
 {
-    ZoneScopedN("RTrim");
     auto end = s.find_last_not_of(" \t\n\r\f\v");
     if (end != std::string::npos) {
         s.erase(end + 1);
@@ -110,15 +100,12 @@ inline void Rtrim(std::string& s)
 
 inline void Trim(std::string& s)
 {
-    ZoneScopedN("Trim");
     Ltrim(s);
     Rtrim(s);
 }
 
 inline void CompressSpaces(std::string& s)
 {
-    ZoneScopedN("CompressSpaces");
-
     if (s.empty()) {
         return;
     }
@@ -144,47 +131,44 @@ inline void CompressSpaces(std::string& s)
     s.resize(write_ptr - s.data());
 }
 
-bool GetNextLine(std::istream& iss, std::string& out_str)
+bool GetNextLine(std::string_view& iss, std::string& out_str)
 {
-    ZoneScopedN("GetNextLine");
-
     std::string result;
-
     bool need_continuation = false;
-    std::string line;
-    while (std::getline(iss, line)) {
-        {
-            ZoneScopedN("Loop 1");
-            // Remove comments
-            if (auto pos = line.find('#'); pos != std::string::npos) {
-                line.resize(pos);
-            }
 
-            // Fast trim
-            Trim(line);
-            if (line.empty()) {
-                continue;
-            }
+    while (!iss.empty()) {
+        const std::size_t newline_pos = iss.find('\n');
+        std::string line(iss.substr(0, newline_pos));
+
+        iss = (newline_pos != std::string_view::npos ? iss.substr(newline_pos + 1) : std::string_view{});
+
+        // Remove comments
+        if (auto pos = line.find('#'); pos != std::string::npos) {
+            line.resize(pos);
+        }
+
+        // Fast trim
+        Trim(line);
+        if (line.empty()) {
+            continue;
         }
 
         // Process backslash continuation
         const bool has_backslash = line.back() == '\\';
         if (has_backslash) {
             line.pop_back();
-        }
-
-        if (line.empty()) {
-            continue;
-        }
-
-        {
-            ZoneScopedN("Loop 2");
-            // Append to result
-            if (need_continuation && result.back() != ' ') {
-                result += ' ';
+            Rtrim(line);
+            if (line.empty()) {
+                need_continuation = true;
+                continue;
             }
-            result += std::move(line);
         }
+
+        // Append to result
+        if (need_continuation && !result.empty() && result.back() != ' ') {
+            result += ' ';
+        }
+        result += std::move(line);
 
         need_continuation = has_backslash;
         if (!need_continuation) {
@@ -196,7 +180,7 @@ bool GetNextLine(std::istream& iss, std::string& out_str)
     CompressSpaces(result);
 
     out_str = std::move(result);
-    return iss || !out_str.empty();
+    return !out_str.empty();
 }
 
 } // namespace
@@ -213,19 +197,12 @@ ObjParser::~ObjParser() = default;
 // https://paulbourke.net/dataformats/obj/
 bool ObjParser::Parse(const std::string& source)
 {
-    {
-        FrameMark;
+    Cleanup();
 
-        ZoneScopedN("Parse Cleanup");
-        Cleanup();
-    }
-
-    std::istringstream iss_source(source);
+    std::string_view iss_source(source);
 
     std::string line;
     while (GetNextLine(iss_source, line)) {
-        ZoneScopedN("Parse Loop");
-
         const auto tokens = SplitToTokens(line);
         if (tokens.empty()) {
             continue;
@@ -236,7 +213,6 @@ bool ObjParser::Parse(const std::string& source)
             auto ptr = it->second;
             (this->*ptr)(tokens);
         }
-        FrameMark;
     }
 
     return true;
@@ -346,7 +322,6 @@ void ObjParser::Cleanup()
 void ObjParser::ParseVertex(const std::vector<std::string_view>& tokens)
 {
     // Specifies a geometric vertex and its x y z coordinates.
-    ZoneScopedN("ParseVertex");
 
     if (tokens.size() < 4) {
         throw std::runtime_error("Vertex data invalid format");
@@ -388,8 +363,6 @@ void ObjParser::ParseNormal(const std::vector<std::string_view>& tokens)
 {
     // Specifies a normal vector with components i, j, and k.
 
-    ZoneScopedN("ParseNormal");
-
     if (tokens.size() < 4) {
         throw std::runtime_error("Normal data invalid format");
     }
@@ -405,7 +378,6 @@ void ObjParser::ParseNormal(const std::vector<std::string_view>& tokens)
 void ObjParser::ParseTextureVertex(const std::vector<std::string_view>& tokens)
 {
     // Specifies a texture vertex and its coordinates.
-    ZoneScopedN("ParseTextureVertex");
 
     if (tokens.size() < 2) {
         throw std::runtime_error("TextureVertex data invalid format");
@@ -430,7 +402,6 @@ void ObjParser::ParseTextureVertex(const std::vector<std::string_view>& tokens)
 void ObjParser::ParseFace(const std::vector<std::string_view>& tokens)
 {
     // Specifies a face element and its vertex reference number.
-    ZoneScopedN("ParseFace");
 
     if (tokens.size() < 4) {
         throw std::runtime_error("Face requires at last 3 vertices, got " + std::to_string(tokens.size() - 1));
